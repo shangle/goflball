@@ -3,242 +3,157 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>GOFLBALL (1984)</title>
-  <meta name="description" content="GOFLBALL — 1984 8-Bit Course & Cart-Path Social Simulation" />
+  <title>GOFLBALL</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-  <div id="nes-shell">
-    <!-- TOP 8-BIT STATUS BAR -->
-    <header id="hud-top">
-      <div class="hud-col">
-        <span class="hud-label">BRAND</span>
-        <span class="hud-val title-glow">GOFLBALL</span>
-      </div>
-      <div class="hud-col">
-        <span class="hud-label">CAPITAL</span>
-        <span class="hud-val" id="hud-cash">$2,400</span>
-      </div>
-      <div class="hud-col">
-        <span class="hud-label">NET SHARE</span>
-        <span class="hud-val" id="hud-share">2.5%</span>
-      </div>
-      <div class="hud-col">
-        <span class="hud-label">ROUND</span>
-        <span class="hud-val" id="hud-round">#1</span>
-      </div>
-      <button id="btn-mute" class="nes-mini-btn" title="Toggle 8-Bit Audio">SFX:ON</button>
-    </header>
-
-    <!-- SUB-BAR: CURRENT PARTNER & HOLE -->
-    <div id="partner-strip">
-      <div id="partner-avatar-mini" class="pixel-avatar"></div>
-      <div class="partner-meta">
-        <div class="partner-line1">
-          <span id="strip-partner-name">DEREK VANDERBERG</span>
-          <span id="strip-partner-tier" class="tier-pill">TIER 1</span>
-        </div>
-        <div class="partner-line2">
-          <span id="strip-club-name">Pine Rest Muni</span>
-          <span class="sep">|</span>
-          <span>VIBE: <strong id="strip-vibe-status" class="vibe-neutral">TESTING YOU</strong></span>
-        </div>
-      </div>
-      <div class="hole-badge-box">
-        <div class="hb-top">HOLE <span id="strip-hole-num">1</span>/9</div>
-        <div class="hb-sub">SCORE <span id="strip-score-rel">E</span></div>
-      </div>
+  <div id="crt-shell">
+    <!-- HIGH SCORE BANNER (PUSHING THE IMPOSSIBLE 100% NETWORK GOAL) -->
+    <div id="high-score-banner">
+      TOP GOFLBALL NETWORK: <span class="hs-leader">████████ 100.0%</span>
+      <span class="hs-sep">|</span>
+      YOU: <span id="banner-your-pct">0.0%</span>
     </div>
 
-    <!-- MAIN STAGE VIEWPORT -->
-    <main id="stage-viewport">
+    <!-- SIMPLE 8-BIT HEADER -->
+    <header id="nes-header">
+      <div class="nh-brand">GOFLBALL</div>
+      <div class="nh-hole">HOLE <span id="hdr-hole">1</span>/9</div>
+      <div class="nh-score">SCORE <span id="hdr-score">E</span></div>
+      <button id="btn-sfx" class="crt-mini-btn">SFX</button>
+    </header>
 
-      <!-- 1. PRE-HOLE "LOADING..." CART-PATH BANTER OVERLAY (THE REAL GAME) -->
-      <section id="screen-loading-banter" class="stage-screen active">
-        <div class="loading-banner">
-          <div class="loading-blink">NOW LOADING HOLE <span id="load-hole-num">1</span>...</div>
-          <div class="loading-progress-wrap">
-            <div id="loading-progress-bar" class="loading-progress-fill" style="width: 35%;"></div>
+    <!-- MAIN CRT VIEWPORT -->
+    <main id="crt-stage">
+
+      <!-- 1. PRE-HOLE "LOADING" GOFLBALL CART CHAT WINDOW -->
+      <section id="screen-loading-chat" class="crt-screen active">
+        <div class="loading-box">
+          <div class="loading-title">LOADING HOLE <span id="load-hole-num">1</span>...</div>
+          <div class="loading-bar-frame">
+            <div id="loading-bar-fill" class="loading-bar-fill" style="width: 40%;"></div>
           </div>
-          <div id="load-hole-subtitle" class="loading-sub">WAITING ON FOURSOME AHEAD AT THE TEE BOX</div>
+          <div id="load-course-name" class="loading-course">PINE MUNI GOFLBALL COURSE</div>
         </div>
 
-        <!-- PARTNER CART CARD -->
-        <div class="cart-partner-box">
-          <div class="cart-portrait-wrap">
-            <canvas id="partner-portrait-canvas" width="48" height="48"></canvas>
-            <div class="trust-meter-wrap">
-              <div class="trust-label">IN GOOD GRACES</div>
-              <div class="trust-track">
-                <div id="partner-trust-fill" class="trust-fill" style="width: 55%;"></div>
-              </div>
+        <!-- LARGE BLOCKY CRT CHAT WINDOW (IN THE GOFLBALL CART) -->
+        <div class="crt-chat-window">
+          <div class="npc-header-bar">
+            <canvas id="npc-avatar-canvas" width="32" height="32"></canvas>
+            <div class="npc-header-text">
+              <div id="chat-npc-name" class="npc-name">PARTNER</div>
+              <div class="npc-location">IN THE GOFLBALL CART</div>
             </div>
           </div>
-          <div class="cart-partner-info">
-            <div class="cp-name" id="banter-partner-name">Derek VanderBerg</div>
-            <div class="cp-title" id="banter-partner-title">Regional Fleet &amp; Lease Guy</div>
-            <div class="cp-EmptyLot" id="banter-conspiracy-hint">EMPTY LOT INTEL: Christian Businessmen's PAC</div>
-          </div>
-        </div>
 
-        <!-- CHAT LOG (BURGER KING ON THE GOFL COURSE) -->
-        <div id="chat-transcript" class="chat-transcript"></div>
+          <div id="crt-chat-log" class="crt-chat-log"></div>
 
-        <!-- QUICK MANTRA QUIPS + FREE-TEXT INPUT -->
-        <div class="chat-controls">
-          <div id="quick-quips-tray" class="quick-quips-tray"></div>
-          <form id="chat-form" class="chat-input-row" autocomplete="off">
+          <!-- SHORT BLOCKY QUICK REPLIES -->
+          <div id="crt-quick-replies" class="crt-quick-replies"></div>
+
+          <!-- FREE-TEXT CRT INPUT -->
+          <form id="crt-chat-form" class="crt-chat-form" autocomplete="off">
             <input
               type="text"
-              id="chat-input"
-              placeholder="Say something on the cart path (or tap a quip above)..."
-              maxlength="220"
+              id="crt-chat-input"
+              placeholder="TALK IN GOFLBALL CART..."
+              maxlength="120"
             />
-            <button type="submit" class="nes-btn nes-btn-blue">SAY</button>
+            <button type="submit" class="crt-btn crt-btn-blue">SAY</button>
           </form>
-          <div class="tee-action-row">
-            <button id="btn-tee-off" class="nes-btn nes-btn-green pulse-ready">
-              HOLE LOADED — STEP UP TO TEE &raquo;
-            </button>
-            <button id="btn-instant-sim-hole" class="nes-btn nes-btn-gold hidden">
-              CART AUTOPILOT (SKIP SWING &amp; KEEP CHATTING) &raquo;
-            </button>
-          </div>
         </div>
-      </section>
 
-      <!-- 2. NES GOLF (1984) COURSE SCREEN -->
-      <section id="screen-golf-course" class="stage-screen">
-        <div class="canvas-holder">
-          <canvas id="nes-golf-canvas" width="380" height="410"></canvas>
-        </div>
-        <div class="course-controls-bar">
-          <button id="btn-swing" class="nes-btn nes-btn-green btn-large-action">
-            SWING / LOCK POWER
+        <div class="loading-bottom-actions">
+          <button id="btn-play-hole" class="crt-btn crt-btn-green btn-full">
+            PLAY HOLE &raquo;
           </button>
-          <button id="btn-auto-caddie" class="nes-btn nes-btn-gold hidden">
-            CADDIE AUTO-SHOT
+          <button id="btn-autopilot-hole" class="crt-btn crt-btn-gold btn-full hidden">
+            STAY IN GOFLBALL CART (AUTO-PLAY HOLE) &raquo;
           </button>
         </div>
       </section>
 
-      <!-- 3. END OF 9 HOLES: SOCIAL RATING & INVITATION VERDICT -->
-      <section id="screen-round-verdict" class="stage-screen">
-        <div class="verdict-card">
-          <div class="verdict-header" id="verdict-header">9-HOLE ROUND COMPLETE</div>
-          <div class="verdict-score-ignore">
-            STROKE SCORE: <span id="verdict-strokes">36</span> (IGNORED — ONLY VIBES MATTER)
-          </div>
-
-          <div id="verdict-badge" class="verdict-stamp stamp-pass">INVITED BACK</div>
-          <p id="verdict-narrative" class="verdict-narrative"></p>
-
-          <div class="verdict-metrics">
-            <div class="vm-row">
-              <span>NEW RETAINER / BUSINESS:</span>
-              <strong id="verdict-cash-delta">+$14,500/round</strong>
-            </div>
-            <div class="vm-row">
-              <span>HAIRBALL NETWORK SHARE:</span>
-              <strong id="verdict-share-pct">7.5%</strong>
-            </div>
-            <div class="vm-row">
-              <span>ALIENATED BY GOSSIP:</span>
-              <strong id="verdict-alienated">0 players</strong>
-            </div>
-          </div>
-
-          <!-- CONSPIRACY TWIST BOX (HEADS -> TAILS -> HEADS) -->
-          <div id="verdict-conspiracy-box" class="conspiracy-twist-box hidden">
-            <div class="ct-title">THE EMPTY LOT FLIPS SIDES!</div>
-            <div id="verdict-conspiracy-text" class="ct-body"></div>
-          </div>
-
-          <div class="verdict-actions">
-            <button id="btn-choose-next-foursome" class="nes-btn nes-btn-green btn-large-action">
-              CHOOSE NEXT TEE SHEET PARTNER &raquo;
-            </button>
-          </div>
+      <!-- 2. BLOCKY 8-BIT GOFLBALL COURSE -->
+      <section id="screen-course" class="crt-screen">
+        <div class="course-canvas-wrap">
+          <canvas id="nes-golf-canvas" width="256" height="240"></canvas>
+        </div>
+        <div class="course-btn-row">
+          <button id="btn-swing" class="crt-btn crt-btn-green btn-full">
+            SWING GOFLBALL CLUB
+          </button>
+          <button id="btn-caddie-shot" class="crt-btn crt-btn-gold hidden">
+            AUTO-SWING
+          </button>
         </div>
       </section>
 
-      <!-- 4. SOCIAL WEB / HAIRBALL DOSSIER & FOURSOME SELECTOR -->
-      <section id="screen-network" class="stage-screen">
-        <div class="panel-header">
-          <h2>THE GOFLBALL WEB (SELECT NEXT PARTNER)</h2>
-          <p class="panel-sub">
-            Impress one tribe, alienate their enemies. Uncover who really owns the 40-acre Empty Lot.
-          </p>
-        </div>
+      <!-- 3. END OF 9 HOLES: THE REVEAL / SOCIAL RATING -->
+      <section id="screen-verdict" class="crt-screen">
+        <div class="verdict-frame">
+          <div class="vf-title">9 HOLES COMPLETE</div>
+          <div class="vf-strokes">
+            GOFLBALL STROKES: <span id="verdict-strokes">36</span> (DOES NOT MATTER)
+          </div>
 
-        <div class="conspiracy-banner-strip" id="network-conspiracy-banner">
-          <div class="cb-label">CURRENT EMPTY LOT SUSPECT:</div>
-          <div class="cb-val" id="network-suspect-name">The Heritage Christian Businessmen's PAC</div>
-          <div class="cb-desc" id="network-suspect-desc"></div>
-        </div>
+          <div id="verdict-stamp" class="vf-stamp stamp-bad">NOT INVITED BACK</div>
+          <div id="verdict-message" class="vf-message"></div>
 
-        <div id="network-roster-list" class="roster-grid"></div>
+          <div class="vf-stats-box">
+            <div class="vfs-row">
+              <span>SOCIAL RATING:</span>
+              <strong id="verdict-social-stat">NEGATIVE</strong>
+            </div>
+            <div class="vfs-row">
+              <span>BUSINESS CAPITAL:</span>
+              <strong id="verdict-cash">$0</strong>
+            </div>
+            <div class="vfs-row">
+              <span>GOFLBALL NETWORK:</span>
+              <strong id="verdict-net-pct">0.0% (TARGET: 100%)</strong>
+            </div>
+          </div>
+
+          <div id="verdict-respawn-box" class="respawn-alert hidden"></div>
+
+          <button id="btn-to-clubhouse" class="crt-btn crt-btn-green btn-full">
+            ENTER GOFLBALL CLUBHOUSE &raquo;
+          </button>
+        </div>
       </section>
 
-      <!-- 5. IDLE CLICKER PRO-SHOP & CART AUTOMATION UPGRADES -->
-      <section id="screen-upgrades" class="stage-screen">
-        <div class="panel-header">
-          <h2>CLUBHOUSE PRO-SHOP &amp; CART AUTOMATION</h2>
-          <p class="panel-sub">
-            Reinvest your business retainers into rigged clubs, bribed caddies, and executive cart autopilot so you never have to swing again.
-          </p>
-        </div>
-        <div class="automation-toggles">
-          <label class="toggle-row">
-            <input type="checkbox" id="toggle-auto-caddie" disabled />
-            <span>AUTO-CADDIE SWING (Requires Lifted EZ-GO Cart)</span>
-          </label>
-          <label class="toggle-row">
-            <input type="checkbox" id="toggle-cart-autopilot" disabled />
-            <span>100% CART-PATH CHAT MODE (Requires Executive Cart Autopilot)</span>
-          </label>
-        </div>
-        <div id="upgrades-list" class="upgrades-list"></div>
+      <!-- 4. UNLOCKED AFTER ROUND 1: NETWORK OF FRIENDS & FRIENDS OF FRIENDS -->
+      <section id="screen-network" class="crt-screen">
+        <div class="section-title">GOFLBALL NETWORK (FRIENDS &amp; FRIENDS OF FRIENDS)</div>
+        <div id="epoch-banner" class="epoch-banner">SECTOR 01</div>
+        <div id="network-list" class="blocky-list"></div>
       </section>
 
-      <!-- 6. GLOBAL HAIRBALL LEADERBOARD -->
-      <section id="screen-leaderboard" class="stage-screen">
-        <div class="panel-header">
-          <h2>GLOBAL NETWORK SHARE LEADERBOARD</h2>
-          <p class="panel-sub">
-            Ranked by % of Goflball Players Who Will Do Business With You. Due to the Hairball Theorem, pleasing one faction offends another—most never pass 20%.
-          </p>
-        </div>
+      <!-- 5. UNLOCKED AFTER ROUND 1: LEVEL UP / AUTOMATE GOFLBALL -->
+      <section id="screen-upgrades" class="crt-screen">
+        <div class="section-title">LEVEL UP GOFLBALL CART &amp; CLUBS</div>
+        <div class="capital-readout">BUSINESS CAPITAL: <span id="shop-cash">$0</span></div>
+        <div id="upgrades-list" class="blocky-list"></div>
+      </section>
 
-        <div class="player-handle-box">
-          <label for="input-player-handle">YOUR HANDLE:</label>
-          <input type="text" id="input-player-handle" maxlength="16" value="NEW_EXEC" />
-          <button id="btn-sync-leaderboard" class="nes-btn nes-btn-blue">POST SCORE</button>
+      <!-- 6. UNLOCKED AFTER ROUND 1: 100% NETWORK LEADERBOARD -->
+      <section id="screen-ranks" class="crt-screen">
+        <div class="section-title">GLOBAL GOFLBALL NETWORK RANKS</div>
+        <div class="handle-bar">
+          <input type="text" id="input-handle" maxlength="14" value="PLAYER_1" />
+          <button id="btn-post-rank" class="crt-btn crt-btn-blue">SAVE</button>
         </div>
-
-        <div id="leaderboard-table-wrap" class="leaderboard-wrap"></div>
+        <div id="leaderboard-box" class="leaderboard-box"></div>
       </section>
 
     </main>
 
-    <!-- BOTTOM 8-BIT NAVIGATION TABS -->
-    <nav id="bottom-nav">
-      <button class="nav-tab active" data-target="active-play">
-        <span class="nt-icon">&#9971;</span>
-        <span class="nt-text">COURSE</span>
-      </button>
-      <button class="nav-tab" data-target="screen-network">
-        <span class="nt-icon">&#9733;</span>
-        <span class="nt-text">TEE SHEET</span>
-      </button>
-      <button class="nav-tab" data-target="screen-upgrades">
-        <span class="nt-icon">&#9874;</span>
-        <span class="nt-text">PRO SHOP</span>
-      </button>
-      <button class="nav-tab" data-target="screen-leaderboard">
-        <span class="nt-icon">&#9819;</span>
-        <span class="nt-text">RANKS</span>
-      </button>
+    <!-- BOTTOM NAV (HIDDEN IN RESTRICTED NEUTRAL MODE UNTIL ROUND 1 IS PLAYED!) -->
+    <nav id="unlocked-nav" class="hidden">
+      <button class="u-tab active" data-screen="active-round">GOFLBALL</button>
+      <button class="u-tab" data-screen="screen-network">NETWORK</button>
+      <button class="u-tab" data-screen="screen-upgrades">LEVEL UP</button>
+      <button class="u-tab" data-screen="screen-ranks">100% BOARD</button>
     </nav>
   </div>
 

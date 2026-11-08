@@ -1,23 +1,20 @@
 /* ==========================================================================
-   GOFLBALL (1984) — Authentic NES Black-Box Pixel Aesthetic & Mobile Shell
-   Palette strictly derived from 1984 Nintendo Entertainment System (2C02 PPU)
+   GOFLBALL (1984) — Blocky CRT & Large-Text 8-Bit NES Aesthetic
    ========================================================================== */
 
 :root {
-  --nes-black: #000000;
-  --nes-dark: #101018;
-  --nes-panel: #181824;
-  --nes-white: #fcfcfc;
-  --nes-gray: #a8a8a8;
-  --nes-red: #f83800;
-  --nes-gold: #f8b800;
-  --nes-green: #00a800;
-  --nes-fairway: #88d800;
-  --nes-mint: #58f898;
-  --nes-blue: #0058f8;
-  --nes-cyan: #00e8d8;
-  --nes-pink: #f878f8;
-  --font-pixel: "Courier New", Courier, monospace;
+  --black: #000000;
+  --white: #fcfcfc;
+  --gray: #989898;
+  --red: #f83800;
+  --gold: #f8b800;
+  --green: #00a800;
+  --lime: #88d800;
+  --mint: #58f898;
+  --blue: #0058f8;
+  --cyan: #00e8d8;
+  --pink: #f878f8;
+  --font-nes: "Courier New", Courier, monospace;
 }
 
 * {
@@ -30,737 +27,498 @@
 html, body {
   width: 100%;
   height: 100%;
-  background-color: var(--nes-black);
-  color: var(--nes-white);
-  font-family: var(--font-pixel);
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-nes);
+  font-weight: bold;
   overflow: hidden;
   user-select: none;
 }
 
-#nes-shell {
+/* Subtle CRT scanline overlay */
+#crt-shell {
   width: 100%;
-  max-width: 480px;
+  max-width: 460px;
   height: 100dvh;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background: var(--nes-black);
-  border-left: 2px solid #282838;
-  border-right: 2px solid #282838;
+  background: var(--black);
+  border-left: 4px solid var(--white);
+  border-right: 4px solid var(--white);
+  position: relative;
 }
 
-/* --------------------------------------------------------------------------
-   TOP STATUS BAR
-   -------------------------------------------------------------------------- */
-#hud-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 10px;
-  background: var(--nes-black);
-  border-bottom: 2px solid var(--nes-white);
+#crt-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.22) 3px
+  );
+  pointer-events: none;
+  z-index: 50;
 }
 
-.hud-col {
-  display: flex;
-  flex-direction: column;
-}
-
-.hud-label {
-  font-size: 9px;
-  color: var(--nes-red);
-  font-weight: bold;
+/* HIGH SCORE BANNER (PUSHING THE IMPOSSIBLE 100% NETWORK) */
+#high-score-banner {
+  background: #180018;
+  color: var(--gold);
+  border-bottom: 3px solid var(--white);
+  padding: 6px 8px;
+  font-size: 13px;
+  text-align: center;
   letter-spacing: 0.5px;
 }
 
-.hud-val {
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--nes-white);
+.hs-leader {
+  color: var(--pink);
 }
 
-.title-glow {
-  color: var(--nes-fairway);
-  letter-spacing: 1px;
+.hs-sep {
+  margin: 0 6px;
+  color: var(--white);
 }
 
-.nes-mini-btn {
-  background: var(--nes-black);
-  color: var(--nes-gold);
-  border: 2px solid var(--nes-gold);
-  font-family: var(--font-pixel);
-  font-size: 10px;
-  font-weight: bold;
-  padding: 4px 6px;
-  cursor: pointer;
-}
-
-/* --------------------------------------------------------------------------
-   PARTNER & HOLE SUB-STRIP
-   -------------------------------------------------------------------------- */
-#partner-strip {
+/* SIMPLE 8-BIT HEADER */
+#nes-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
-  background: #101810;
-  border-bottom: 2px solid var(--nes-green);
-  gap: 8px;
+  padding: 8px 10px;
+  background: var(--black);
+  border-bottom: 4px solid var(--green);
+  font-size: 16px;
 }
 
-.partner-meta {
-  flex: 1;
-  min-width: 0;
+.nh-brand {
+  color: var(--lime);
+  font-size: 18px;
+  letter-spacing: 1px;
 }
 
-.partner-line1 {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.nh-hole {
+  color: var(--white);
+}
+
+.nh-score {
+  color: var(--gold);
+}
+
+.crt-mini-btn {
+  background: var(--black);
+  color: var(--white);
+  border: 2px solid var(--white);
+  font-family: var(--font-nes);
+  font-weight: bold;
   font-size: 12px;
-  font-weight: bold;
-  color: var(--nes-white);
+  padding: 3px 6px;
+  cursor: pointer;
 }
 
-.tier-pill {
-  background: var(--nes-blue);
-  color: var(--nes-white);
-  font-size: 9px;
-  padding: 1px 5px;
-  border: 1px solid var(--nes-white);
-}
-
-.partner-line2 {
-  font-size: 10px;
-  color: var(--nes-gray);
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.vibe-good { color: var(--nes-mint); }
-.vibe-neutral { color: var(--nes-gold); }
-.vibe-bad { color: var(--nes-red); }
-
-.hole-badge-box {
-  text-align: right;
-  background: var(--nes-black);
-  border: 2px solid var(--nes-fairway);
-  padding: 3px 7px;
-}
-
-.hb-top {
-  font-size: 11px;
-  font-weight: bold;
-  color: var(--nes-fairway);
-}
-
-.hb-sub {
-  font-size: 10px;
-  color: var(--nes-white);
-}
-
-/* --------------------------------------------------------------------------
-   MAIN STAGE SCREENS
-   -------------------------------------------------------------------------- */
-#stage-viewport {
+/* MAIN VIEWPORT */
+#crt-stage {
   flex: 1;
-  position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.stage-screen {
+.crt-screen {
   display: none;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: 8px 10px;
+  padding: 10px;
   overflow-y: auto;
+  gap: 10px;
 }
 
-.stage-screen.active {
+.crt-screen.active {
   display: flex;
 }
 
-/* --------------------------------------------------------------------------
-   1. PRE-HOLE "LOADING" CART-PATH BANTER SCREEN
-   -------------------------------------------------------------------------- */
-.loading-banner {
-  background: var(--nes-black);
-  border: 2px dashed var(--nes-gold);
-  padding: 6px 8px;
-  margin-bottom: 6px;
+/* 1. LOADING BOX & LARGE BLOCKY CRT CHAT WINDOW */
+.loading-box {
+  border: 4px solid var(--white);
+  background: var(--black);
+  padding: 8px;
   text-align: center;
 }
 
-.loading-blink {
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--nes-gold);
+.loading-title {
+  font-size: 18px;
+  color: var(--gold);
   letter-spacing: 1px;
-  animation: blink8bit 1.1s steps(2, start) infinite;
 }
 
-@keyframes blink8bit {
-  to { visibility: hidden; }
-}
-
-.loading-progress-wrap {
+.loading-bar-frame {
   width: 100%;
-  height: 8px;
-  background: #222;
-  border: 1px solid var(--nes-white);
-  margin: 4px 0;
+  height: 14px;
+  border: 3px solid var(--white);
+  margin: 6px 0;
+  background: #111;
 }
 
-.loading-progress-fill {
+.loading-bar-fill {
   height: 100%;
-  background: var(--nes-fairway);
-  transition: width 0.3s ease;
+  background: var(--lime);
 }
 
-.loading-sub {
-  font-size: 9px;
-  color: var(--nes-cyan);
+.loading-course {
+  font-size: 13px;
+  color: var(--cyan);
 }
 
-.cart-partner-box {
-  display: flex;
-  gap: 10px;
-  background: var(--nes-panel);
-  border: 2px solid var(--nes-white);
-  padding: 6px 8px;
-  margin-bottom: 6px;
-  align-items: center;
-}
-
-.cart-portrait-wrap {
+.crt-chat-window {
+  flex: 1;
+  border: 4px solid var(--green);
+  background: #000800;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 68px;
+  padding: 8px;
+  gap: 8px;
+  min-height: 0;
 }
 
-#partner-portrait-canvas {
-  width: 48px;
-  height: 48px;
-  border: 2px solid var(--nes-white);
-  background: #000;
+.npc-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 3px solid var(--white);
+  padding-bottom: 6px;
+}
+
+#npc-avatar-canvas {
+  width: 44px;
+  height: 44px;
+  border: 3px solid var(--white);
   image-rendering: pixelated;
 }
 
-.trust-meter-wrap {
-  width: 100%;
-  margin-top: 3px;
+.npc-name {
+  font-size: 17px;
+  color: var(--white);
 }
 
-.trust-label {
-  font-size: 8px;
-  text-align: center;
-  color: var(--nes-gold);
+.npc-location {
+  font-size: 12px;
+  color: var(--gold);
 }
 
-.trust-track {
-  width: 100%;
-  height: 6px;
-  background: #300;
-  border: 1px solid var(--nes-white);
-}
-
-.trust-fill {
-  height: 100%;
-  background: var(--nes-mint);
-  transition: width 0.25s ease;
-}
-
-.cart-partner-info {
+.crt-chat-log {
   flex: 1;
-  min-width: 0;
-}
-
-.cp-name {
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--nes-white);
-}
-
-.cp-title {
-  font-size: 10px;
-  color: var(--nes-fairway);
-  margin-bottom: 3px;
-}
-
-.cp-EmptyLot {
-  font-size: 10px;
-  color: var(--nes-gold);
-  line-height: 1.25;
-}
-
-/* CHAT TRANSCRIPT */
-.chat-transcript {
-  flex: 1;
-  min-height: 110px;
-  background: #050805;
-  border: 2px solid var(--nes-green);
-  padding: 8px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 6px;
-  user-select: text;
+  padding: 4px 0;
 }
 
-.chat-msg {
-  padding: 6px 8px;
-  border: 1px solid #444;
-  font-size: 12px;
-  line-height: 1.35;
+.crt-line {
+  font-size: 15px;
+  line-height: 1.3;
+  padding: 8px;
+  border: 3px solid var(--white);
+  text-transform: uppercase;
 }
 
-.chat-msg.ai {
-  background: #141820;
-  border-left: 3px solid var(--nes-gold);
-  color: var(--nes-white);
+.crt-line.npc {
+  background: #000028;
+  border-color: var(--gold);
+  color: var(--white);
 }
 
-.chat-msg.player {
-  background: #0c2214;
-  border-right: 3px solid var(--nes-mint);
-  color: var(--nes-mint);
+.crt-line.you {
+  background: #002400;
+  border-color: var(--mint);
+  color: var(--mint);
   align-self: flex-end;
-  max-width: 92%;
 }
 
-.chat-msg.system {
-  background: #241010;
-  border: 1px dashed var(--nes-red);
-  color: var(--nes-gold);
-  font-size: 11px;
+.crt-line.alert {
+  background: #280000;
+  border-color: var(--red);
+  color: var(--gold);
 }
 
-.chat-speaker {
-  font-size: 10px;
-  font-weight: bold;
-  color: var(--nes-cyan);
-  margin-bottom: 2px;
-}
-
-/* QUICK QUIPS & INPUT */
-.chat-controls {
+.crt-quick-replies {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.quick-quips-tray {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: 118px;
-  overflow-y: auto;
-}
-
-.quip-chip {
-  text-align: left;
-  background: #121622;
-  color: var(--nes-white);
-  border: 1px solid var(--nes-cyan);
-  font-family: var(--font-pixel);
-  font-size: 11px;
-  padding: 5px 7px;
-  cursor: pointer;
-  line-height: 1.25;
-}
-
-.quip-chip:hover, .quip-chip:active {
-  background: var(--nes-blue);
-  border-color: var(--nes-white);
-}
-
-.chat-input-row {
-  display: flex;
-  gap: 6px;
-}
-
-#chat-input {
-  flex: 1;
-  background: var(--nes-black);
-  color: var(--nes-white);
-  border: 2px solid var(--nes-white);
-  font-family: var(--font-pixel);
-  font-size: 12px;
-  padding: 6px 8px;
-}
-
-.tee-action-row {
-  display: flex;
-  gap: 6px;
-}
-
-/* --------------------------------------------------------------------------
-   NES BUTTONS
-   -------------------------------------------------------------------------- */
-.nes-btn {
-  font-family: var(--font-pixel);
-  font-size: 12px;
+.crt-quip-btn {
+  background: var(--black);
+  color: var(--cyan);
+  border: 2px solid var(--cyan);
+  font-family: var(--font-nes);
   font-weight: bold;
-  padding: 8px 10px;
-  border: 2px solid var(--nes-white);
+  font-size: 13px;
+  padding: 6px 8px;
+  text-align: left;
   cursor: pointer;
   text-transform: uppercase;
 }
 
-.nes-btn-green {
-  background: var(--nes-green);
-  color: var(--nes-white);
+.crt-quip-btn:active, .crt-quip-btn:hover {
+  background: var(--blue);
+  color: var(--white);
+  border-color: var(--white);
 }
 
-.nes-btn-blue {
-  background: var(--nes-blue);
-  color: var(--nes-white);
+.crt-chat-form {
+  display: flex;
+  gap: 6px;
 }
 
-.nes-btn-gold {
-  background: var(--nes-gold);
-  color: var(--nes-black);
+#crt-chat-input {
+  flex: 1;
+  background: var(--black);
+  color: var(--white);
+  border: 3px solid var(--white);
+  font-family: var(--font-nes);
+  font-weight: bold;
+  font-size: 14px;
+  padding: 8px;
+  text-transform: uppercase;
 }
 
-.nes-btn-red {
-  background: var(--nes-red);
-  color: var(--nes-white);
+/* BLOCKY BUTTONS */
+.crt-btn {
+  font-family: var(--font-nes);
+  font-weight: bold;
+  font-size: 15px;
+  padding: 10px 12px;
+  border: 3px solid var(--white);
+  cursor: pointer;
+  text-transform: uppercase;
 }
 
-.btn-large-action {
+.crt-btn-green { background: var(--green); color: var(--white); }
+.crt-btn-blue { background: var(--blue); color: var(--white); }
+.crt-btn-gold { background: var(--gold); color: var(--black); }
+.crt-btn-red { background: var(--red); color: var(--white); }
+
+.btn-full {
   width: 100%;
-  padding: 11px;
-  font-size: 13px;
 }
 
-.pulse-ready {
-  width: 100%;
-  box-shadow: 0 0 0 2px var(--nes-fairway);
+.loading-bottom-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .hidden {
   display: none !important;
 }
 
-/* --------------------------------------------------------------------------
-   2. NES GOLF (1984) COURSE CANVAS
-   -------------------------------------------------------------------------- */
-.canvas-holder {
+/* 2. GOFLBALL COURSE SCREEN */
+.course-canvas-wrap {
   flex: 1;
+  border: 4px solid var(--white);
+  background: var(--black);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--nes-black);
-  border: 2px solid var(--nes-white);
   overflow: hidden;
 }
 
 #nes-golf-canvas {
   width: 100%;
   height: 100%;
-  max-height: 450px;
   object-fit: contain;
   image-rendering: pixelated;
   cursor: pointer;
 }
 
-.course-controls-bar {
+.course-btn-row {
   display: flex;
   gap: 8px;
-  margin-top: 6px;
 }
 
-/* --------------------------------------------------------------------------
-   3. END OF 9 HOLES VERDICT CARD
-   -------------------------------------------------------------------------- */
-.verdict-card {
-  border: 3px solid var(--nes-white);
-  background: var(--nes-panel);
+/* 3. END OF 9 HOLES VERDICT */
+.verdict-frame {
+  border: 4px solid var(--white);
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #080810;
+}
+
+.vf-title {
+  font-size: 20px;
+  color: var(--gold);
+  text-align: center;
+}
+
+.vf-strokes {
+  font-size: 14px;
+  color: var(--gray);
+  text-align: center;
+}
+
+.vf-stamp {
+  font-size: 20px;
+  padding: 10px;
+  text-align: center;
+  border: 4px solid var(--white);
+}
+
+.stamp-good { background: var(--green); color: var(--white); }
+.stamp-bad { background: var(--red); color: var(--white); }
+
+.vf-message {
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--white);
+  text-transform: uppercase;
+}
+
+.vf-stats-box {
+  border: 3px solid var(--cyan);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.vfs-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.respawn-alert {
+  border: 4px solid var(--pink);
+  background: #200020;
+  color: var(--gold);
+  padding: 10px;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+/* 4. UNLOCKED SCREENS: NETWORK, UPGRADES, RANKS */
+.section-title {
+  font-size: 16px;
+  color: var(--lime);
+  border-bottom: 3px solid var(--white);
+  padding-bottom: 6px;
+}
+
+.epoch-banner, .capital-readout {
+  background: #101028;
+  border: 3px solid var(--gold);
+  color: var(--gold);
+  padding: 8px;
+  font-size: 14px;
+}
+
+.blocky-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.verdict-header {
-  font-size: 15px;
-  font-weight: bold;
-  color: var(--nes-gold);
-  text-align: center;
-}
-
-.verdict-score-ignore {
-  font-size: 11px;
-  color: var(--nes-gray);
-  text-align: center;
-}
-
-.verdict-stamp {
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-  padding: 8px;
-  border: 3px double var(--nes-white);
-}
-
-.stamp-pass {
-  background: var(--nes-green);
-  color: var(--nes-white);
-}
-
-.stamp-fail {
-  background: var(--nes-red);
-  color: var(--nes-white);
-}
-
-.verdict-narrative {
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--nes-white);
-}
-
-.verdict-metrics {
-  background: var(--nes-black);
-  border: 2px solid var(--nes-cyan);
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.vm-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-}
-
-.conspiracy-twist-box {
-  background: #1f1400;
-  border: 2px solid var(--nes-gold);
-  padding: 8px;
-}
-
-.ct-title {
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--nes-gold);
-  margin-bottom: 4px;
-}
-
-.ct-body {
-  font-size: 11px;
-  line-height: 1.35;
-  color: var(--nes-white);
-}
-
-/* --------------------------------------------------------------------------
-   4. SOCIAL WEB / TEE SHEET ROSTER & UPGRADES & LEADERBOARD
-   -------------------------------------------------------------------------- */
-.panel-header {
-  margin-bottom: 8px;
-  border-bottom: 2px solid var(--nes-green);
-  padding-bottom: 6px;
-}
-
-.panel-header h2 {
-  font-size: 14px;
-  color: var(--nes-fairway);
-}
-
-.panel-sub {
-  font-size: 11px;
-  color: var(--nes-gray);
-  margin-top: 2px;
-  line-height: 1.3;
-}
-
-.conspiracy-banner-strip {
-  background: #141024;
-  border: 2px solid var(--nes-pink);
-  padding: 8px;
-  margin-bottom: 8px;
-}
-
-.cb-label {
-  font-size: 10px;
-  color: var(--nes-pink);
-  font-weight: bold;
-}
-
-.cb-val {
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--nes-gold);
-  margin: 2px 0;
-}
-
-.cb-desc {
-  font-size: 11px;
-  color: var(--nes-white);
-  line-height: 1.3;
-}
-
-.roster-grid, .upgrades-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 16px;
-}
-
-.roster-card {
-  background: var(--nes-panel);
-  border: 2px solid var(--nes-white);
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.roster-card.offended {
-  border-color: var(--nes-red);
-  opacity: 0.78;
-}
-
-.roster-card.business {
-  border-color: var(--nes-mint);
-}
-
-.rc-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.rc-name {
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--nes-white);
-}
-
-.rc-club {
-  font-size: 10px;
-  color: var(--nes-cyan);
-}
-
-.rc-bio {
-  font-size: 11px;
-  color: var(--nes-gray);
-  line-height: 1.3;
-}
-
-.rc-beliefs {
-  font-size: 10px;
-  color: var(--nes-gold);
-}
-
-.automation-toggles {
-  background: #101820;
-  border: 2px solid var(--nes-cyan);
-  padding: 8px;
-  margin-bottom: 8px;
+.blocky-card {
+  border: 3px solid var(--white);
+  background: #0a0a12;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.toggle-row {
+.blocky-card.negative { border-color: var(--red); }
+.blocky-card.friend { border-color: var(--mint); }
+
+.bc-title {
+  font-size: 16px;
+  color: var(--white);
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  cursor: pointer;
+  justify-content: space-between;
+}
+
+.bc-sub {
+  font-size: 13px;
+  color: var(--cyan);
+}
+
+.bc-status {
+  font-size: 13px;
+  color: var(--gold);
 }
 
 /* LEADERBOARD */
-.player-handle-box {
+.handle-bar {
   display: flex;
-  align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
-  font-size: 11px;
 }
 
-#input-player-handle {
+#input-handle {
   flex: 1;
-  background: var(--nes-black);
-  color: var(--nes-gold);
-  border: 2px solid var(--nes-white);
-  font-family: var(--font-pixel);
-  padding: 5px;
-  font-size: 12px;
+  background: var(--black);
+  color: var(--gold);
+  border: 3px solid var(--white);
+  font-family: var(--font-nes);
+  font-weight: bold;
+  font-size: 15px;
+  padding: 8px;
   text-transform: uppercase;
 }
 
 .lb-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: 14px;
 }
 
 .lb-table th, .lb-table td {
-  border: 1px solid #333;
-  padding: 6px 5px;
+  border: 2px solid var(--white);
+  padding: 7px 6px;
   text-align: left;
 }
 
 .lb-table th {
-  background: #182030;
-  color: var(--nes-cyan);
+  color: var(--cyan);
 }
 
-.lb-row-masked {
-  background: #280818;
-  color: var(--nes-pink);
-  font-weight: bold;
+.lb-top-masked {
+  background: #280028;
+  color: var(--pink);
 }
 
-.lb-row-you {
-  background: #082818;
-  color: var(--nes-mint);
-  font-weight: bold;
+.lb-you {
+  background: #002800;
+  color: var(--mint);
 }
 
-/* --------------------------------------------------------------------------
-   BOTTOM NAV BAR
-   -------------------------------------------------------------------------- */
-#bottom-nav {
+/* UNLOCKED BOTTOM NAV */
+#unlocked-nav {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  border-top: 2px solid var(--nes-white);
-  background: var(--nes-black);
+  border-top: 4px solid var(--white);
+  background: var(--black);
 }
 
-.nav-tab {
-  background: var(--nes-black);
-  color: var(--nes-gray);
+.u-tab {
+  background: var(--black);
+  color: var(--gray);
   border: none;
-  border-right: 1px solid #333;
-  padding: 8px 4px;
-  font-family: var(--font-pixel);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  border-right: 2px solid var(--white);
+  font-family: var(--font-nes);
+  font-weight: bold;
+  font-size: 13px;
+  padding: 12px 4px;
   cursor: pointer;
 }
 
-.nav-tab.active {
-  background: #102410;
-  color: var(--nes-fairway);
-  font-weight: bold;
-}
-
-.nt-icon {
-  font-size: 14px;
-}
-
-.nt-text {
-  font-size: 10px;
+.u-tab.active {
+  background: var(--green);
+  color: var(--white);
 }

@@ -11,22 +11,20 @@
 const DEFAULT_LEADERBOARD = [
   {
     rank: 1,
-    handle: "██████████ [REDACTED]",
-    club: "THE OTHER SIDE OF THE COIN",
+    handle: "████████ [REDACTED]",
+    club: "THE OTHER SIDE",
     share_pct: 100.0,
     rounds: 999,
     tier: 99,
-    note: "OWNS BOTH SIDES OF THE EMPTY LOT",
     locked_top: true
   },
-  { rank: 2, handle: "REGENT_CHAIR", club: "The Regents' Sanctuary", share_pct: 19.4, rounds: 142, tier: 5 },
-  { rank: 3, handle: "DUNE_CREST_III", club: "Dune Crest Private Reserve", share_pct: 18.7, rounds: 118, tier: 4 },
-  { rank: 4, handle: "DIRT_KING_49", club: "Black Dirt Acres CC", share_pct: 17.2, rounds: 96, tier: 3 },
-  { rank: 5, handle: "GRACE_CAP_77", club: "Covenant Meadows Links", share_pct: 16.5, rounds: 84, tier: 2 },
-  { rank: 6, handle: "SOV_COVENANT", club: "Covenant Meadows Links", share_pct: 15.1, rounds: 71, tier: 2 },
-  { rank: 7, handle: "VAN_DYKE_ENT", club: "Covenant Meadows Links", share_pct: 13.8, rounds: 63, tier: 2 },
-  { rank: 8, handle: "D_VANDER84", club: "Pine Rest Muni", share_pct: 11.4, rounds: 44, tier: 1 },
-  { rank: 9, handle: "KOOP_DOG", club: "Pine Rest Muni", share_pct: 9.2, rounds: 39, tier: 1 }
+  { rank: 2, handle: "VEX_STORN88", club: "REGENTS SANCTUARY", share_pct: 19.2, rounds: 134, tier: 5 },
+  { rank: 3, handle: "BRAM_GALT14", club: "BLUFF RESERVE", share_pct: 18.4, rounds: 112, tier: 4 },
+  { rank: 4, handle: "TOV_TRASK49", club: "BLACK DIRT CLUB", share_pct: 16.8, rounds: 91, tier: 3 },
+  { rank: 5, handle: "KIP_KOVEL77", club: "STEWARDSHIP LINKS", share_pct: 15.5, rounds: 78, tier: 2 },
+  { rank: 6, handle: "ZAN_PELL21", club: "STEWARDSHIP LINKS", share_pct: 14.1, rounds: 64, tier: 2 },
+  { rank: 7, handle: "HAL_MORNS33", club: "PINE MUNI COURSE", share_pct: 11.6, rounds: 42, tier: 1 },
+  { rank: 8, handle: "DEX_BREN19", club: "PINE MUNI COURSE", share_pct: 9.4, rounds: 31, tier: 1 }
 ];
 
 function jsonResponse(payload, status = 200, nodeHeader = "EDGE-REPLICA") {
