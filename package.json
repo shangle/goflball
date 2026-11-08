@@ -1,0 +1,14 @@
+{
+  "name": "goflball",
+  "version": "1.0.0",
+  "description": "GOFLBALL (1984) — An infinite social-climbing goflball simulation",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "supervisor": "node supervisor.js",
+    "build": "node build-static.js",
+    "deploy:edge": "node build-static.js && npx wrangler deploy"
+  },
+  "license": "CC0-1.0"
+}

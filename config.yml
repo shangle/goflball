@@ -1,0 +1,12 @@
+tunnel: a45488ce-26ae-45c7-9310-52583d76b56c
+credentials-file: C:\Users\shang\.cloudflared\a45488ce-26ae-45c7-9310-52583d76b56c.json
+protocol: http2
+
+ingress:
+  - hostname: laptop-origin.goflball.com
+    service: http://localhost:3849
+  - hostname: goflball.com
+    service: http://localhost:3849
+  - hostname: www.goflball.com
+    service: http://localhost:3849
+  - service: http_status:404
