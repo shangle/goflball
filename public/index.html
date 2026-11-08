@@ -8,92 +8,96 @@
 </head>
 <body>
   <div id="crt-shell">
-    <!-- HIGH SCORE BANNER (PUSHING THE IMPOSSIBLE 100% NETWORK GOAL) -->
-    <div id="high-score-banner">
-      TOP GOFLBALL NETWORK: <span class="hs-leader">████████ 100.0%</span>
-      <span class="hs-sep">|</span>
-      YOU: <span id="banner-your-pct">0.0%</span>
+    <!-- TOP ARCADE HIGH-SCORE MARQUEE -->
+    <div id="arcade-marquee">
+      HI-SCORE: <span class="m-leader">████████ 100.0%</span>
+      <span class="m-sep">|</span>
+      1P: <span id="marquee-pct">0.0%</span>
     </div>
 
-    <!-- SIMPLE 8-BIT HEADER -->
+    <!-- CLASSIC 1984 BLOCKY HEADER -->
     <header id="nes-header">
       <div class="nh-brand">GOFLBALL</div>
-      <div class="nh-hole">HOLE <span id="hdr-hole">1</span>/9</div>
-      <div class="nh-score">SCORE <span id="hdr-score">E</span></div>
+      <div class="nh-stat">H<span id="hdr-hole">1</span></div>
+      <div class="nh-stat">SCR <span id="hdr-score">E</span></div>
       <button id="btn-sfx" class="crt-mini-btn">SFX</button>
     </header>
 
-    <!-- MAIN CRT VIEWPORT -->
+    <!-- MAIN VIEWPORT -->
     <main id="crt-stage">
 
-      <!-- 1. PRE-HOLE "LOADING" GOFLBALL CART CHAT WINDOW -->
-      <section id="screen-loading-chat" class="crt-screen active">
-        <div class="loading-box">
-          <div class="loading-title">LOADING HOLE <span id="load-hole-num">1</span>...</div>
-          <div class="loading-bar-frame">
-            <div id="loading-bar-fill" class="loading-bar-fill" style="width: 40%;"></div>
-          </div>
-          <div id="load-course-name" class="loading-course">PINE MUNI GOFLBALL COURSE</div>
-        </div>
+      <!-- 1. PRIMARY GAME SCREEN: BIG RETRO GOFLBALL COURSE + SUBTLE TEE-BOX LOADING WHISPER -->
+      <section id="screen-play" class="crt-screen active">
+        <!-- THE GOFLBALL COURSE IS ALWAYS FRONT AND CENTER -->
+        <div class="course-canvas-wrap">
+          <canvas id="nes-golf-canvas" width="256" height="220"></canvas>
 
-        <!-- LARGE BLOCKY CRT CHAT WINDOW (IN THE GOFLBALL CART) -->
-        <div class="crt-chat-window">
-          <div class="npc-header-bar">
-            <canvas id="npc-avatar-canvas" width="32" height="32"></canvas>
-            <div class="npc-header-text">
-              <div id="chat-npc-name" class="npc-name">PARTNER</div>
-              <div class="npc-location">IN THE GOFLBALL CART</div>
+          <!-- BRIEF, ACCIDENTAL-FEELING "LOADING HOLE..." CART OVERLAY -->
+          <div id="tee-loading-overlay" class="tee-loading-overlay">
+            <div class="tlo-top">
+              <span>LOADING HOLE <span id="load-hole-num">1</span>...</span>
+              <span id="load-course-name" class="tlo-course">PINE VALLEY MUNI</span>
+            </div>
+            <div class="tlo-bar-frame">
+              <div id="loading-bar-fill" class="tlo-bar-fill" style="width: 35%;"></div>
+            </div>
+
+            <!-- COMPACT 2-LINE NES DIALOGUE BOX AT BOTTOM OF LOADING SCREEN -->
+            <div class="cart-dialogue-strip">
+              <div class="cds-row">
+                <canvas id="npc-avatar-canvas" width="28" height="28"></canvas>
+                <div class="cds-speech">
+                  <div id="chat-npc-name" class="cds-speaker">PARTNER (GOFLBALL CART)</div>
+                  <div id="crt-latest-line" class="cds-line">"GREENS ARE ROLLING QUICK TODAY."</div>
+                </div>
+              </div>
+
+              <!-- OPTIONAL SUBTLE REPLY TOGGLE / INPUT (FEELS LIKE AN EASTER EGG) -->
+              <div id="cart-reply-drawer" class="cart-reply-drawer">
+                <div id="crt-quick-replies" class="crt-quick-replies"></div>
+                <form id="crt-chat-form" class="crt-chat-form" autocomplete="off">
+                  <input
+                    type="text"
+                    id="crt-chat-input"
+                    placeholder="SAY SOMETHING..."
+                    maxlength="90"
+                  />
+                  <button type="submit" class="crt-btn crt-btn-blue">OK</button>
+                </form>
+              </div>
+
+              <div class="tlo-actions">
+                <button id="btn-toggle-talk" type="button" class="crt-btn crt-btn-dark">
+                  TALK IN GOFLBALL CART
+                </button>
+                <button id="btn-play-hole" type="button" class="crt-btn crt-btn-green">
+                  TEE OFF &raquo;
+                </button>
+              </div>
+              <button id="btn-autopilot-hole" type="button" class="crt-btn crt-btn-gold btn-full hidden">
+                RIDE GOFLBALL CART (AUTO-PLAY HOLE) &raquo;
+              </button>
             </div>
           </div>
-
-          <div id="crt-chat-log" class="crt-chat-log"></div>
-
-          <!-- SHORT BLOCKY QUICK REPLIES -->
-          <div id="crt-quick-replies" class="crt-quick-replies"></div>
-
-          <!-- FREE-TEXT CRT INPUT -->
-          <form id="crt-chat-form" class="crt-chat-form" autocomplete="off">
-            <input
-              type="text"
-              id="crt-chat-input"
-              placeholder="TALK IN GOFLBALL CART..."
-              maxlength="120"
-            />
-            <button type="submit" class="crt-btn crt-btn-blue">SAY</button>
-          </form>
         </div>
 
-        <div class="loading-bottom-actions">
-          <button id="btn-play-hole" class="crt-btn crt-btn-green btn-full">
-            PLAY HOLE &raquo;
-          </button>
-          <button id="btn-autopilot-hole" class="crt-btn crt-btn-gold btn-full hidden">
-            STAY IN GOFLBALL CART (AUTO-PLAY HOLE) &raquo;
-          </button>
-        </div>
-      </section>
-
-      <!-- 2. BLOCKY 8-BIT GOFLBALL COURSE -->
-      <section id="screen-course" class="crt-screen">
-        <div class="course-canvas-wrap">
-          <canvas id="nes-golf-canvas" width="256" height="240"></canvas>
-        </div>
+        <!-- BIG RETRO SWING CONTROLS -->
         <div class="course-btn-row">
           <button id="btn-swing" class="crt-btn crt-btn-green btn-full">
             SWING GOFLBALL CLUB
           </button>
           <button id="btn-caddie-shot" class="crt-btn crt-btn-gold hidden">
-            AUTO-SWING
+            CADDIE SWING
           </button>
         </div>
       </section>
 
-      <!-- 3. END OF 9 HOLES: THE REVEAL / SOCIAL RATING -->
+      <!-- 2. END OF 9 HOLES SCORECARD & THE SLOW-BURN REVEAL -->
       <section id="screen-verdict" class="crt-screen">
         <div class="verdict-frame">
-          <div class="vf-title">9 HOLES COMPLETE</div>
+          <div class="vf-title">9-HOLE SCORECARD</div>
           <div class="vf-strokes">
-            GOFLBALL STROKES: <span id="verdict-strokes">36</span> (DOES NOT MATTER)
+            TOTAL STROKES: <span id="verdict-strokes">36</span>
           </div>
 
           <div id="verdict-stamp" class="vf-stamp stamp-bad">NOT INVITED BACK</div>
@@ -101,7 +105,7 @@
 
           <div class="vf-stats-box">
             <div class="vfs-row">
-              <span>SOCIAL RATING:</span>
+              <span>CART RAPPORT:</span>
               <strong id="verdict-social-stat">NEGATIVE</strong>
             </div>
             <div class="vfs-row">
@@ -109,51 +113,51 @@
               <strong id="verdict-cash">$0</strong>
             </div>
             <div class="vfs-row">
-              <span>GOFLBALL NETWORK:</span>
-              <strong id="verdict-net-pct">0.0% (TARGET: 100%)</strong>
+              <span>NETWORK SHARE:</span>
+              <strong id="verdict-net-pct">0.0%</strong>
             </div>
           </div>
 
           <div id="verdict-respawn-box" class="respawn-alert hidden"></div>
 
           <button id="btn-to-clubhouse" class="crt-btn crt-btn-green btn-full">
-            ENTER GOFLBALL CLUBHOUSE &raquo;
+            CONTINUE &raquo;
           </button>
         </div>
       </section>
 
-      <!-- 4. UNLOCKED AFTER ROUND 1: NETWORK OF FRIENDS & FRIENDS OF FRIENDS -->
+      <!-- 3. UNLOCKED AFTER ROUND 1: TEE SHEET / FRIENDS & FRIENDS OF FRIENDS -->
       <section id="screen-network" class="crt-screen">
-        <div class="section-title">GOFLBALL NETWORK (FRIENDS &amp; FRIENDS OF FRIENDS)</div>
-        <div id="epoch-banner" class="epoch-banner">SECTOR 01</div>
+        <div class="section-title">TEE SHEET (FRIENDS &amp; FRIENDS OF FRIENDS)</div>
+        <div id="epoch-banner" class="epoch-banner">PINE VALLEY CIRCUIT</div>
         <div id="network-list" class="blocky-list"></div>
       </section>
 
-      <!-- 5. UNLOCKED AFTER ROUND 1: LEVEL UP / AUTOMATE GOFLBALL -->
+      <!-- 4. UNLOCKED AFTER ROUND 1: PRO SHOP / GOFLBALL CART UPGRADES -->
       <section id="screen-upgrades" class="crt-screen">
-        <div class="section-title">LEVEL UP GOFLBALL CART &amp; CLUBS</div>
-        <div class="capital-readout">BUSINESS CAPITAL: <span id="shop-cash">$0</span></div>
+        <div class="section-title">PRO SHOP &amp; GOFLBALL CART</div>
+        <div class="capital-readout">CAPITAL: <span id="shop-cash">$0</span></div>
         <div id="upgrades-list" class="blocky-list"></div>
       </section>
 
-      <!-- 6. UNLOCKED AFTER ROUND 1: 100% NETWORK LEADERBOARD -->
+      <!-- 5. UNLOCKED AFTER ROUND 1: LEADERBOARD -->
       <section id="screen-ranks" class="crt-screen">
-        <div class="section-title">GLOBAL GOFLBALL NETWORK RANKS</div>
+        <div class="section-title">LEADERBOARD</div>
         <div class="handle-bar">
-          <input type="text" id="input-handle" maxlength="14" value="PLAYER_1" />
-          <button id="btn-post-rank" class="crt-btn crt-btn-blue">SAVE</button>
+          <input type="text" id="input-handle" maxlength="12" value="PLAYER_1" />
+          <button id="btn-post-rank" class="crt-btn crt-btn-blue">POST</button>
         </div>
         <div id="leaderboard-box" class="leaderboard-box"></div>
       </section>
 
     </main>
 
-    <!-- BOTTOM NAV (HIDDEN IN RESTRICTED NEUTRAL MODE UNTIL ROUND 1 IS PLAYED!) -->
+    <!-- BOTTOM NAV (HIDDEN UNTIL AT LEAST 1 ROUND IS PLAYED) -->
     <nav id="unlocked-nav" class="hidden">
-      <button class="u-tab active" data-screen="active-round">GOFLBALL</button>
-      <button class="u-tab" data-screen="screen-network">NETWORK</button>
-      <button class="u-tab" data-screen="screen-upgrades">LEVEL UP</button>
-      <button class="u-tab" data-screen="screen-ranks">100% BOARD</button>
+      <button class="u-tab active" data-screen="screen-play">COURSE</button>
+      <button class="u-tab" data-screen="screen-network">TEE SHEET</button>
+      <button class="u-tab" data-screen="screen-upgrades">PRO SHOP</button>
+      <button class="u-tab" data-screen="screen-ranks">BOARD</button>
     </nav>
   </div>
 

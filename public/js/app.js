@@ -1,25 +1,27 @@
 /**
  * GOFLBALL (1984) — Main Client Sandbox Controller
  *
- * - Starts in a completely simplified, restricted 1984 goflball mode whenever the player
- *   is in their neutral starting state (0 rounds played, or no friends/enemies yet).
- * - Only AFTER finishing at least 1 round of 9 holes does the player discover the real game:
- *   if they didn't talk in the goflball cart between holes, almost all their social stats go
- *   negative and they aren't invited back!
- * - Once Round 1 is completed, the bottom navigation bar unlocks:
- *   [GOFLBALL] | [NETWORK] | [LEVEL UP] | [100% BOARD]
+ * - The Goflball Course is always the primary screen (`#screen-play`).
+ * - Before each hole tees off, a compact, accidental-feeling "LOADING HOLE..." box
+ *   appears at the bottom of the course with a single 2-line whisper from your
+ *   goflball cart partner.
+ * - Clicking [TALK IN GOFLBALL CART] opens the hidden reply drawer; clicking [TEE OFF »]
+ *   dismisses the loading box immediately and lets you swing.
+ * - Uses `GoflWorld.SymphonyDirector` to pace reveals over hours of play and dozens of
+ *   holes so AI goflballers never drop their guard or reveal preferences until rapport
+ *   is high enough that they know you won't ruin a business deal.
  */
 
 (function () {
   "use strict";
 
-  const STORAGE_KEY = "GOFLBALL_SANDBOX_V2";
+  const STORAGE_KEY = "GOFLBALL_SANDBOX_V3";
 
   function createFreshSandbox() {
     const randomSeed = Math.floor(10000 + Math.random() * 900000);
     const net = GoflWorld.buildSandboxNetwork(randomSeed, 0, 42);
     return {
-      version: 2,
+      version: 3,
       universeSeed: randomSeed,
       epoch: 0,
       playerId: "gb_" + Math.random().toString(36).slice(2, 10),
@@ -30,13 +32,14 @@
       friendsCount: 0,
       enemiesCount: 0,
       roundsPlayed: 0,
+      totalHolesPlayed: 0,
+      totalPlaySeconds: 0,
       highestTierCleared: 0,
       purchasedUpgrades: {},
       currentPartnerId: net.order[0],
       currentHole: 1,
       roundStrokes: 0,
       roundPar: 0,
-      activeRoundScreen: "screen-loading-chat",
       network: net
     };
   }
@@ -46,7 +49,7 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && parsed.version === 2 && parsed.network && parsed.network.nodes) {
+        if (parsed && parsed.version === 3 && parsed.network && parsed.network.nodes) {
           return parsed;
         }
       }
@@ -66,7 +69,11 @@
   const sound = new NesGolfEngine.NesSoundEngine();
   let golfCanvas = null;
 
-  // Check if the player is still in the simplified/restricted starting state
+  // Track cumulative play seconds for SymphonyDirector macro-pacing
+  setInterval(() => {
+    world.totalPlaySeconds = (world.totalPlaySeconds || 0) + 5;
+  }, 5000);
+
   function isRestrictedNeutralMode() {
     return (world.roundsPlayed || 0) < 1 && (world.friendsCount || 0) === 0 && (world.enemiesCount || 0) === 0;
   }
@@ -77,7 +84,7 @@
       windResist: 0,
       unlockAutoSwing: false,
       unlockCartAutopilot: false,
-      passiveTrust: 0
+      passiveRapport: 0
     };
     for (const u of GoflWorld.UPGRADES) {
       if (world.purchasedUpgrades && world.purchasedUpgrades[u.id]) {
@@ -85,54 +92,48 @@
         if (u.effect.windResist) fx.windResist = Math.max(fx.windResist, u.effect.windResist);
         if (u.effect.unlockAutoSwing) fx.unlockAutoSwing = true;
         if (u.effect.unlockCartAutopilot) fx.unlockCartAutopilot = true;
-        if (u.effect.passiveTrust) fx.passiveTrust += u.effect.passiveTrust;
+        if (u.effect.passiveRapport) fx.passiveRapport += u.effect.passiveRapport;
       }
     }
     return fx;
   }
 
-  // Draw chunky 32x32 8-bit NPC portrait
   function drawNpcAvatar(canvas, npc) {
     if (!canvas || !npc) return;
     const ctx = canvas.getContext("2d");
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = "#000000";
-    ctx.fillRect(0, 0, 32, 32);
+    ctx.fillRect(0, 0, 28, 28);
 
-    // Hat
     ctx.fillStyle = npc.hatColor || "#fcfcfc";
-    ctx.fillRect(8, 4, 14, 5);
-    ctx.fillRect(18, 7, 8, 2);
+    ctx.fillRect(6, 3, 14, 4);
+    ctx.fillRect(16, 6, 6, 2);
 
-    // Face
     ctx.fillStyle = "#f8b880";
-    ctx.fillRect(9, 9, 12, 11);
+    ctx.fillRect(7, 7, 12, 10);
 
-    // Eyes / Shades
     ctx.fillStyle = "#000000";
     if (npc.tier >= 3) {
-      ctx.fillRect(11, 11, 9, 3);
+      ctx.fillRect(9, 9, 8, 3);
     } else {
-      ctx.fillRect(12, 12, 2, 2);
-      ctx.fillRect(17, 12, 2, 2);
+      ctx.fillRect(10, 10, 2, 2);
+      ctx.fillRect(15, 10, 2, 2);
     }
-    ctx.fillRect(13, 17, 6, 2);
+    ctx.fillRect(11, 14, 5, 2);
 
-    // Shirt
     ctx.fillStyle = npc.shirtColor || "#f83800";
-    ctx.fillRect(6, 20, 18, 12);
+    ctx.fillRect(5, 17, 16, 11);
   }
 
-  function updateHeaderAndBanner() {
+  function updateHeaderAndMarquee() {
     GoflWorld.recalculateNetworkStats(world);
-    document.getElementById("banner-your-pct").textContent = `${(world.networkSharePct || 0).toFixed(1)}%`;
+    document.getElementById("marquee-pct").textContent = `${(world.networkSharePct || 0).toFixed(1)}%`;
     document.getElementById("hdr-hole").textContent = String(world.currentHole);
 
     const rel = world.roundStrokes - world.roundPar;
     document.getElementById("hdr-score").textContent =
       rel === 0 ? "E" : rel > 0 ? `+${rel}` : String(rel);
 
-    // Hide or reveal the deeper game navigation based on Restricted Neutral Mode
     const nav = document.getElementById("unlocked-nav");
     if (isRestrictedNeutralMode()) {
       nav.classList.add("hidden");
@@ -142,43 +143,52 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 1. PRE-HOLE "LOADING" GOFLBALL CART CHAT
+  // 1. PREPARE HOLE ON COURSE + SHOW SUBTLE TEE-BOX LOADING WHISPER
   // ---------------------------------------------------------------------------
-  function showLoadingChatScreen() {
-    world.activeRoundScreen = "screen-loading-chat";
+  function setupHoleAndLoadingWhisper() {
     const npc = world.network.nodes[world.currentPartnerId] || world.network.nodes[world.network.order[0]];
     const fx = getActiveUpgradeEffects();
+    const epochCfg = GoflWorld.getEpochConfig(world.epoch || 0);
 
-    if (fx.passiveTrust && !npc.offended) {
-      npc.trust = Math.min(1.0, +(npc.trust + fx.passiveTrust / 9).toFixed(3));
+    if (fx.passiveRapport && !npc.offended) {
+      npc.rapport = Math.min(1.0, +(npc.rapport + fx.passiveRapport).toFixed(3));
     }
 
-    updateHeaderAndBanner();
-    switchScreen("screen-loading-chat");
+    updateHeaderAndMarquee();
+    switchScreen("screen-play");
+
+    // Set up the underlying 1984 Goflball Course immediately so it's visible behind the loading strip
+    golfCanvas.setUpgrades(fx, epochCfg.windMultiplier);
+    golfCanvas.setPartnerVisuals(npc);
+    golfCanvas.resetHole(world.currentHole);
+
+    const btnCaddie = document.getElementById("btn-caddie-shot");
+    if (!isRestrictedNeutralMode() && fx.unlockAutoSwing) {
+      btnCaddie.classList.remove("hidden");
+    } else {
+      btnCaddie.classList.add("hidden");
+    }
+
+    // Show the compact tee-box loading overlay at the bottom of the course
+    const overlay = document.getElementById("tee-loading-overlay");
+    overlay.classList.remove("hidden");
+
+    const drawer = document.getElementById("cart-reply-drawer");
+    drawer.classList.remove("open");
 
     document.getElementById("load-hole-num").textContent = String(world.currentHole);
-    document.getElementById("loading-bar-fill").style.width = `${Math.min(95, 25 + world.currentHole * 8)}%`;
-    document.getElementById("load-course-name").textContent = npc.courseName || "PINE MUNI GOFLBALL COURSE";
-    document.getElementById("chat-npc-name").textContent = npc.name.toUpperCase();
+    document.getElementById("load-course-name").textContent = npc.courseName || "PINE VALLEY MUNI";
+    document.getElementById("loading-bar-fill").style.width = "100%";
 
     drawNpcAvatar(document.getElementById("npc-avatar-canvas"), npc);
+    document.getElementById("chat-npc-name").textContent = `${npc.name.toUpperCase()} (GOFLBALL CART)`;
 
-    const logEl = document.getElementById("crt-chat-log");
-    logEl.innerHTML = "";
+    // Ask SymphonyDirector for the exact orchestrated line based on rapport & slow-burn stage
+    const line = GoflWorld.SymphonyDirector.selectOrchestratedLine(world, npc);
+    document.getElementById("crt-latest-line").textContent = `"${line}"`;
 
-    let npcLine = "";
-    if (npc.offended) {
-      npcLine = npc.walkOffLine;
-    } else if (world.currentHole % 2 === 0) {
-      npcLine = npc.probes[(world.currentHole >> 1) % npc.probes.length];
-    } else {
-      npcLine = npc.lines[(world.currentHole - 1) % npc.lines.length];
-    }
-
-    appendChatLine("npc", `${npc.shortName}: "${npcLine}"`);
     renderQuickReplies(npc);
 
-    // Only show Goflball Cart Autopilot button if unlocked (never before Round 1!)
     const btnAutoHole = document.getElementById("btn-autopilot-hole");
     if (!isRestrictedNeutralMode() && fx.unlockCartAutopilot) {
       btnAutoHole.classList.remove("hidden");
@@ -189,21 +199,13 @@
     saveSandbox(world);
   }
 
-  function appendChatLine(type, text) {
-    const logEl = document.getElementById("crt-chat-log");
-    const div = document.createElement("div");
-    div.className = `crt-line ${type}`;
-    div.textContent = text;
-    logEl.appendChild(div);
-    logEl.scrollTop = logEl.scrollHeight;
-  }
-
   function renderQuickReplies(npc) {
     const box = document.getElementById("crt-quick-replies");
     box.innerHTML = "";
-    if (npc.offended) return;
+    if (!npc || npc.offended) return;
 
-    (npc.quickReplies || []).forEach((q) => {
+    const replies = GoflWorld.SymphonyDirector.selectQuickReplies(world, npc);
+    replies.forEach((q) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "crt-quip-btn";
@@ -222,44 +224,26 @@
     const npc = world.network.nodes[world.currentPartnerId];
     if (!npc) return;
 
-    appendChatLine("you", `YOU: "${text.toUpperCase()}"`);
     sound.playChatBlip(1);
-
     const res = GoflWorld.evaluateNpcBanter(world, npc.id, text);
+
     setTimeout(() => {
-      appendChatLine(res.offended ? "alert" : "npc", `${npc.shortName}: "${res.reply}"`);
+      document.getElementById("crt-latest-line").textContent = `"${res.reply}"`;
       if (res.offended) {
         sound.playOffendedBuzzer();
       } else {
         sound.playChatBlip(-1);
       }
-      document.getElementById("loading-bar-fill").style.width = "100%";
-      updateHeaderAndBanner();
+      renderQuickReplies(npc);
+      updateHeaderAndMarquee();
       saveSandbox(world);
-    }, 160);
+    }, 140);
   }
 
-  // ---------------------------------------------------------------------------
-  // 2. STEPPING ONTO THE GOFLBALL COURSE
-  // ---------------------------------------------------------------------------
-  function startCourseHole() {
-    const npc = world.network.nodes[world.currentPartnerId];
-    const fx = getActiveUpgradeEffects();
-    const epochCfg = GoflWorld.getEpochConfig(world.epoch || 0);
-
-    world.activeRoundScreen = "screen-course";
-    switchScreen("screen-course");
-
-    golfCanvas.setUpgrades(fx, epochCfg.windMultiplier);
-    golfCanvas.setPartnerVisuals(npc);
-    golfCanvas.resetHole(world.currentHole);
-
-    const btnCaddie = document.getElementById("btn-caddie-shot");
-    if (!isRestrictedNeutralMode() && fx.unlockAutoSwing) {
-      btnCaddie.classList.remove("hidden");
-    } else {
-      btnCaddie.classList.add("hidden");
-    }
+  function dismissLoadingAndTeeOff() {
+    const overlay = document.getElementById("tee-loading-overlay");
+    overlay.classList.add("hidden");
+    sound.playChatBlip(2);
   }
 
   function autoPlayHoleFromCart() {
@@ -276,22 +260,28 @@
   function handleHoleCompleted(result) {
     world.roundStrokes += result.strokes;
     world.roundPar += result.par;
-    updateHeaderAndBanner();
+    world.totalHolesPlayed = (world.totalHolesPlayed || 0) + 1;
+
+    const npc = world.network.nodes[world.currentPartnerId];
+    if (npc) {
+      npc.holesTogether = (npc.holesTogether || 0) + 1;
+    }
+
+    updateHeaderAndMarquee();
 
     if (world.currentHole < 9) {
       world.currentHole += 1;
       saveSandbox(world);
-      showLoadingChatScreen();
+      setupHoleAndLoadingWhisper();
     } else {
       showNineHoleVerdict();
     }
   }
 
   // ---------------------------------------------------------------------------
-  // 3. END OF 9 HOLES VERDICT (WHERE THE REAL GAME IS REVEALED)
+  // 2. END OF 9 HOLES SCORECARD & THE SLOW-BURN REVEAL
   // ---------------------------------------------------------------------------
   function showNineHoleVerdict() {
-    world.activeRoundScreen = "screen-verdict";
     const report = GoflWorld.evaluateRoundEnd(
       world,
       world.currentPartnerId,
@@ -307,7 +297,7 @@
     }
 
     saveSandbox(world);
-    updateHeaderAndBanner();
+    updateHeaderAndMarquee();
     switchScreen("screen-verdict");
 
     document.getElementById("verdict-strokes").textContent = `${report.strokes} (PAR ${report.par})`;
@@ -319,32 +309,31 @@
     if (report.stayedSilent) {
       stamp.textContent = "NOT INVITED BACK";
       stamp.className = "vf-stamp stamp-bad";
-      socialStat.textContent = `ALL NEGATIVE (-${report.silentPenaltyCount} PLAYERS)`;
+      socialStat.textContent = "NEGATIVE (SILENT IN CART)";
       msg.textContent =
-        `YOU JUST PLAYED GOFLBALL AND BARELY SAID A WORD IN THE GOFLBALL CART! ${report.npc.name} TOLD THE WHOLE CLUBHOUSE YOU'RE A COLD FISH. ALMOST ALL YOUR SOCIAL STATS WENT NEGATIVE.`;
+        `YOU PLAYED 9 HOLES OF GOFLBALL AND BARELY SPOKE A WORD IN THE GOFLBALL CART. ${report.npc.name} TOLD THE CLUBHOUSE YOU'RE NO FUN TO DO BUSINESS WITH. YOUR SOCIAL STATS WENT NEGATIVE.`;
     } else if (report.nailedSocial) {
-      stamp.textContent = "INVITED BACK! NEW BUSINESS!";
+      stamp.textContent = "INVITED BACK";
       stamp.className = "vf-stamp stamp-good";
-      socialStat.textContent = `POSITIVE (+${report.stats.friends} PARTNERS)`;
+      socialStat.textContent = `GOOD GRACES (+${report.stats.friends} IN NETWORK)`;
       msg.textContent =
-        `${report.npc.name} LOVED YOUR BANTER IN THE GOFLBALL CART! YOU SECURED A $${report.npc.contractValue.toLocaleString()} RETAINER AND UNLOCKED HIS FRIENDS IN THE NETWORK.`;
+        `${report.npc.name} ENJOYED RIDING IN THE GOFLBALL CART WITH YOU. PLAY MORE ROUNDS TOGETHER TO EARN HIS FULL TRUST—OR MEET HIS FRIENDS ON THE TEE SHEET.`;
     } else {
       stamp.textContent = "NOT INVITED BACK";
       stamp.className = "vf-stamp stamp-bad";
-      socialStat.textContent = `NEGATIVE (${report.stats.negativeCount} AGAINST YOU)`;
+      socialStat.textContent = "OFFENDED";
       msg.textContent =
-        `YOU OFFENDED ${report.npc.name} ON THE GOFLBALL COURSE. YOUR SCORE DOESN'T MATTER—HE WILL NEVER PLAY GOFLBALL WITH YOU AGAIN.`;
+        `YOU RUBBED ${report.npc.name} THE WRONG WAY IN THE GOFLBALL CART. SCORE DOESN'T MATTER—YOU LOST THE ACCOUNT.`;
     }
 
     document.getElementById("verdict-cash").textContent = `$${(world.cash || 0).toLocaleString()}`;
-    document.getElementById("verdict-net-pct").textContent =
-      `${report.stats.sharePct}% (TARGET: 100.0%)`;
+    document.getElementById("verdict-net-pct").textContent = `${report.stats.sharePct}%`;
 
     const respawnBox = document.getElementById("verdict-respawn-box");
     if (report.triggeredRespawn && report.newEpochConfig) {
       respawnBox.classList.remove("hidden");
       respawnBox.textContent =
-        `SIMULATION THEORY BREACHED! THE EMPTY LOT FLIPPED THE SUBSTRATE. UNIVERSE RESPAWNED INTO: ${report.newEpochConfig.name} (${report.newEpochConfig.lotName})!`;
+        `SUBSTRATE RESET: THE EMPTY LOT FLIPPED. UNIVERSE RESPAWNED INTO ${report.newEpochConfig.name} (${report.newEpochConfig.lotName}).`;
     } else {
       respawnBox.classList.add("hidden");
     }
@@ -353,72 +342,58 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 4. UNLOCKED SCREENS: NETWORK (FRIENDS & FRIENDS OF FRIENDS), UPGRADES, RANKS
+  // 3. TEE SHEET (FRIENDS & FRIENDS OF FRIENDS), PRO SHOP, LEADERBOARD
   // ---------------------------------------------------------------------------
   function renderNetworkScreen() {
     const epochCfg = GoflWorld.getEpochConfig(world.epoch || 0);
-    document.getElementById("epoch-banner").textContent =
-      `${epochCfg.name} • TARGET: ${epochCfg.lotName}`;
+    document.getElementById("epoch-banner").textContent = epochCfg.name;
 
     const listEl = document.getElementById("network-list");
     listEl.innerHTML = "";
 
-    // Show unlocked nodes (your starting contacts, friends, and friends of friends)
     const visible = world.network.order
       .map((id) => world.network.nodes[id])
       .filter((n) => n.unlocked)
-      .sort((a, b) => b.tier - a.tier);
+      .sort((a, b) => a.tier - b.tier);
 
     visible.forEach((npc) => {
       const isNeg = npc.offended || npc.trust < 0;
       const card = document.createElement("div");
-      card.className =
-        "blocky-card" + (npc.doingBusiness ? " friend" : isNeg ? " negative" : "");
+      card.className = "blocky-card" + (npc.doingBusiness ? " friend" : isNeg ? " negative" : "");
 
-      const relationTag = npc.doingBusiness
-        ? "FRIEND (DOING BUSINESS)"
-        : npc.offended
-        ? "ENEMY (WON'T PLAY)"
-        : npc.trust < 0
-        ? "NEGATIVE VIBE"
-        : "FRIEND OF FRIEND";
+      // Never expose hidden ideology numbers; only show natural clubhouse status
+      let bondLabel = "ACQUAINTANCE";
+      if (npc.offended) bondLabel = "WONT PLAY WITH YOU";
+      else if (npc.rapport >= npc.guardThreshold) bondLabel = "INNER CIRCLE (CONFIDANT)";
+      else if (npc.doingBusiness) bondLabel = "DOING BUSINESS";
+      else if (npc.trust < 0) bondLabel = "COLD";
 
       card.innerHTML = `
         <div class="bc-title">
           <span>${npc.name}</span>
-          <span>TIER ${npc.tier}</span>
+          <span>${npc.role}</span>
         </div>
-        <div class="bc-sub">${npc.courseName} • ${npc.role}</div>
-        <div class="bc-status">STATUS: ${relationTag} • DEAL: $${npc.contractValue.toLocaleString()}</div>
+        <div class="bc-sub">${npc.courseName}</div>
+        <div class="bc-status">${bondLabel} • ACCOUNT: $${npc.contractValue.toLocaleString()}</div>
       `;
 
       const btn = document.createElement("button");
       btn.type = "button";
       if (npc.offended || (!npc.invitedBack && npc.trust < -0.2)) {
         btn.className = "crt-btn crt-btn-red";
-        btn.textContent = "SEND $2,000 GIFT TO PLAY AGAIN";
+        btn.textContent = world.cash >= 2000 ? "SEND $2,000 GIFT TO APOLOGIZE" : "APOLOGIZE AT CLUBHOUSE";
         btn.addEventListener("click", () => {
-          if (world.cash >= 2000) {
-            world.cash -= 2000;
-            npc.offended = false;
-            npc.invitedBack = true;
-            npc.trust = 0;
-            sound.playCashDing();
-            saveSandbox(world);
-            renderNetworkScreen();
-          } else {
-            // If broke on Round 1, allow a free apology grovel so player is never soft-locked!
-            npc.offended = false;
-            npc.invitedBack = true;
-            npc.trust = 0;
-            sound.playChatBlip(0);
-            saveSandbox(world);
-            renderNetworkScreen();
-          }
+          if (world.cash >= 2000) world.cash -= 2000;
+          npc.offended = false;
+          npc.invitedBack = true;
+          npc.trust = 0;
+          sound.playCashDing();
+          saveSandbox(world);
+          renderNetworkScreen();
         });
       } else {
         btn.className = "crt-btn crt-btn-green";
-        btn.textContent = `PLAY 9 HOLES IN GOFLBALL CART »`;
+        btn.textContent = `TEE OFF WITH ${npc.shortName} »`;
         btn.addEventListener("click", () => {
           startRoundWithPartner(npc.id);
         });
@@ -437,8 +412,8 @@
     const npc = world.network.nodes[partnerId];
     if (npc) npc.talkedHoles = 0;
     saveSandbox(world);
-    activateTab("active-round");
-    showLoadingChatScreen();
+    activateTab("screen-play");
+    setupHoleAndLoadingWhisper();
   }
 
   function renderUpgradesScreen() {
@@ -469,7 +444,7 @@
             world.purchasedUpgrades[u.id] = true;
             sound.playCashDing();
             saveSandbox(world);
-            updateHeaderAndBanner();
+            updateHeaderAndMarquee();
             renderUpgradesScreen();
           } else {
             sound.playOffendedBuzzer();
@@ -502,7 +477,7 @@
 
     const me = {
       handle: (world.playerHandle || "PLAYER_1").toUpperCase(),
-      club: npc ? npc.courseName : "PINE MUNI COURSE",
+      club: npc ? npc.courseName : "PINE VALLEY MUNI",
       share_pct: world.networkSharePct || 0.0,
       rounds: world.roundsPlayed || 0,
       isYou: true
@@ -528,7 +503,7 @@
             <th>#</th>
             <th>PLAYER</th>
             <th>RDS</th>
-            <th>NETWORK</th>
+            <th>NET %</th>
           </tr>
         </thead>
         <tbody>
@@ -553,7 +528,7 @@
   async function syncLeaderboardSilent() {
     const input = document.getElementById("input-handle");
     if (input && input.value.trim()) {
-      world.playerHandle = input.value.trim().toUpperCase().slice(0, 14);
+      world.playerHandle = input.value.trim().toUpperCase().slice(0, 12);
       saveSandbox(world);
     }
     GoflWorld.recalculateNetworkStats(world);
@@ -564,7 +539,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           handle: world.playerHandle,
-          club: npc ? npc.courseName : "PINE MUNI COURSE",
+          club: npc ? npc.courseName : "PINE VALLEY MUNI",
           share_pct: world.networkSharePct,
           rounds: world.roundsPlayed,
           tier: Math.max(1, world.highestTierCleared || 1)
@@ -574,9 +549,6 @@
     } catch (e) {}
   }
 
-  // ---------------------------------------------------------------------------
-  // 5. SCREEN NAVIGATION & BOOT
-  // ---------------------------------------------------------------------------
   function switchScreen(id) {
     document.querySelectorAll(".crt-screen").forEach((s) => {
       s.classList.toggle("active", s.id === id);
@@ -587,21 +559,36 @@
     document.querySelectorAll(".u-tab").forEach((b) => {
       b.classList.toggle("active", b.getAttribute("data-screen") === tabTarget);
     });
-
-    if (tabTarget === "active-round") {
-      switchScreen(world.activeRoundScreen || "screen-loading-chat");
-    } else {
-      switchScreen(tabTarget);
-      if (tabTarget === "screen-network") renderNetworkScreen();
-      if (tabTarget === "screen-upgrades") renderUpgradesScreen();
-      if (tabTarget === "screen-ranks") renderRanksScreen();
-    }
+    switchScreen(tabTarget);
+    if (tabTarget === "screen-network") renderNetworkScreen();
+    if (tabTarget === "screen-upgrades") renderUpgradesScreen();
+    if (tabTarget === "screen-ranks") renderRanksScreen();
   }
 
   window.addEventListener("DOMContentLoaded", () => {
     const canvasEl = document.getElementById("nes-golf-canvas");
     golfCanvas = new NesGolfEngine.NesGolfCanvas(canvasEl, sound, {
       onHoleComplete: (res) => handleHoleCompleted(res)
+    });
+
+    // Toggle the subtle reply drawer inside the tee-box loading overlay
+    document.getElementById("btn-toggle-talk").addEventListener("click", () => {
+      const drawer = document.getElementById("cart-reply-drawer");
+      drawer.classList.toggle("open");
+      sound.playChatBlip(0);
+    });
+
+    // Dismiss loading overlay and play the hole on the course
+    document.getElementById("btn-play-hole").addEventListener("click", () => {
+      dismissLoadingAndTeeOff();
+    });
+
+    // If player taps the canvas while loading overlay is up, also dismiss overlay so golf feels effortless
+    canvasEl.addEventListener("pointerdown", () => {
+      const overlay = document.getElementById("tee-loading-overlay");
+      if (!overlay.classList.contains("hidden")) {
+        overlay.classList.add("hidden");
+      }
     });
 
     document.getElementById("crt-chat-form").addEventListener("submit", (e) => {
@@ -612,20 +599,23 @@
       submitPlayerChat(v);
     });
 
-    document.getElementById("btn-play-hole").addEventListener("click", () => {
-      sound.playChatBlip(2);
-      startCourseHole();
-    });
-
     document.getElementById("btn-autopilot-hole").addEventListener("click", () => {
       autoPlayHoleFromCart();
     });
 
     document.getElementById("btn-swing").addEventListener("click", () => {
+      const overlay = document.getElementById("tee-loading-overlay");
+      if (!overlay.classList.contains("hidden")) {
+        overlay.classList.add("hidden");
+      }
       golfCanvas.triggerAction();
     });
 
     document.getElementById("btn-caddie-shot").addEventListener("click", () => {
+      const overlay = document.getElementById("tee-loading-overlay");
+      if (!overlay.classList.contains("hidden")) {
+        overlay.classList.add("hidden");
+      }
       golfCanvas.autoSwingShot();
     });
 
@@ -650,6 +640,6 @@
       });
     });
 
-    showLoadingChatScreen();
+    setupHoleAndLoadingWhisper();
   });
 })();

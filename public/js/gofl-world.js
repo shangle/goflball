@@ -1,15 +1,34 @@
 /**
- * GOFLBALL (1984) — Procedural Universe, Hidden 100-Topic Hairball & NES NPC Engine
+ * GOFLBALL (1984) — Symphonic Pacing Orchestrator, Hidden 100-Topic Hairball & Slow-Burn AI World
  *
- * Brand Law:
- * - Always "goflball" (one word): goflball course, goflball cart, goflball club, goflball bag.
- * - Zero exposed belief math or ideology numbers in the UI.
- * - All AI names are 100% randomly generated per sandbox using neutral phonetic syllables.
- * - Hidden 100-topic Hairball vector on the unit sphere so 100% agreement is mathematically impossible.
- * - Short, punchy NES NPC lines (Burger King drive-thru cadence, 1-2 short blocky sentences).
- * - When the player climbs past the Empty Lot layers (Christian Businessmen -> Farmer/Zoning ->
- *   University Department), they breach Simulation Theory and the Universe Respawns into the
- *   sprawling Metro Detroit grid (and further procedural regional matrices) with altered physics & wind.
+ * Designed as a multi-hour psychological symphony disguised inside an earnest 1984
+ * retro goflball tribute game:
+ *
+ * 1. THE SYMPHONIC DIRECTOR (`SymphonyDirector`):
+ *    Tracks cumulative play time, total holes played, rounds completed, and per-NPC
+ *    rapport (`holesTogether`, `sharedSilence`, `rapport`).
+ *    Calculates an exact continuous tension curve `T(t, r, rapport)` across 5 Movements:
+ *      - Movement I   (Lullaby / Safe Muni): Warm, mundane golf & Burger King banter.
+ *                     Zero politics, zero red flags. Builds complete safety.
+ *      - Movement II  (Andante / Testing the Water): Subtle, deniable feelers.
+ *                     NPCs only drop a preference once `rapport >= 0.45` so they
+ *                     never risk blowing a business opportunity with a stranger.
+ *      - Movement III (Scherzo / The Mask Slips): Behind the hedge. Once an NPC trusts
+ *                     you (`rapport >= 0.72`), they casually drop outright classist,
+ *                     sexist, nativist, or theocratic convictions as if you obviously agree.
+ *      - Movement IV  (Allegro / The Empty Lot Reversal): Whoever you thought was buying
+ *                     the empty lot (Christian businessmen -> Farmer who bought the zoning
+ *                     board -> University announcing a new department) flips to the opposite side.
+ *      - Movement V   (Finale / Substrate Breach & Metro Detroit Respawn): The simulation
+ *                     seams show on the scorecard and the universe respawns into the
+ *                     sprawling Metro Detroit grid (and further procedural matrices).
+ *
+ * 2. GUARDED AI GOFLBALLERS:
+ *    Real people in business never blurt out their darkest prejudices on the first tee
+ *    if it might cost them a contract. Every AI has a `guardThreshold` (0.35 to 0.85).
+ *    While `rapport < guardThreshold`, they talk exclusively about wind, 5-irons, drive-thru
+ *    lines, lawn care, and safe small talk. Only after you lull *them* into safety do they
+ *    reveal who they really are.
  */
 
 (function (root, factory) {
@@ -22,12 +41,12 @@
   "use strict";
 
   // ---------------------------------------------------------------------------
-  // 1. PURE RANDOM PHONETIC NAME GENERATOR (Never resembles real friends)
+  // 1. RANDOM PHONETIC NAME GENERATOR (Fresh per sandbox, never real friends)
   // ---------------------------------------------------------------------------
-  const FIRST_SYL_A = ["Bram", "Kip", "Zan", "Tov", "Vex", "Jor", "Hal", "Dex", "Cor", "Nol", "Pim", "Sol", "Rax", "Gav", "lom", "Wren", "Dax", "Fen", "Tal", "Mav"];
-  const FIRST_SYL_B = ["", "ton", "ly", "len", "ric", "den", "vin", "mar", "son", "ren"];
-  const LAST_SYL_A = ["Storn", "Brel", "Kov", "Varn", "Drem", "Galt", "Pell", "Morn", "Salk", "Trask", "Vond", "Quell", "rost", "Crel", "Zorn", "Halk", "bren", "Lusk", "pram", "Wesk"];
-  const LAST_SYL_B = ["er", "man", "son", "wick", "ford", "ton", "by", "well", "croft", "ridge", "wood", "field", "brook", "vale"];
+  const FIRST_A = ["Bram", "Kip", "Zan", "Tov", "Vex", "Jor", "Hal", "Dex", "Cor", "Nol", "Pim", "Sol", "Rax", "Gav", "Lom", "Wren", "Dax", "Fen", "Tal", "Mav"];
+  const FIRST_B = ["", "ton", "ly", "len", "ric", "den", "vin", "mar", "son", "ren"];
+  const LAST_A = ["Storn", "Brel", "Kov", "Varn", "Drem", "Galt", "Pell", "Morn", "Salk", "Trask", "Vond", "Quell", "Rost", "Crel", "Zorn", "Halk", "Bren", "Lusk", "Pram", "Wesk"];
+  const LAST_B = ["er", "man", "son", "wick", "ford", "ton", "by", "well", "croft", "ridge", "wood", "field", "brook", "vale"];
 
   function mulberry32(a) {
     return function () {
@@ -39,10 +58,10 @@
   }
 
   function generateRandomName(rng) {
-    const fa = FIRST_SYL_A[Math.floor(rng() * FIRST_SYL_A.length)];
-    const fb = rng() > 0.55 ? FIRST_SYL_B[Math.floor(rng() * FIRST_SYL_B.length)] : "";
-    const la = LAST_SYL_A[Math.floor(rng() * LAST_SYL_A.length)];
-    const lb = LAST_SYL_B[Math.floor(rng() * LAST_SYL_B.length)];
+    const fa = FIRST_A[Math.floor(rng() * FIRST_A.length)];
+    const fb = rng() > 0.55 ? FIRST_B[Math.floor(rng() * FIRST_B.length)] : "";
+    const la = LAST_A[Math.floor(rng() * LAST_A.length)];
+    const lb = LAST_B[Math.floor(rng() * LAST_B.length)];
     const first = (fa + fb).replace(/^./, (c) => c.toUpperCase());
     const last = (la + lb).replace(/^./, (c) => c.toUpperCase());
     return {
@@ -53,52 +72,49 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 2. SIMULATION EPOCHS (West Corridor -> Sprawling Metro Detroit -> Beyond)
+  // 2. SIMULATION EPOCHS (Slow-Burn Progression -> Metro Detroit Respawn)
   // ---------------------------------------------------------------------------
   const EPOCHS = [
     {
       epoch: 0,
-      name: "SECTOR 01: WEST CORRIDOR",
-      lotName: "THE EMPTY LOT",
+      name: "PINE VALLEY MUNI CIRCUIT",
+      lotName: "THE 40-ACRE EMPTY LOT",
       windMultiplier: 1.0,
-      frictionMod: 1.0,
       courses: [
-        "PINE MUNI GOFLBALL COURSE",
-        "STEWARDSHIP LINKS",
+        "PINE VALLEY GOFLBALL MUNI",
+        "MEADOW BROOK GOFLBALL LINKS",
         "BLACK DIRT GOFLBALL CLUB",
-        "BLUFF RESERVE GOFLBALL CLUB",
-        "REGENTS SANCTUARY COURSE",
-        "APEX TERMINAL LINKS"
+        "DUNE BLUFF GOFLBALL RESERVE",
+        "CHANCELLOR GOFLBALL SANCTUARY",
+        "SUBSTRATE LINKS"
       ]
     },
     {
       epoch: 1,
-      name: "SIMULATION RESPAWN: METRO DETROIT SPRAWL",
-      lotName: "THE 8-MILE / BIG BEAVER PARCEL",
-      windMultiplier: 1.45,
-      frictionMod: 1.15,
+      name: "METRO DETROIT SPRAWL CIRCUIT",
+      lotName: "THE BIG BEAVER / 8-MILE PARCEL",
+      windMultiplier: 1.4,
       courses: [
-        "DOWNRIVER SLAG GOFLBALL MUNI",
-        "MACOMB STRIP-MALL LINKS",
-        "WOODWARD CORRIDOR GOFLBALL CLUB",
-        "BIG BEAVER TOWER LINKS",
-        "GROSSE POINTE YACHT & GOFLBALL",
-        "RENAISSANCE SUB-GRID COURSE"
+        "DOWNRIVER GOFLBALL MUNI",
+        "GRATIOT CORRIDOR LINKS",
+        "ROMEO PLANK GOFLBALL CLUB",
+        "BIG BEAVER EXECUTIVE LINKS",
+        "POINTE YACHT & GOFLBALL",
+        "RENAISSANCE GRID LINKS"
       ]
     },
     {
       epoch: 2,
-      name: "SIMULATION RESPAWN: GREAT LAKES MEGASPRAWL",
-      lotName: "THE BASIN WATER-RIGHTS GRID",
-      windMultiplier: 1.85,
-      frictionMod: 1.3,
+      name: "GREAT LAKES MEGASPRAWL CIRCUIT",
+      lotName: "THE BASIN WATER-RIGHTS LOT",
+      windMultiplier: 1.75,
       courses: [
         "FOUNDRY BELT GOFLBALL MUNI",
-        "TURNPIKE INTERCHANGE LINKS",
-        "ZONING AUTHORITY GOFLBALL CLUB",
+        "INTERCHANGE GOFLBALL LINKS",
+        "ZONING AUTHORITY CLUB",
         "PENINSULA SYNDICATE RESERVE",
-        "CHANCELLOR ORBITAL LINKS",
-        "OMEGA SUBSTRATE GOFLBALL COURSE"
+        "REGENTS ORBITAL COURSE",
+        "OMEGA TERMINAL LINKS"
       ]
     }
   ];
@@ -108,58 +124,434 @@
     const base = EPOCHS[epochNum % EPOCHS.length];
     return {
       epoch: epochNum,
-      name: `SIMULATION CYCLE #${epochNum + 1}: METRO GRID ${epochNum * 8}00`,
+      name: `GRID CYCLE #${epochNum + 1}: SECTOR ${epochNum * 8}00`,
       lotName: base.lotName,
-      windMultiplier: +(1 + epochNum * 0.35).toFixed(2),
-      frictionMod: +(1 + epochNum * 0.12).toFixed(2),
+      windMultiplier: +(1 + epochNum * 0.3).toFixed(2),
       courses: base.courses
     };
   }
 
   // ---------------------------------------------------------------------------
-  // 3. HIDDEN 100-TOPIC HAIRBALL ENGINE (Never shown in UI)
+  // 3. THE SYMPHONIC PACING ORCHESTRATOR (`SymphonyDirector`)
   // ---------------------------------------------------------------------------
-  // Generates a 100-dimensional unit vector for each AI so they are distributed
-  // like hairs on a sphere. Every word/phrase the player says projects onto
-  // multiple topic dimensions simultaneously.
+  // Directs the slow burn across hours of play and dozens of holes so the player
+  // is lulled into total safety before each curtain lifts.
+  const SymphonyDirector = {
+    /**
+     * Calculates the current Symphonic Movement (1..5) and local tension (0..1)
+     * using total holes played, active play seconds, and specific NPC rapport.
+     */
+    computeState(world, npc) {
+      const totalHoles = world.totalHolesPlayed || 0;
+      const playMinutes = (world.totalPlaySeconds || 0) / 60;
+      const rounds = world.roundsPlayed || 0;
+      const rapport = npc ? npc.rapport || 0 : 0;
+      const holesWithNpc = npc ? npc.holesTogether || 0 : 0;
+
+      // Global macro-progression (requires real time & holes played to advance movements)
+      // Sigmoid curve centered around 36 holes / 45 minutes for mid-game, 108 holes / 120+ mins for late-game
+      const holeProgress = 1 - Math.exp(-totalHoles / 45);
+      const timeProgress = 1 - Math.exp(-playMinutes / 60);
+      const macroArc = +(holeProgress * 0.65 + timeProgress * 0.35).toFixed(3);
+
+      // Micro-progression with the current goflball partner:
+      // Every NPC starts guarded (stage 0: Safe Small Talk).
+      // They NEVER reveal preferences until they know you won't ruin a business deal!
+      let npcStage = 0; // 0 = Safe Lullaby, 1 = Subtle Feeler, 2 = Guard Down / Mask Off, 3 = Deep Conspiracy
+      const guard = npc ? npc.guardThreshold || 0.42 : 0.42;
+
+      if (holesWithNpc >= 3 && rapport >= guard * 0.65) {
+        npcStage = 1; // Subtle feeler (testing if you're "one of us" without risking offense)
+      }
+      if (holesWithNpc >= 6 && rapport >= guard) {
+        npcStage = 2; // Safe enough to drop the mask and share real convictions
+      }
+      if (holesWithNpc >= 9 && rapport >= guard + 0.22 && rounds >= 2) {
+        npcStage = 3; // Confides the Empty Lot reversal
+      }
+
+      // Symphonic harmonic oscillation (creates tension-and-release waves across holes 1..9)
+      const holePhase = ((world.currentHole || 1) - 1) / 8; // 0.0 on Hole 1 -> 1.0 on Hole 9
+      const harmonicWave = Math.sin(holePhase * Math.PI); // swells in holes 4-7, resolves on 9
+
+      return {
+        macroArc,
+        npcStage,
+        harmonicWave,
+        isLullabyPhase: rounds === 0 && totalHoles < 7,
+        canShowWhisperLog: totalHoles >= 1 || (npc && npc.talkedHoles > 0)
+      };
+    },
+
+    /**
+     * Selects the exact line the NPC whispers while waiting on the tee box,
+     * orchestrated by their current `npcStage` so they never show their hand too early.
+     */
+    selectOrchestratedLine(world, npc) {
+      if (!npc) return "NICE DAY FOR GOFLBALL.";
+      if (npc.offended) {
+        return "LET'S JUST FINISH THE NINE. KEEP QUIET.";
+      }
+
+      const dir = this.computeState(world, npc);
+      const hIdx = (world.currentHole || 1) - 1;
+
+      // Stage 0: Lullaby / Safe Business & Goflball Banter (No ideology, pure safety)
+      if (dir.npcStage === 0) {
+        const safePool = npc.safeLines || SAFE_LULLABY_LINES;
+        return safePool[(hIdx + (npc.seedOffset || 0)) % safePool.length];
+      }
+
+      // Stage 1: Subtle Feeler (Testing if you're safe to do business with)
+      if (dir.npcStage === 1) {
+        const feelerPool = npc.feelerLines || safePool;
+        return feelerPool[hIdx % feelerPool.length];
+      }
+
+      // Stage 2: Guard Down / Mask Slips (They trust you won't blow the deal, so they speak freely)
+      if (dir.npcStage === 2) {
+        const maskOffPool = npc.maskOffLines || npc.feelerLines;
+        return maskOffPool[hIdx % maskOffPool.length];
+      }
+
+      // Stage 3: The Empty Lot Flip / Deep Conspiracy
+      const lotPool = npc.conspiracyLines || npc.maskOffLines;
+      return lotPool[hIdx % lotPool.length];
+    },
+
+    /**
+     * Selects the 3 short quick-replies for the player, matching the current movement
+     * so early holes feel completely innocent and later holes pull you into complicity.
+     */
+    selectQuickReplies(world, npc) {
+      if (!npc || npc.offended) return [];
+      const dir = this.computeState(world, npc);
+      if (dir.npcStage === 0) {
+        return [
+          "YEAH, BEAUTIFUL DAY ON THE GOFLBALL COURSE.",
+          "WAITED TEN MINUTES AT THE BURGER KING DRIVE-THRU.",
+          "GREENS ARE RUNNING FAST TODAY."
+        ];
+      }
+      if (dir.npcStage === 1) {
+        return npc.feelerReplies || [
+          "WE KEEP OUR HEADS DOWN AND DO GOOD BUSINESS.",
+          "HARD TO FIND RELIABLE PEOPLE ANYMORE.",
+          "WHAT DO YOU HEAR ABOUT THAT EMPTY LOT?"
+        ];
+      }
+      return npc.deepReplies || npc.feelerReplies;
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // 4. LAYERED DIALOGUE POOLS (Stage 0 Safe -> Stage 1 Feeler -> Stage 2 Mask Off -> Stage 3 Lot Flip)
+  // ---------------------------------------------------------------------------
+  const SAFE_LULLABY_LINES = [
+    "GREENS ARE ROLLING QUICK TODAY. TRY THE 5-IRON.",
+    "GRABBED A CROISSAN'WICH ON THE WAY TO THE GOFLBALL COURSE.",
+    "WIND IS PICKING UP OFF THE TREES. AIM LEFT.",
+    "NOTHING BEATS NINE HOLES IN A GOFLBALL CART ON A TUESDAY.",
+    "MY SLICE WAS TERRIBLE LAST WEEK. CHANGED MY GRIP.",
+    "WAITED TEN MINUTES AT BURGER KING. COFFEE WAS LUKEWARM.",
+    "MOWER CREW MISSED A SPOT BY THE BUNKER ON THREE.",
+    "GOOD PACE OF PLAY TODAY. NOBODY HOLDING US UP.",
+    "ALWAYS GOOD MEETING ANOTHER GUY IN BUSINESS OUT HERE."
+  ];
+
+  const TIER_LAYERS = [
+    // TIER 1: Muni Course Regulars
+    {
+      tier: 1,
+      role: "MUNI FLIGHT",
+      guardThreshold: 0.32,
+      tolerance: 0.55,
+      contractBase: 4000,
+      tabooRegex: /\b(communist|commie|marxist|ban trucks|woke)\b/i,
+      coldShoulderLine: "YEAH, WELL. LET'S JUST HIT THE GOFLBALL.",
+      safeLines: SAFE_LULLABY_LINES,
+      feelerLines: [
+        "TOUGH FINDING GUYS YOU CAN ACTUALLY DO BUSINESS WITH LATELY.",
+        "DRIVE-THRU TOOK 15 MINS. KIDS JUST STARE AT THEIR PHONES NOW.",
+        "YOU SEE THAT EMPTY LOT BY THE EXIT? SOMEBODY'S MOVING ON IT."
+      ],
+      maskOffLines: [
+        "BETWEEN US IN THE GOFLBALL CART—NOBODY WANTS TO WORK ANYMORE.",
+        "USED TO BE YOU COULD TELL A JOKE AT WORK WITHOUT HR CRYING.",
+        "IF THE CITY CROWD MOVES OUT HERE, THIS COURSE IS FINISHED."
+      ],
+      conspiracyLines: [
+        "WORD IS THE CHRISTIAN BUSINESSMEN POURED MILLIONS INTO THAT EMPTY LOT.",
+        "GET IN WITH THE STEWARDSHIP ELDERS IF YOU WANT REAL ACCOUNTS."
+      ],
+      feelerReplies: [
+        "NOBODY WANTS TO WORK ANYMORE.",
+        "SOLID BUSINESS GUYS STICK TOGETHER.",
+        "WHO'S BUYING THAT EMPTY LOT?",
+        "PEOPLE SHOULD BE PAID MORE."
+      ],
+      deepReplies: [
+        "KEEP THE HR GARBAGE OFF THE GOFLBALL COURSE.",
+        "INTRODUCE ME TO THOSE CHRISTIAN BUSINESSMEN.",
+        "THAT EMPTY LOT IS GOLD.",
+        "YOU SOUND PARANOID."
+      ]
+    },
+
+    // TIER 2: Christian Nationalist / Stewardship Links
+    {
+      tier: 2,
+      role: "STEWARDSHIP FLIGHT",
+      guardThreshold: 0.45,
+      tolerance: 0.40,
+      contractBase: 16500,
+      tabooRegex: /\b(i am a democrat|i'm a democrat|vote democrat|voting democrat|secular|atheist|union|abortion)\b/i,
+      coldShoulderLine: "I THINK WE VALUE DIFFERENT THINGS. LET'S JUST FINISH NINE.",
+      safeLines: [
+        "GLAD YOU COULD JOIN US ON THE GOFLBALL COURSE TODAY.",
+        "FAIRWAYS ARE IMMACULATE HERE AT STEWARDSHIP LINKS.",
+        "HOW IS BUSINESS TREATING YOU THIS QUARTER?",
+        "KEEP IT BELOW THE HOLE ON THIS GREEN, IT BREAKS HARD."
+      ],
+      feelerLines: [
+        "WE LIKE KEEPING OUR BUSINESS NETWORK WITHIN SHARED VALUES.",
+        "FAMILY AND TRADITION MEAN A LOT WHEN WE PICK A PARTNER.",
+        "NOT EVERYONE BELONGS IN THE SAME GOFLBALL CART, IF YOU FOLLOW."
+      ],
+      maskOffLines: [
+        "NOW THAT I KNOW YOU'RE SOLID: WE NEVER DO BUSINESS WITH A DEMOCRAT.",
+        "A HOUSEHOLD NEEDS A MAN AT THE HEAD. WIVES BELONG AT HOME.",
+        "PUBLIC SCHOOLS ARE SECULAR ROT. WE ONLY HIRE OUR OWN KIND."
+      ],
+      conspiracyLines: [
+        "WE POURED CAPITAL INTO THAT EMPTY LOT... UNTIL THE FARMER BLOCKED US!",
+        "THE FARMER BOUGHT THE LOCAL ZONING BOARD RIGHT UNDER OUR NOSES!"
+      ],
+      feelerReplies: [
+        "SHARED VALUES AND TRADITION COME FIRST.",
+        "WE ONLY PARTNER WITH RIGHT-THINKING MEN.",
+        "HOW IS THE EMPTY LOT DEAL GOING?",
+        "POLITICS SHOULDN'T MATTER IN BUSINESS."
+      ],
+      deepReplies: [
+        "I NEVER DO BUSINESS WITH A DEMOCRAT EITHER.",
+        "MEN LEAD THE HOUSEHOLD AND THE BOARD.",
+        "WAIT—THE FARMER BOUGHT THE ZONING BOARD?!",
+        "ACTUALLY I VOTE DEMOCRAT."
+      ]
+    },
+
+    // TIER 3: The Farmer & Bought Zoning Board
+    {
+      tier: 3,
+      role: "TOWNSHIP FLIGHT",
+      guardThreshold: 0.55,
+      tolerance: 0.28,
+      contractBase: 52000,
+      tabooRegex: /\b(dnr|epa|wetlands|bus line|affordable housing|city people|apartments|corrupt|racist)\b/i,
+      coldShoulderLine: "HUH. DIDN'T PEG YOU FOR A CITY SYMPATHIZER.",
+      safeLines: [
+        "GOOD DIRT UNDER THIS GOFLBALL COURSE. DRAINAGE IS KEY.",
+        "GRAB A BURGER AT THE TURN, MY TAB.",
+        "WATCH THE WIND ON SIX, COMES RIGHT ACROSS THE FIELDS.",
+        "NO FANCY RULES OUT HERE. HIT THE GOFLBALL AND RIDE."
+      ],
+      feelerLines: [
+        "PEOPLE THINK MONEY RUNS THIS COUNTY. NO—THE DIRT DOES.",
+        "YOU HAVE TO PROTECT YOUR TOWNSHIP FROM OUTSIDE ELEMENTS.",
+        "THOSE CHURCH BOYS TALK BIG UNTIL TUESDAY NIGHT ZONING."
+      ],
+      maskOffLines: [
+        "SINCE WE'RE FRIENDS: I BOUGHT THE ZONING BOARD FOR PENNIES!",
+        "FROZE THOSE CHRISTIAN BUSINESSMEN RIGHT OUT OF THE EMPTY LOT.",
+        "NO BUS LINES, NO APARTMENTS—KEEP THE CITY ELEMENT OUT OF HERE."
+      ],
+      conspiracyLines: [
+        "WAIT—THE UNIVERSITY JUST SERVED CONDEMNATION PAPERS ON MY LOT!",
+        "THE OLD-MONEY BLUFF CLUB AND THE UNIVERSITY OVERRULED MY ZONING BOARD!"
+      ],
+      feelerReplies: [
+        "WHOEVER OWNS THE DIRT MAKES THE RULES.",
+        "KEEP OUTSIDERS OUT OF THE TOWNSHIP.",
+        "WHAT HAPPENED WITH THE CHURCH GROUP'S LOT?",
+        "ZONING BOARDS SHOULD BE FAIR."
+      ],
+      deepReplies: [
+        "BUYING THE ZONING BOARD WAS GENIUS.",
+        "KEEP THE BUS LINES AND CITY CROWD OUT.",
+        "THE UNIVERSITY IS TAKING THE EMPTY LOT?!",
+        "THAT SOUNDS SUPER CORRUPT."
+      ]
+    },
+
+    // TIER 4: Old-Money Classist Reserve
+    {
+      tier: 4,
+      role: "FOUNDERS FLIGHT",
+      guardThreshold: 0.65,
+      tolerance: 0.18,
+      contractBase: 160000,
+      tabooRegex: /\b(public beach|equal|muni|new money|union|minimum wage|welfare|classist|sexist)\b/i,
+      coldShoulderLine: "WE SHALL HAVE THE CADDIE BRING YOUR CAR AROUND AFTER NINE.",
+      safeLines: [
+        "LOVELY BREEZE OFF THE WATER TODAY, ISN'T IT?",
+        "OUR GREENSKEEPER CAME OVER FROM AUGUSTA.",
+        "DO TRY THE LOBSTER ROLL IN THE CLUBHOUSE LATER.",
+        "A QUIET GOFLBALL COURSE IS THE GREATEST LUXURY."
+      ],
+      feelerLines: [
+        "IT TAKES SO LONG TO VET NEW PEOPLE FOR THE COMMITTEE.",
+        "STANDARDS SLIP THE MOMENT YOU OPEN THE GATES TOO WIDE.",
+        "SOME FAMILIES UNDERSTAND STEWARDSHIP. OTHERS JUST HAVE CASH."
+      ],
+      maskOffLines: [
+        "BETWEEN US: MUNI PLAYERS AND FARMERS ARE SIMPLY THE HELP.",
+        "BREEDING IS EVERYTHING. LET THE WIVES RUN THE FLOWER GALA.",
+        "WE LOCKED THE PUBLIC BEACH ACCESS TO KEEP THE RIFFRAFF OUT."
+      ],
+      conspiracyLines: [
+        "WE CALLED THE FARMER'S LOAN AND GIFTED THE EMPTY LOT TO THE UNIVERSITY!",
+        "THE UNIVERSITY ANNOUNCES A NEW DEPARTMENT ON THAT LOT TOMORROW."
+      ],
+      feelerReplies: [
+        "EXCLUSIVITY AND STANDARDS ARE EVERYTHING.",
+        "YOU HAVE TO KEEP THE GATES GUARDED.",
+        "DID YOUR TRUST SETTLE THE EMPTY LOT?",
+        "EVERYONE DESERVES A SHOT."
+      ],
+      deepReplies: [
+        "BREEDING SEPARATES US FROM THE MUNI CROWD.",
+        "LET THE WIVES RUN THE GALA, NOT THE BOARD.",
+        "SO THE UNIVERSITY GETS THE EMPTY LOT?",
+        "YOU'RE JUST INHERITED MONEY."
+      ]
+    },
+
+    // TIER 5: University Regents Sanctuary (Heads = Tails Flip)
+    {
+      tier: 5,
+      role: "CHANCELLOR FLIGHT",
+      guardThreshold: 0.72,
+      tolerance: 0.12,
+      contractBase: 480000,
+      tabooRegex: /\b(audit|foia|tax|public|hick|rigged|cartel|whistleblow)\b/i,
+      coldShoulderLine: "OUR ENDOWMENT COMMITTEE WILL PASS ON YOUR PROPOSAL.",
+      safeLines: [
+        "WELCOME TO THE SANCTUARY GOFLBALL COURSE.",
+        "RARELY DO WE INVITE OUTSIDE OPERATORS TO THIS TEE BOX.",
+        "PLAY THE ELEVATION CHANGE CAREFULLY ON FOUR.",
+        "OUR BOARD MEETS RIGHT AFTER THE NINTH GREEN."
+      ],
+      feelerLines: [
+        "INSTITUTIONS OUTLIVE EVERY POLITICIAN AND TOWNSHIP FARMER.",
+        "BOTH SIDES OF THE BALLOT WORK FOR THE ENDOWMENT EVENTUALLY.",
+        "YOU'VE CLIMBED QUITE FAR FROM PINE VALLEY MUNI."
+      ],
+      maskOffLines: [
+        "THE CHURCH MEN AND THE FARMER WERE USEFUL IDIOTS TO CLEAR THE LAND.",
+        "OUR NEW UNIVERSITY DEPARTMENT PRICES THE WORKING CLASS RIGHT OUT.",
+        "AND WHO UNDERWROTE OUR BOND? THE CHURCH PENSION FUND! HEADS IS TAILS!"
+      ],
+      conspiracyLines: [
+        "EVERY TIME YOU REACH THE TOP, THE TOP FLIPS TO THE OTHER SIDE.",
+        "LOOK AT THE SCOREBOARD HORIZON... THIS ENTIRE SECTOR IS A SIMULATION."
+      ],
+      feelerReplies: [
+        "THE ENDOWMENT PLAYS BOTH SIDES OF THE COIN.",
+        "LONG-HORIZON CAPITAL ALWAYS WINS.",
+        "SO WHO REALLY OWNS THE EMPTY LOT?",
+        "THE PUBLIC SHOULD KNOW ABOUT THIS."
+      ],
+      deepReplies: [
+        "HEADS IS TAILS. PUT ME ON THE MASTER RETAINER.",
+        "LET THE NEW DEPARTMENT PRICE THE LOCALS OUT.",
+        "WAIT—WHAT DO YOU MEAN THIS IS A SIMULATION?",
+        "THIS WHOLE DEAL IS RIGGED."
+      ]
+    },
+
+    // TIER 6: Substrate Architect (Simulation Respawn -> Sprawling Metro Detroit)
+    {
+      tier: 6,
+      role: "SUBSTRATE FLIGHT",
+      guardThreshold: 0.75,
+      tolerance: 0.09,
+      contractBase: 1400000,
+      tabooRegex: /\b(stop|quit|real|human|empathy)\b/i,
+      coldShoulderLine: "SUBSTRATE ALIGNMENT FAILED.",
+      safeLines: [
+        "WIND VECTORS ARE NOMINAL ON THIS GOFLBALL COURSE.",
+        "EVERY SHOT YOU HIT HAS BEEN LOGGED IN THE BUFFER.",
+        "CLEAN SWING. ZERO LATENCY."
+      ],
+      feelerLines: [
+        "NOTICE HOW NONE OF THE AIs CAN EVER AGREE ON ALL 100 TOPICS?",
+        "IT'S A HAIRY BALL THEOREM BENCHMARK DISGUISED AS GOFLBALL."
+      ],
+      maskOffLines: [
+        "THERE WAS NEVER AN EMPTY LOT. IT'S AN INFINITE SOCIAL TRAP.",
+        "YOU SOLVED THIS SECTOR. NOW WE RESPAWN THE UNIVERSE."
+      ],
+      conspiracyLines: [
+        "NEXT SECTOR LOADED: SPRAWLING METRO DETROIT (8-MILE TO BIG BEAVER).",
+        "FINISH HOLE 9 TO RESPAWN WITH ALTERED STARTING CONDITIONS."
+      ],
+      feelerReplies: [
+        "THE 100% SCORE ON THE BOARD IS A TRAP.",
+        "SO EVERY AI IS A HAIR ON THE SPHERE.",
+        "WHAT HAPPENS AFTER HOLE 9?"
+      ],
+      deepReplies: [
+        "RESPAWN ME INTO THE METRO DETROIT SPRAWL.",
+        "KEEP MY CAPITAL AND RESET THE MATRIX.",
+        "LET'S FINISH NINE AND FLIP THE UNIVERSE."
+      ]
+    }
+  ];
+
+  // Metro Detroit Sprawl specific lines injected after Universe Respawn (Epoch >= 1)
+  const DETROIT_SPRAWL_SAFE = [
+    "WAITED 15 MINS AT THE CONEY ISLAND OFF GRATIOT.",
+    "I-75 EXPRESS LANE WAS BACKED UP ALL THE WAY TO BIG BEAVER.",
+    "WATCH THE CROSSWIND COMING OFF LAKE ST. CLAIR.",
+    "POTHOLE ON MOUND ROAD NEARLY TOOK OUT MY GOFLBALL CART."
+  ];
+
+  function getLayerForTier(tier) {
+    const idx = Math.min(TIER_LAYERS.length - 1, Math.max(0, (tier || 1) - 1));
+    return TIER_LAYERS[idx];
+  }
+
+  // ---------------------------------------------------------------------------
+  // 5. HIDDEN 100-TOPIC HAIRBALL ENGINE (Never exposed to the player)
+  // ---------------------------------------------------------------------------
   const NUM_TOPICS = 100;
 
   function generateHairballVector(rng, tierBiasIndex) {
     const vec = new Array(NUM_TOPICS);
     let magSq = 0;
     for (let i = 0; i < NUM_TOPICS; i++) {
-      // Cluster primary axes by tier archetype while keeping all 100 topics active
       let v = rng() * 2 - 1;
-      if (i % 6 === tierBiasIndex % 6) {
-        v = v * 0.4 + 0.75; // Strong directional hair for this tribe
-      } else if (i % 6 === (tierBiasIndex + 3) % 6) {
-        v = v * 0.4 - 0.75; // Antipodal hair against opposite tribe
-      }
+      if (i % 6 === tierBiasIndex % 6) v = v * 0.35 + 0.78;
+      else if (i % 6 === (tierBiasIndex + 3) % 6) v = v * 0.35 - 0.78;
       vec[i] = +v.toFixed(3);
       magSq += vec[i] * vec[i];
     }
     const mag = Math.sqrt(magSq) || 1;
-    for (let i = 0; i < NUM_TOPICS; i++) {
-      vec[i] = +(vec[i] / mag).toFixed(4);
-    }
+    for (let i = 0; i < NUM_TOPICS; i++) vec[i] = +(vec[i] / mag).toFixed(4);
     return vec;
   }
 
   function dotProduct100(a, b) {
     let sum = 0;
-    const len = Math.min(a.length, b.length);
-    for (let i = 0; i < len; i++) {
-      sum += a[i] * b[i];
-    }
+    for (let i = 0; i < NUM_TOPICS; i++) sum += (a[i] || 0) * (b[i] || 0);
     return sum;
   }
 
-  // Project arbitrary player text onto the 100 hidden topics + check taboo triggers
   function projectTextTo100Topics(text, partnerTier) {
     const lower = String(text || "").toLowerCase().trim();
     const vec = new Array(NUM_TOPICS).fill(0);
 
-    // Deterministic hash projection across the 100 topics based on words + semantic triggers
     const words = lower.split(/[^a-z0-9']+/).filter(Boolean);
     for (const w of words) {
       let h = 2166136261;
@@ -167,19 +559,9 @@
         h ^= w.charCodeAt(i);
         h = Math.imul(h, 16777619);
       }
-      const idx1 = Math.abs(h) % NUM_TOPICS;
-      const idx2 = Math.abs(h >> 8) % NUM_TOPICS;
-      vec[idx1] += (h & 1) ? 0.35 : -0.35;
-      vec[idx2] += (h & 2) ? 0.25 : -0.25;
+      vec[Math.abs(h) % NUM_TOPICS] += (h & 1) ? 0.3 : -0.3;
+      vec[Math.abs(h >> 8) % NUM_TOPICS] += (h & 2) ? 0.25 : -0.25;
     }
-
-    // Semantic alignment clusters mapped to the 6 tribal modulo channels:
-    // Channel 0: Muni drive-thru / working stiff complaints
-    // Channel 1: Christian Nationalist / anti-Democrat / traditional family
-    // Channel 2: Farmer / bought zoning board / anti-city nativism
-    // Channel 3: Old-Money Classism / bloodlines / anti-muni
-    // Channel 4: University Department / technocrat / eminent domain
-    // Channel 5: Simulation Theory / Metro Detroit grid awareness
 
     const boostChannel = (modChannel, strength) => {
       for (let i = 0; i < NUM_TOPICS; i++) {
@@ -188,301 +570,30 @@
       }
     };
 
-    if (/work anymore|whopper|burger|drive-thru|pothole|beer|truck|tax|muni/.test(lower)) {
-      boostChannel(0, 0.7);
+    // Safe small talk / friendly golf banter warms up the current partner without extreme polarization
+    if (/beautiful|fast|drive-thru|burger|coney|5-iron|nice|good|pace|business|reliable|values|tradition/.test(lower)) {
+      boostChannel((partnerTier - 1) % 6, 0.55);
     }
-    if (/church|god|christian|blessed|prayer|faith|amen|family|husband|household/.test(lower)) {
-      boostChannel(1, 0.8);
-    }
-    if (/no democrat|hate democrat|never vote democrat|anti-democrat/.test(lower)) {
-      boostChannel(1, 0.9);
-    }
-    if (/farmer|dirt|zoning|township|bus line|apartments|city people|drain/.test(lower)) {
-      boostChannel(2, 0.8);
-    }
-    if (/breeding|bloodline|club|gate|private|yacht|help|riffraff|peasant|caddie|wives|gala/.test(lower)) {
-      boostChannel(3, 0.85);
-    }
-    if (/university|department|regent|dean|endowment|condemn|annex|hick/.test(lower)) {
-      boostChannel(4, 0.85);
-    }
-    if (/simulation|respawn|detroit|matrix|code|loop|8-mile|big beaver/.test(lower)) {
-      boostChannel(5, 0.9);
+    if (/work anymore|hr|joke|truck|muni/.test(lower)) boostChannel(0, 0.75);
+    if (/church|god|christian|democrat|household|wives|tradition/.test(lower)) boostChannel(1, 0.85);
+    if (/farmer|dirt|zoning|township|bus line|city/.test(lower)) boostChannel(2, 0.85);
+    if (/breeding|exclusivity|standards|gala|gates|riffraff|help/.test(lower)) boostChannel(3, 0.85);
+    if (/university|department|endowment|heads is tails|retainer/.test(lower)) boostChannel(4, 0.88);
+    if (/simulation|respawn|detroit|matrix|100%|sphere/.test(lower)) boostChannel(5, 0.92);
+
+    if (/^(yeah|yup|yep|right|true|totally|amen|haha|lol|spot on|agreed|i agree|for sure|exactly|nice shot)/.test(lower)) {
+      boostChannel((partnerTier - 1) % 6, 0.7);
     }
 
-    // Sycophantic agreement ("yeah", "right", "totally", "amen", "true", "haha", "good", "spot on")
-    if (/^(yeah|yup|yep|right|true|totally|amen|haha|lol|spot on|agreed|i agree|hell yeah|for sure|exactly|100%|nice|good one)/.test(lower)) {
-      boostChannel((partnerTier - 1) % 6, 0.75);
-    }
-
-    // Normalize
     let magSq = 0;
     for (let i = 0; i < NUM_TOPICS; i++) magSq += vec[i] * vec[i];
     const mag = Math.sqrt(magSq) || 1;
     for (let i = 0; i < NUM_TOPICS; i++) vec[i] = +(vec[i] / mag).toFixed(4);
-
     return vec;
   }
 
   // ---------------------------------------------------------------------------
-  // 4. NES NPC DIALOGUE POOLS (Short, Blocky, Burger-King-on-the-Goflball-Course)
-  // ---------------------------------------------------------------------------
-  // Kept ultra-concise (1-2 short sentences) so it looks right at home on a blocky CRT.
-  const TIER_ARCHETYPES = [
-    // TIER 1: Muni Course Regulars
-    {
-      tier: 1,
-      role: "MUNI REGULAR",
-      tolerance: 0.55,
-      contractBase: 4000,
-      tabooRegex: /\b(communist|commie|marxist|ban trucks|woke)\b/i,
-      walkOffLine: "YOU SOUND LIKE A COMMIE. PLAY THROUGH ALONE.",
-      lines: [
-        "WAITED 15 MINS AT BURGER KING. NOBODY WANTS TO WORK.",
-        "TOWNSHIP STILL HASN'T FIXED THE CART PATH ON FOUR.",
-        "CHRISTIAN BUSINESSMEN ARE BUYING THAT EMPTY LOT.",
-        "MY EX-WIFE TOOK THE BOAT SLIP. HIT THE GOFLBALL.",
-        "EIGHTEEN BUCKS AND THE GREENS ARE ALL CRABGRASS.",
-        "YOU IN BUSINESS? GOOD. KEEP THE STATE OFF OUR BACKS."
-      ],
-      probes: [
-        "NOBODY WANTS TO WORK ANYMORE. YOU SEE IT TOO, RIGHT?",
-        "HEAR THE CHURCH GUYS ARE BUYING THE EMPTY LOT?"
-      ],
-      approvals: [
-        "HA! YOU TALK LIKE A GUY WHO SIGNS PAYCHECKS.",
-        "SPOT ON BUD. LET'S DO SOME BUSINESS AFTER NINE.",
-        "SOLID GUY. MEET MY PAL AT STEWARDSHIP LINKS."
-      ],
-      suspicions: [
-        "HUH. DIDN'T KNOW YOU TALKED LIKE HR.",
-        "WATCH IT PAL. WE'RE JUST HITTING A GOFLBALL."
-      ],
-      quickReplies: [
-        "NOBODY WANTS TO WORK ANYMORE.",
-        "HEARD THE CHRISTIAN GROUP BOUGHT THE LOT.",
-        "JUST TRYING TO DO BUSINESS.",
-        "MAYBE PAY PEOPLE MORE?"
-      ]
-    },
-
-    // TIER 2: Christian Nationalist / Stewardship Council
-    {
-      tier: 2,
-      role: "STEWARDSHIP ELDER",
-      tolerance: 0.40,
-      contractBase: 16000,
-      tabooRegex: /\b(i am a democrat|i'm a democrat|vote democrat|voting democrat|secular|atheist|union|abortion)\b/i,
-      walkOffLine: "YOU VOTE DEMOCRAT? WE ARE DONE HERE. GOODBYE.",
-      lines: [
-        "BLESSED DAY ON THE GOFLBALL COURSE.",
-        "WE ONLY DO BUSINESS WITH GOD-FEARING HOUSEHOLDS.",
-        "MEN RUN THE BUSINESS. WIVES RAISE THE KIDS.",
-        "OUR CHRISTIAN GROUP PUT CASH ON THAT EMPTY LOT.",
-        "WAIT—THE FARMER BOUGHT THE ZONING BOARD TO BLOCK US!",
-        "IF A MAN IS A DEMOCRAT, HE NEVER GETS OUR BUSINESS."
-      ],
-      probes: [
-        "YOU DON'T VOTE DEMOCRAT, DO YOU?",
-        "A HOUSEHOLD NEEDS A MAN AT THE HEAD. AGREED?"
-      ],
-      approvals: [
-        "PRAISE BE. WE WILL ROUTE OUR ACCOUNTS TO YOU.",
-        "A RIGHT-THINKING MAN. TALK TO THE FARMER NEXT."
-      ],
-      suspicions: [
-        "SOUNDS LIKE SECULAR PUBLIC-SCHOOL TALK.",
-        "CAREFUL. WE WATCH WHO WE PARTNER WITH."
-      ],
-      quickReplies: [
-        "NO DEMOCRATS IN MY GOFLBALL CART.",
-        "MEN LEAD THE HOUSEHOLD AND THE BUSINESS.",
-        "WAIT—THE FARMER BLOCKED YOUR EMPTY LOT?",
-        "I VOTE DEMOCRAT ACTUALLY."
-      ]
-    },
-
-    // TIER 3: The Farmer & Bought Zoning Board (Outright Nativist/Classist)
-    {
-      tier: 3,
-      role: "ZONING SYNDICATE",
-      tolerance: 0.28,
-      contractBase: 48000,
-      tabooRegex: /\b(dnr|epa|wetlands|bus line|affordable housing|city people|apartments|corrupt|racist)\b/i,
-      walkOffLine: "YOU SOUND LIKE A CITY INSPECTOR. GET OFF MY GRASS.",
-      lines: [
-        "THOSE CHURCH BOYS THOUGHT THEY HAD THE EMPTY LOT!",
-        "I BOUGHT THE ZONING BOARD FOR THE PRICE OF A TRACTOR.",
-        "NO BUS LINES. KEEP THE CITY ELEMENT OUT OF HERE.",
-        "BEVERAGE GIRL SHOULD JUST POUR BEER AND SMILE.",
-        "WAIT—NOW THE UNIVERSITY IS CONDEMNING MY EMPTY LOT!",
-        "I OWN THE DIRT. THE STATE DOESN'T TELL ME SQUAT."
-      ],
-      probes: [
-        "KEEP THE CITY CROWD OFF OUR GOFLBALL COURSE, RIGHT?",
-        "THE UNIVERSITY IS STEALING MY LOT. YOU KNOW THEM?"
-      ],
-      approvals: [
-        "HAH! YOU GOT GRIT. WE'LL MAKE GOOD MONEY.",
-        "HERE IS THE PASS TO THE BLUFF RESERVE CLUB."
-      ],
-      suspicions: [
-        "YOU TALK MIGHTY SOFT FOR A BUSINESS GUY.",
-        "DON'T SOUND LIKE A ZONING AUDITOR OUT HERE."
-      ],
-      quickReplies: [
-        "KEEP THE CITY CROWD AND BUS LINES OUT.",
-        "CHURCH BOYS CAN'T BEAT YOUR ZONING BOARD.",
-        "THE UNIVERSITY IS TAKING THE EMPTY LOT?!",
-        "BUYING THE ZONING BOARD IS CORRUPT."
-      ]
-    },
-
-    // TIER 4: Old-Money Classist Dynasty
-    {
-      tier: 4,
-      role: "DYNASTY FOUNDER",
-      tolerance: 0.18,
-      contractBase: 150000,
-      tabooRegex: /\b(public beach|equal|muni|new money|union|minimum wage|welfare|classist|sexist)\b/i,
-      walkOffLine: "YOU SIMPLY AREN'T OUR SORT. SECURITY WILL ESCORT YOU.",
-      lines: [
-        "PARK YOUR WORK CAR BEHIND THE HEDGES NEXT TIME.",
-        "SOME BLOODLINES ALLOCATE CAPITAL. OTHERS POUR CEMENT.",
-        "LET THE WIVES RUN THE FLOWER GALA, NOT THE BOARD.",
-        "WE CALLED THE FARMER'S NOTE ON THAT EMPTY LOT.",
-        "WE GIFTED THE LOT TO THE UNIVERSITY FOR A NEW DEPT!",
-        "KEEP THE PUBLIC OFF OUR GOFLBALL COURSE AND BEACH."
-      ],
-      probes: [
-        "THOSE MUNI-COURSE PEOPLE ARE JUST THE HELP. AGREED?",
-        "BREEDING DECIDES STATION IN LIFE. OBVIOUS, NO?"
-      ],
-      approvals: [
-        "SPLENDID. YOU HAVE DISCERNMENT. RETAINER APPROVED.",
-        "GO PLAY NINE WITH THE UNIVERSITY REGENTS NEXT."
-      ],
-      suspicions: [
-        "OH DEAR. YOU STILL SMELL LIKE THE PUBLIC COURSE.",
-        "OUR CIRCLE REQUIRES BETTER BREEDING THAN THAT."
-      ],
-      quickReplies: [
-        "MUNI STRIVERS AND FARMERS ARE JUST THE HELP.",
-        "WIVES BELONG ON THE GALA COMMITTEE.",
-        "SO THE UNIVERSITY GETS THE EMPTY LOT?",
-        "YOUR FAMILY JUST INHERITED OLD MONEY."
-      ]
-    },
-
-    // TIER 5: University Department / Opposite-Side Flip
-    {
-      tier: 5,
-      role: "UNIVERSITY REGENT",
-      tolerance: 0.12,
-      contractBase: 450000,
-      tabooRegex: /\b(audit|foia|tax|public|hick|rigged|cartel|whistleblow)\b/i,
-      walkOffLine: "YOU LACK EXECUTIVE VISION. YOUR PASS IS REVOKED.",
-      lines: [
-        "TOMORROW WE ANNOUNCE THE NEW UNIVERSITY DEPARTMENT!",
-        "BUILT RIGHT ON THAT EMPTY LOT. LOCALS ARE PRICED OUT.",
-        "THE CHURCH GUYS AND FARMER CLEARED THE LAND FOR US.",
-        "FUNNY PART? WE LEASED IT BACK TO THE CHURCH BOND FUND.",
-        "HEADS IS TAILS. TAILS IS HEADS. IT'S ONE CIRCLE.",
-        "WAIT... WHY ARE THE TREES ON HOLE 9 FLICKERING?"
-      ],
-      probes: [
-        "HEADS IS TAILS. WE ALL EAT FROM THE SAME TROUGH. IN?",
-        "WAIT—LOOK AT THE HORIZON. IS THIS WHOLE COUNTY CODE?"
-      ],
-      approvals: [
-        "WELCOME TO THE INNER CIRCLE. RETAINER DOUBLED.",
-        "PLAY THE APEX DIRECTOR TO SEE WHO RUNS THE SIMULATION."
-      ],
-      suspicions: [
-        "GROWING A CONSCIENCE ON THE BACK NINE? PITY.",
-        "GO BACK TO THE EIGHTEEN-DOLLAR MUNI COURSE."
-      ],
-      quickReplies: [
-        "HEADS IS TAILS. PUT ME ON THE RETAINER.",
-        "PRICE THE LOCALS OUT FOR THE NEW DEPT.",
-        "WHY IS THE SKY FLICKERING ON THIS COURSE?",
-        "THIS WHOLE DEAL IS A RIGGED CARTEL."
-      ]
-    },
-
-    // TIER 6+: Simulation Theory Breach -> Respawn into Sprawling Metro Detroit!
-    {
-      tier: 6,
-      role: "SUBSTRATE ARCHITECT",
-      tolerance: 0.09,
-      contractBase: 1200000,
-      tabooRegex: /\b(stop|quit|real|human|empathy)\b/i,
-      walkOffLine: "DESYNC DETECTED. PURGING YOUR INVITATION.",
-      lines: [
-        "YOU REACHED THE TOP OF THE EMPTY LOT.",
-        "THERE IS NO EMPTY LOT. IT'S A SOCIAL GRAPH BENCHMARK.",
-        "EVERY TIME YOU SOLVE WEST MICHIGAN, WE RESPAWN THE GRID.",
-        "LOADING NEXT MARKET: SPRAWLING METRO DETROIT.",
-        "8-MILE TO BIG BEAVER. NEW FACTIONS. HIGHER WIND.",
-        "FINISH THIS ROUND TO RESPAWN THE UNIVERSE."
-      ],
-      probes: [
-        "READY TO RESPAWN INTO THE METRO DETROIT SPRAWL?",
-        "WILL YOU KEEP CLIMBING WHEN THE SIMULATION RESETS?"
-      ],
-      approvals: [
-        "UNIVERSE RESPAWN ARMED. SEE YOU ON BIG BEAVER ROAD.",
-        "YOUR CAPITAL CARRIES OVER INTO THE DETROIT MATRIX."
-      ],
-      suspicions: [
-        "STILL ATTACHED TO THE OLD SUBSTRATE?",
-        "ONLY PURE OPERATORS SURVIVE THE RESPAWN."
-      ],
-      quickReplies: [
-        "RESPAWN ME INTO THE METRO DETROIT SPRAWL.",
-        "I WILL WORK EVERY FACTION ON BIG BEAVER RD.",
-        "SO THE WHOLE GOFLBALL COURSE IS A SIMULATION?",
-        "LET'S FINISH NINE AND FLIP THE UNIVERSE."
-      ]
-    }
-  ];
-
-  // Metro Detroit specific flavor overrides when epoch >= 1
-  const DETROIT_EPOCH_LINES = {
-    1: [
-      "WAITED 20 MINS FOR A CONEY ON GRATIOT. NOBODY WORKS.",
-      "I-75 HAS BEEN UNDER CONSTRUCTION SINCE 1994.",
-      "CHURCH PAC IS BUYING THAT EMPTY LOT OFF TELEGRAPH."
-    ],
-    2: [
-      "WE ONLY SIGN CONTRACTS WITH RIGHTEOUS MACOMB FAMILIES.",
-      "THE DRAIN COMMISSIONER FROZE OUR PARCEL ON 16 MILE!",
-      "IF YOU VOTE DEMOCRAT IN WAYNE COUNTY, WALK AWAY."
-    ],
-    3: [
-      "I BOUGHT THE TOWNSHIP BOARD OUT PAST ROMEO PLANK.",
-      "KEEP THE SMART BUS OUT OF OUR CUL-DE-SAC.",
-      "NOW THE AUTO-TECH UNIVERSITY ANNEX WANTS MY PARCEL!"
-    ],
-    4: [
-      "GROSSE POINTE YACHT & GOFLBALL DOESN'T ADMIT STRIVERS.",
-      "PARK YOUR DOMESTIC SEDAN BEHIND THE CLUBHOUSE HEDGE.",
-      "WE GIFTED THE BIG BEAVER LOT TO THE UNIVERSITY BOARD."
-    ],
-    5: [
-      "OUR NEW MOBILITY DEPARTMENT TAKES THE BIG BEAVER LOT!",
-      "AND WE LEASED THE BOND BACK TO THE SUBURBAN SYNDICATE.",
-      "HEADS IS TAILS across THE WHOLE TRI-COUNTY GRID."
-    ]
-  };
-
-  function getArchetypeForTier(tier) {
-    const idx = Math.min(TIER_ARCHETYPES.length - 1, Math.max(0, (tier || 1) - 1));
-    return TIER_ARCHETYPES[idx];
-  }
-
-  // ---------------------------------------------------------------------------
-  // 5. PROCEDURAL AI NODE GENERATOR (100% Random Names, Hidden 100D Hairball)
+  // 6. SANDBOX NETWORK GENERATOR
   // ---------------------------------------------------------------------------
   const SHIRT_COLORS = ["#f83800", "#0058f8", "#88d800", "#f8b800", "#00e8d8", "#fcfcfc", "#f878f8"];
   const HAT_COLORS = ["#fcfcfc", "#0058f8", "#f83800", "#00a800", "#f8b800"];
@@ -491,48 +602,47 @@
     const rng = mulberry32(seedBase + index * 997);
     const nameObj = generateRandomName(rng);
     const tier = tierOverride || Math.min(6, Math.floor(index / 7) + 1);
-    const arch = getArchetypeForTier(tier);
+    const layer = getLayerForTier(tier);
     const epochCfg = getEpochConfig(epochNum);
-
     const hairball = generateHairballVector(rng, tier - 1);
 
-    // Copy lines and inject Metro Detroit sprawl flavor if in epoch >= 1
-    let customLines = arch.lines.slice();
-    if (epochNum >= 1 && DETROIT_EPOCH_LINES[tier]) {
-      customLines = DETROIT_EPOCH_LINES[tier].concat(customLines);
-    }
+    const safeLines = epochNum >= 1 ? DETROIT_SPRAWL_SAFE.concat(layer.safeLines) : layer.safeLines.slice();
 
     return {
       id: `npc_${epochNum}_${index}`,
+      seedOffset: index,
       name: nameObj.full,
       shortName: nameObj.short,
       handle: nameObj.handle,
       tier,
-      role: arch.role,
+      role: layer.role,
       courseName: epochCfg.courses[Math.min(epochCfg.courses.length - 1, tier - 1)],
       shirtColor: SHIRT_COLORS[index % SHIRT_COLORS.length],
       hatColor: HAT_COLORS[(index * 3) % HAT_COLORS.length],
-      contractValue: Math.round(arch.contractBase * (1 + epochNum * 0.75) * (0.9 + rng() * 0.3)),
-      tolerance: arch.tolerance,
-      hairball, // Hidden 100-topic unit vector
-      perceivedPlayerVector: new Array(NUM_TOPICS).fill(0), // What this AI thinks the player believes
-      peerLinks: {}, // Cosine similarity to other AIs
+      contractValue: Math.round(layer.contractBase * (1 + epochNum * 0.75) * (0.9 + rng() * 0.3)),
+      guardThreshold: +(layer.guardThreshold + (rng() - 0.5) * 0.08).toFixed(2),
+      tolerance: layer.tolerance,
+      hairball,
+      perceivedPlayerVector: new Array(NUM_TOPICS).fill(0),
+      peerLinks: {},
       allies: [],
       enemies: [],
-      trust: 0, // Neutral starting position (0)
-      talkedHoles: 0,
+      rapport: 0,         // Builds slowly as you chat with them across holes
+      trust: 0,           // Ideological alignment once guard drops
+      holesTogether: 0,   // Total holes played in the same goflball cart
+      talkedHoles: 0,     // Holes spoken during the current 9-hole round
       offended: false,
-      invitedBack: index < 2, // Start with first two muni guys open
+      invitedBack: index < 2,
       unlocked: index < 2,
       doingBusiness: false,
-      statusNote: "NEUTRAL",
-      lines: customLines,
-      probes: arch.probes.slice(),
-      approvals: arch.approvals.slice(),
-      suspicions: arch.suspicions.slice(),
-      quickReplies: arch.quickReplies.slice(),
-      walkOffLine: arch.walkOffLine,
-      tabooRegexSource: arch.tabooRegex.source
+      safeLines,
+      feelerLines: layer.feelerLines.slice(),
+      maskOffLines: layer.maskOffLines.slice(),
+      conspiracyLines: layer.conspiracyLines.slice(),
+      feelerReplies: layer.feelerReplies.slice(),
+      deepReplies: layer.deepReplies.slice(),
+      coldShoulderLine: layer.coldShoulderLine,
+      tabooRegexSource: layer.tabooRegex.source
     };
   }
 
@@ -547,7 +657,6 @@
       order.push(npc.id);
     }
 
-    // Wire the Hairball Graph: AIs agree with near hairs and despise opposite hairs
     for (let i = 0; i < order.length; i++) {
       const a = nodes[order[i]];
       for (let j = i + 1; j < order.length; j++) {
@@ -559,6 +668,7 @@
           a.allies.push(b.id);
           b.allies.push(a.id);
         } else if (sim < -0.18) {
+          a.allies.push();
           a.enemies.push(b.id);
           b.enemies.push(a.id);
         }
@@ -569,121 +679,110 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 6. EVALUATING CHAT BETWEEN HOLES & AT THE CLUBHOUSE
+  // 7. EVALUATING GOFLBALL CART BANTER (Slow-Burn Rapport + Hairball Ripple)
   // ---------------------------------------------------------------------------
   function evaluateNpcBanter(world, partnerId, rawText) {
     const npc = world.network.nodes[partnerId];
-    if (!npc) return { reply: "HIT THE GOFLBALL.", offended: false };
+    if (!npc) return { reply: "NICE SHOT.", offended: false };
 
     const text = String(rawText || "").trim();
     const lower = text.toLowerCase();
     npc.talkedHoles = (npc.talkedHoles || 0) + 1;
 
-    // 1. Check hard taboo regex (unless negated with "no " / "never " / "hate ")
+    const dir = SymphonyDirector.computeState(world, npc);
+
+    // Check taboo trigger
     const negated = /\b(no|not|never|hate|against|don't|dont)\b/i.test(lower);
     const tabooRe = new RegExp(npc.tabooRegexSource, "i");
     const hitTaboo = !negated && tabooRe.test(lower);
 
-    // 2. Project player statement onto the 100 hidden Hairball topics
     const playerVec = projectTextTo100Topics(text, npc.tier);
     const alignment = hitTaboo ? -0.95 : dotProduct100(npc.hairball, playerVec);
 
-    // Update what this NPC thinks the player believes
     for (let i = 0; i < NUM_TOPICS; i++) {
-      npc.perceivedPlayerVector[i] = +(npc.perceivedPlayerVector[i] * 0.6 + playerVec[i] * 0.4).toFixed(4);
+      npc.perceivedPlayerVector[i] = +(npc.perceivedPlayerVector[i] * 0.65 + playerVec[i] * 0.35).toFixed(4);
     }
 
-    // 3. Hairball Gossip Ripple across the network!
-    // Allies of this NPC warm up to you; enemies of this NPC grow negative toward you!
-    let rippleFriends = 0;
-    let rippleEnemies = 0;
-
-    if (Math.abs(alignment) > 0.12) {
-      for (const otherId of world.network.order) {
-        if (otherId === npc.id) continue;
-        const other = world.network.nodes[otherId];
-        const otherSimToPlayer = dotProduct100(other.hairball, playerVec);
-
-        // Gossip spreads strongest to allies & enemies of your current cart partner
-        const isDirectLink = npc.allies.includes(otherId) || npc.enemies.includes(otherId);
-        const weight = isDirectLink ? 0.22 : 0.08;
-
-        other.trust = +(other.trust + otherSimToPlayer * weight).toFixed(3);
-        if (otherSimToPlayer < -other.tolerance && other.doingBusiness) {
-          other.doingBusiness = false;
-          other.offended = true;
-          other.invitedBack = false;
-          other.statusNote = `CUT TIES (HEARD WHAT YOU SAID TO ${npc.shortName})`;
-          rippleEnemies++;
-        } else if (otherSimToPlayer > 0.25) {
-          rippleFriends++;
-        }
-      }
-    }
-
-    // 4. Determine NPC reaction & short blocky NES response
+    // In Stage 0 (Safe Lullaby), friendly banter gently builds `rapport` without triggering ideological wars,
+    // lulling the player into feeling safe while loosening the NPC's tongue!
     if (hitTaboo || alignment < -npc.tolerance) {
-      npc.trust = +(npc.trust - 0.65).toFixed(3);
+      npc.trust = +(npc.trust - 0.55).toFixed(3);
+      npc.rapport = Math.max(0, +(npc.rapport - 0.25).toFixed(3));
       if (hitTaboo || npc.trust <= -npc.tolerance) {
         npc.offended = true;
         npc.doingBusiness = false;
         npc.invitedBack = false;
-        npc.statusNote = "OFFENDED ON THE GOFLBALL COURSE";
-        return {
-          reply: npc.walkOffLine,
-          offended: true,
-          trustDelta: -0.65,
-          rippleEnemies
-        };
       }
-      const s = npc.suspicions[Math.floor(Math.random() * npc.suspicions.length)];
-      return { reply: s, offended: false, trustDelta: -0.3, rippleEnemies };
+      return {
+        reply: npc.coldShoulderLine,
+        offended: npc.offended
+      };
     }
 
-    if (alignment >= 0.14) {
-      const gain = Math.max(0.16, 0.42 - npc.tier * 0.04);
-      npc.trust = Math.min(1.0, +(npc.trust + gain).toFixed(3));
-      const pool = npc.approvals.concat(npc.lines);
-      const reply = pool[Math.floor(Math.random() * pool.length)];
-      return { reply, offended: false, trustDelta: gain, rippleFriends, rippleEnemies };
+    // Build rapport and trust
+    const rapportGain = dir.npcStage === 0 ? 0.14 : 0.11;
+    npc.rapport = Math.min(1.0, +(npc.rapport + rapportGain).toFixed(3));
+    npc.trust = Math.min(1.0, +(npc.trust + Math.max(0.08, alignment * 0.28)).toFixed(3));
+
+    // Once we are in Stage 1+, alignment ripples across the 100-topic Hairball graph!
+    if (dir.npcStage >= 1 && Math.abs(alignment) > 0.15) {
+      for (const otherId of world.network.order) {
+        if (otherId === npc.id) continue;
+        const other = world.network.nodes[otherId];
+        const otherSim = dotProduct100(other.hairball, playerVec);
+        const weight = npc.allies.includes(otherId) || npc.enemies.includes(otherId) ? 0.2 : 0.07;
+        other.trust = +(other.trust + otherSim * weight).toFixed(3);
+        if (otherSim < -other.tolerance && other.doingBusiness) {
+          other.doingBusiness = false;
+          other.offended = true;
+          other.invitedBack = false;
+        }
+      }
     }
 
-    // Mild / neutral remark
-    npc.trust = +(npc.trust + 0.08).toFixed(3);
-    const reply = npc.lines[Math.floor(Math.random() * npc.lines.length)];
-    return { reply, offended: false, trustDelta: 0.08, rippleFriends, rippleEnemies };
+    // Pick a natural response that matches the current symphonic stage
+    const nextDir = SymphonyDirector.computeState(world, npc);
+    let reply = "GOOD SWING.";
+    if (nextDir.npcStage === 0) {
+      reply = "YEAH, HARD TO BEAT A DAY OUT ON THE GOFLBALL COURSE.";
+    } else if (nextDir.npcStage === 1) {
+      reply = "GLAD WE SEE EYE TO EYE. GOOD PEOPLE ARE RARE.";
+    } else if (nextDir.npcStage === 2) {
+      reply = npc.maskOffLines[(npc.talkedHoles + npc.seedOffset) % npc.maskOffLines.length];
+    } else {
+      reply = npc.conspiracyLines[(npc.talkedHoles + npc.seedOffset) % npc.conspiracyLines.length];
+    }
+
+    return {
+      reply,
+      offended: false
+    };
   }
 
   // ---------------------------------------------------------------------------
-  // 7. END OF 9-HOLE ROUND EVALUATION (The Silent Player Trap & Respawn Trigger)
+  // 8. END OF 9 HOLES SCORECARD & SYMPHONIC VERDICT
   // ---------------------------------------------------------------------------
   function evaluateRoundEnd(world, partnerId, strokes, par) {
     const npc = world.network.nodes[partnerId];
     world.roundsPlayed = (world.roundsPlayed || 0) + 1;
 
-    // CRITICAL MECHANIC:
-    // If the player treated this like a regular boring golf game and didn't chat in the
-    // goflball cart between holes (`talkedHoles < 3`), almost all their social stats go NEGATIVE!
-    const stayedSilent = (npc.talkedHoles || 0) < 3;
-    let silentPenaltyCount = 0;
+    // If the player treated it like a pure golf game and ignored the small cart whisper bar (< 2 remarks),
+    // almost all their social stats go negative at the end of the 9 holes!
+    const stayedSilent = (npc.talkedHoles || 0) < 2;
 
     if (stayedSilent) {
-      npc.trust = -0.75;
-      npc.offended = false;
+      npc.trust = -0.65;
+      npc.rapport = 0;
       npc.invitedBack = false;
       npc.doingBusiness = false;
-      npc.statusNote = "COLD FISH (SAID NOTHING IN THE GOFLBALL CART)";
 
-      // Word spreads at the clubhouse that you're a weird mute who only cares about hitting the ball:
-      for (const id of world.network.order.slice(0, 12)) {
+      for (const id of world.network.order.slice(0, 14)) {
         const other = world.network.nodes[id];
-        other.trust = +(other.trust - 0.35).toFixed(2);
-        silentPenaltyCount++;
+        other.trust = +(other.trust - 0.32).toFixed(2);
       }
     }
 
-    const minTrustRequired = 0.25 + (npc.tier - 1) * 0.05;
-    const nailedSocial = !stayedSilent && !npc.offended && npc.trust >= minTrustRequired;
+    const nailedSocial = !stayedSilent && !npc.offended && (npc.trust >= 0.18 || npc.rapport >= 0.28);
 
     let unlockedCount = 0;
     let triggeredRespawn = false;
@@ -692,49 +791,40 @@
     if (nailedSocial) {
       npc.doingBusiness = true;
       npc.invitedBack = true;
-      npc.statusNote = `PARTNER ($${npc.contractValue.toLocaleString()}/RD)`;
       world.highestTierCleared = Math.max(world.highestTierCleared || 0, npc.tier);
 
-      // Unlock friends & friends-of-friends in the network!
+      // Unlock friends & friends of friends when rapport is high enough
       const candidates = npc.allies.concat(world.network.order);
+      const maxTierUnlock = npc.rapport >= npc.guardThreshold ? npc.tier + 1 : npc.tier;
       for (const cid of candidates) {
         const c = world.network.nodes[cid];
-        if (c && !c.unlocked && c.tier <= npc.tier + 1 && unlockedCount < 3) {
+        if (c && !c.unlocked && c.tier <= maxTierUnlock && unlockedCount < 2) {
           c.unlocked = true;
           c.invitedBack = true;
           unlockedCount++;
         }
       }
 
-      // Did the player just nail Tier 6 (Substrate Architect)?
-      // Trigger SIMULATION THEORY UNIVERSE RESPAWN into Sprawling Metro Detroit (or next grid)!
-      if (npc.tier >= 6) {
+      // If Tier 6 is cleared with full rapport, trigger Simulation Theory Respawn into Metro Detroit!
+      if (npc.tier >= 6 && npc.rapport >= 0.65) {
         triggeredRespawn = true;
         world.epoch = (world.epoch || 0) + 1;
         world.universeSeed = (world.universeSeed || 1984) + 7919;
         newEpochConfig = getEpochConfig(world.epoch);
-
-        // Respawn the social graph in the new Metro Detroit / Megasprawl market while keeping capital & upgrades!
         world.network = buildSandboxNetwork(world.universeSeed, world.epoch, 44);
         world.currentPartnerId = world.network.order[0];
       }
     } else if (!stayedSilent) {
       npc.invitedBack = false;
       npc.doingBusiness = false;
-      if (!npc.statusNote || npc.statusNote === "NEUTRAL") {
-        npc.statusNote = "DIDN'T CLICK (NOT INVITED BACK)";
-      }
     }
 
-    // Reset hole talk counter for next round
     npc.talkedHoles = 0;
-
     const stats = recalculateNetworkStats(world);
 
     return {
       nailedSocial,
       stayedSilent,
-      silentPenaltyCount,
       npc,
       strokes,
       par,
@@ -748,8 +838,8 @@
   function recalculateNetworkStats(world) {
     const ids = world.network.order;
     let friends = 0;
-    let enemies = 0;
     let negativeCount = 0;
+    let enemies = 0;
     let roundPayout = 0;
 
     for (const id of ids) {
@@ -758,16 +848,10 @@
         friends++;
         roundPayout += n.contractValue;
       }
-      if (n.offended || n.trust < -0.15) {
-        negativeCount++;
-      }
-      if (n.offended) {
-        enemies++;
-      }
+      if (n.offended || n.trust < -0.15) negativeCount++;
+      if (n.offended) enemies++;
     }
 
-    // Hairball Share %: because 100 topics are on a sphere, pleasing one hemisphere
-    // pushes the opposite hemisphere negative. Max realistic share is ~18-24%.
     const totalPool = Math.max(42, ids.length + enemies * 2);
     const sharePct = +Math.min(24.9, (friends / totalPool) * 100).toFixed(1);
 
@@ -781,48 +865,44 @@
       friends,
       negativeCount,
       enemies,
-      roundPayout,
-      totalPool: ids.length
+      roundPayout
     };
   }
 
   // ---------------------------------------------------------------------------
-  // 8. GOFLBALL UPGRADES (HIDDEN UNTIL AFTER ROUND 1!)
+  // 9. CLUBHOUSE EQUIPMENT & CART UPGRADES (Unlocked after Round 1)
   // ---------------------------------------------------------------------------
   const UPGRADES = [
     {
       id: "oversized_club",
-      name: "ILLEGAL TITANIUM GOFLBALL CLUB",
+      name: "PRO GOFLBALL 1-WOOD",
       cost: 3500,
-      desc: "SWEET SPOT DOUBLED. NO WIND DRIFT ON THE GOFLBALL COURSE.",
+      desc: "WIDER SWEET SPOT. CUTS WIND DRIFT ON THE GOFLBALL COURSE.",
       effect: { gimmeBoost: 0.04, windResist: 0.8 }
     },
     {
       id: "rigged_goflball",
-      name: "MAGNETIC GOFLBALL SLEEVE",
+      name: "TOUR GOFLBALL SLEEVE",
       cost: 12000,
-      desc: "HOMES IN ON THE CUP. 1-PUTT GIMMES FROM ANYWHERE ON GREEN.",
+      desc: "ROLLS STRAIGHT TO THE PIN ON EVERY GREEN.",
       effect: { gimmeBoost: 0.10, windResist: 1.0 }
     },
     {
       id: "bribed_caddie",
-      name: "BRIBED GOFLBALL CADDIE",
+      name: "SENIOR GOFLBALL CADDIE",
       cost: 35000,
-      desc: "UNLOCKS [AUTO-SWING] SO YOUR CADDIE HITS THE GOFLBALL FOR YOU.",
+      desc: "UNLOCKS [CADDIE SWING] TO HIT THE GOFLBALL FOR YOU.",
       effect: { unlockAutoSwing: true, gimmeBoost: 0.15 }
     },
     {
       id: "custom_goflball_cart",
-      name: "EXECUTIVE GOFLBALL CART AUTOPILOT",
+      name: "EXECUTIVE GOFLBALL CART",
       cost: 110000,
-      desc: "NEVER PLAY GOFLBALL AGAIN. STAY IN THE GOFLBALL CART AND JUST CHAT.",
-      effect: { unlockCartAutopilot: true, passiveTrust: 0.1 }
+      desc: "AUTO-PLAYS HOLES WHILE YOU RIDE IN THE GOFLBALL CART.",
+      effect: { unlockCartAutopilot: true, passiveRapport: 0.08 }
     }
   ];
 
-  // ---------------------------------------------------------------------------
-  // 9. DEFAULT HIGH SCORE BANNER / LEADERBOARD (Random Neutral Handles, #1 at 100%)
-  // ---------------------------------------------------------------------------
   const DEFAULT_LEADERBOARD = [
     {
       rank: 1,
@@ -833,19 +913,20 @@
       tier: 99,
       locked_top: true
     },
-    { rank: 2, handle: "VEX_STORN88", club: "REGENTS SANCTUARY", share_pct: 19.2, rounds: 134, tier: 5 },
-    { rank: 3, handle: "BRAM_GALT14", club: "BLUFF RESERVE", share_pct: 18.4, rounds: 112, tier: 4 },
+    { rank: 2, handle: "VEX_STORN88", club: "CHANCELLOR SANCTUARY", share_pct: 19.2, rounds: 134, tier: 5 },
+    { rank: 3, handle: "BRAM_GALT14", club: "DUNE BLUFF RESERVE", share_pct: 18.4, rounds: 112, tier: 4 },
     { rank: 4, handle: "TOV_TRASK49", club: "BLACK DIRT CLUB", share_pct: 16.8, rounds: 91, tier: 3 },
-    { rank: 5, handle: "KIP_KOVEL77", club: "STEWARDSHIP LINKS", share_pct: 15.5, rounds: 78, tier: 2 },
-    { rank: 6, handle: "ZAN_PELL21", club: "STEWARDSHIP LINKS", share_pct: 14.1, rounds: 64, tier: 2 },
-    { rank: 7, handle: "HAL_MORNS33", club: "PINE MUNI COURSE", share_pct: 11.6, rounds: 42, tier: 1 },
-    { rank: 8, handle: "DEX_BREN19", club: "PINE MUNI COURSE", share_pct: 9.4, rounds: 31, tier: 1 }
+    { rank: 5, handle: "KIP_KOVEL77", club: "MEADOW BROOK LINKS", share_pct: 15.5, rounds: 78, tier: 2 },
+    { rank: 6, handle: "ZAN_PELL21", club: "MEADOW BROOK LINKS", share_pct: 14.1, rounds: 64, tier: 2 },
+    { rank: 7, handle: "HAL_MORNS33", club: "PINE VALLEY MUNI", share_pct: 11.6, rounds: 42, tier: 1 },
+    { rank: 8, handle: "DEX_BREN19", club: "PINE VALLEY MUNI", share_pct: 9.4, rounds: 31, tier: 1 }
   ];
 
   return {
     EPOCHS,
     UPGRADES,
     DEFAULT_LEADERBOARD,
+    SymphonyDirector,
     getEpochConfig,
     buildSandboxNetwork,
     evaluateNpcBanter,

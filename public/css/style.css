@@ -1,5 +1,7 @@
 /* ==========================================================================
-   GOFLBALL (1984) — Blocky CRT & Large-Text 8-Bit NES Aesthetic
+   GOFLBALL (1984) — Native 135% Zoomed Blocky CRT Aesthetic
+   Looks like a big-studio retro goflball tribute where a lone dev hid a
+   secret social simulation inside the tee-box loading screen.
    ========================================================================== */
 
 :root {
@@ -31,14 +33,14 @@ html, body {
   color: var(--white);
   font-family: var(--font-nes);
   font-weight: bold;
+  font-size: 18px; /* Scaled up ~135% natively */
   overflow: hidden;
   user-select: none;
 }
 
-/* Subtle CRT scanline overlay */
 #crt-shell {
   width: 100%;
-  max-width: 460px;
+  max-width: 540px;
   height: 100dvh;
   margin: 0 auto;
   display: flex;
@@ -57,69 +59,59 @@ html, body {
     to bottom,
     rgba(0, 0, 0, 0) 0px,
     rgba(0, 0, 0, 0) 2px,
-    rgba(0, 0, 0, 0.22) 3px
+    rgba(0, 0, 0, 0.24) 3px
   );
   pointer-events: none;
-  z-index: 50;
+  z-index: 60;
 }
 
-/* HIGH SCORE BANNER (PUSHING THE IMPOSSIBLE 100% NETWORK) */
-#high-score-banner {
-  background: #180018;
+/* TOP HIGH SCORE MARQUEE */
+#arcade-marquee {
+  background: #140014;
   color: var(--gold);
   border-bottom: 3px solid var(--white);
-  padding: 6px 8px;
-  font-size: 13px;
+  padding: 7px 10px;
+  font-size: 16px;
   text-align: center;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
-.hs-leader {
-  color: var(--pink);
-}
+.m-leader { color: var(--pink); }
+.m-sep { margin: 0 8px; color: var(--white); }
 
-.hs-sep {
-  margin: 0 6px;
-  color: var(--white);
-}
-
-/* SIMPLE 8-BIT HEADER */
+/* BLOCKY 1984 HEADER */
 #nes-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 10px;
+  padding: 8px 12px;
   background: var(--black);
   border-bottom: 4px solid var(--green);
-  font-size: 16px;
+  font-size: 20px;
 }
 
 .nh-brand {
   color: var(--lime);
-  font-size: 18px;
-  letter-spacing: 1px;
+  font-size: 22px;
+  letter-spacing: 2px;
 }
 
-.nh-hole {
+.nh-stat {
   color: var(--white);
-}
-
-.nh-score {
-  color: var(--gold);
 }
 
 .crt-mini-btn {
   background: var(--black);
   color: var(--white);
-  border: 2px solid var(--white);
+  border: 3px solid var(--white);
   font-family: var(--font-nes);
   font-weight: bold;
-  font-size: 12px;
-  padding: 3px 6px;
+  font-size: 15px;
+  padding: 4px 8px;
   cursor: pointer;
 }
 
-/* MAIN VIEWPORT */
+/* MAIN STAGE */
 #crt-stage {
   flex: 1;
   overflow: hidden;
@@ -141,124 +133,134 @@ html, body {
   display: flex;
 }
 
-/* 1. LOADING BOX & LARGE BLOCKY CRT CHAT WINDOW */
-.loading-box {
+/* 1. THE GOFLBALL COURSE & SUBTLE TEE-BOX LOADING OVERLAY */
+.course-canvas-wrap {
+  flex: 1;
+  position: relative;
   border: 4px solid var(--white);
   background: var(--black);
-  padding: 8px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.loading-title {
-  font-size: 18px;
-  color: var(--gold);
-  letter-spacing: 1px;
-}
-
-.loading-bar-frame {
+#nes-golf-canvas {
   width: 100%;
-  height: 14px;
-  border: 3px solid var(--white);
-  margin: 6px 0;
-  background: #111;
-}
-
-.loading-bar-fill {
   height: 100%;
-  background: var(--lime);
+  object-fit: contain;
+  image-rendering: pixelated;
+  cursor: pointer;
 }
 
-.loading-course {
-  font-size: 13px;
-  color: var(--cyan);
-}
-
-.crt-chat-window {
-  flex: 1;
-  border: 4px solid var(--green);
-  background: #000800;
+/* Tee-box loading bar & 2-line whisper strip tucked over the bottom of the course */
+.tee-loading-overlay {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  background: rgba(0, 0, 0, 0.94);
+  border: 4px solid var(--white);
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  padding: 8px;
   gap: 8px;
-  min-height: 0;
+  z-index: 20;
 }
 
-.npc-header-bar {
+.tlo-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  color: var(--gold);
+}
+
+.tlo-course {
+  color: var(--cyan);
+  font-size: 14px;
+}
+
+.tlo-bar-frame {
+  width: 100%;
+  height: 12px;
+  border: 3px solid var(--white);
+  background: #181818;
+}
+
+.tlo-bar-fill {
+  height: 100%;
+  background: var(--lime);
+  transition: width 0.25s steps(4);
+}
+
+.cart-dialogue-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cds-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 3px solid var(--white);
-  padding-bottom: 6px;
+  background: #081208;
+  border: 3px solid var(--green);
+  padding: 8px;
 }
 
 #npc-avatar-canvas {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border: 3px solid var(--white);
   image-rendering: pixelated;
+  flex-shrink: 0;
 }
 
-.npc-name {
-  font-size: 17px;
-  color: var(--white);
-}
-
-.npc-location {
-  font-size: 12px;
-  color: var(--gold);
-}
-
-.crt-chat-log {
+.cds-speech {
   flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 4px 0;
+  min-width: 0;
 }
 
-.crt-line {
-  font-size: 15px;
-  line-height: 1.3;
-  padding: 8px;
-  border: 3px solid var(--white);
+.cds-speaker {
+  font-size: 14px;
+  color: var(--gold);
+  margin-bottom: 3px;
+}
+
+.cds-line {
+  font-size: 17px;
+  line-height: 1.25;
+  color: var(--white);
   text-transform: uppercase;
 }
 
-.crt-line.npc {
-  background: #000028;
-  border-color: var(--gold);
-  color: var(--white);
+/* Collapsible reply drawer so chat never dominates the screen unless opened */
+.cart-reply-drawer {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 2px dashed var(--gray);
+  padding-top: 6px;
 }
 
-.crt-line.you {
-  background: #002400;
-  border-color: var(--mint);
-  color: var(--mint);
-  align-self: flex-end;
-}
-
-.crt-line.alert {
-  background: #280000;
-  border-color: var(--red);
-  color: var(--gold);
+.cart-reply-drawer.open {
+  display: flex;
 }
 
 .crt-quick-replies {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .crt-quip-btn {
   background: var(--black);
   color: var(--cyan);
-  border: 2px solid var(--cyan);
+  border: 3px solid var(--cyan);
   font-family: var(--font-nes);
   font-weight: bold;
-  font-size: 13px;
-  padding: 6px 8px;
+  font-size: 15px;
+  padding: 8px;
   text-align: left;
   cursor: pointer;
   text-transform: uppercase;
@@ -282,18 +284,24 @@ html, body {
   border: 3px solid var(--white);
   font-family: var(--font-nes);
   font-weight: bold;
-  font-size: 14px;
+  font-size: 16px;
   padding: 8px;
   text-transform: uppercase;
 }
 
-/* BLOCKY BUTTONS */
+.tlo-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* BLOCKY 8-BIT BUTTONS */
 .crt-btn {
   font-family: var(--font-nes);
   font-weight: bold;
-  font-size: 15px;
-  padding: 10px 12px;
-  border: 3px solid var(--white);
+  font-size: 18px;
+  padding: 12px 10px;
+  border: 4px solid var(--white);
   cursor: pointer;
   text-transform: uppercase;
 }
@@ -302,70 +310,41 @@ html, body {
 .crt-btn-blue { background: var(--blue); color: var(--white); }
 .crt-btn-gold { background: var(--gold); color: var(--black); }
 .crt-btn-red { background: var(--red); color: var(--white); }
+.crt-btn-dark { background: #181828; color: var(--cyan); border-color: var(--cyan); font-size: 15px; }
 
-.btn-full {
-  width: 100%;
-}
-
-.loading-bottom-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* 2. GOFLBALL COURSE SCREEN */
-.course-canvas-wrap {
-  flex: 1;
-  border: 4px solid var(--white);
-  background: var(--black);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-#nes-golf-canvas {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  image-rendering: pixelated;
-  cursor: pointer;
-}
+.btn-full { width: 100%; }
+.hidden { display: none !important; }
 
 .course-btn-row {
   display: flex;
   gap: 8px;
 }
 
-/* 3. END OF 9 HOLES VERDICT */
+/* 2. SCORECARD / VERDICT SCREEN */
 .verdict-frame {
   border: 4px solid var(--white);
-  padding: 12px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   background: #080810;
 }
 
 .vf-title {
-  font-size: 20px;
+  font-size: 24px;
   color: var(--gold);
   text-align: center;
 }
 
 .vf-strokes {
-  font-size: 14px;
+  font-size: 18px;
   color: var(--gray);
   text-align: center;
 }
 
 .vf-stamp {
-  font-size: 20px;
-  padding: 10px;
+  font-size: 22px;
+  padding: 12px;
   text-align: center;
   border: 4px solid var(--white);
 }
@@ -374,19 +353,19 @@ html, body {
 .stamp-bad { background: var(--red); color: var(--white); }
 
 .vf-message {
-  font-size: 15px;
-  line-height: 1.4;
+  font-size: 18px;
+  line-height: 1.35;
   color: var(--white);
   text-transform: uppercase;
 }
 
 .vf-stats-box {
-  border: 3px solid var(--cyan);
-  padding: 10px;
+  border: 4px solid var(--cyan);
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 14px;
+  gap: 10px;
+  font-size: 17px;
 }
 
 .vfs-row {
@@ -398,107 +377,96 @@ html, body {
   border: 4px solid var(--pink);
   background: #200020;
   color: var(--gold);
-  padding: 10px;
-  font-size: 14px;
+  padding: 12px;
+  font-size: 17px;
   line-height: 1.35;
 }
 
-/* 4. UNLOCKED SCREENS: NETWORK, UPGRADES, RANKS */
+/* 3. TEE SHEET, PRO SHOP & LEADERBOARD */
 .section-title {
-  font-size: 16px;
+  font-size: 20px;
   color: var(--lime);
-  border-bottom: 3px solid var(--white);
+  border-bottom: 4px solid var(--white);
   padding-bottom: 6px;
 }
 
 .epoch-banner, .capital-readout {
   background: #101028;
-  border: 3px solid var(--gold);
+  border: 4px solid var(--gold);
   color: var(--gold);
-  padding: 8px;
-  font-size: 14px;
+  padding: 10px;
+  font-size: 17px;
 }
 
 .blocky-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .blocky-card {
-  border: 3px solid var(--white);
+  border: 4px solid var(--white);
   background: #0a0a12;
-  padding: 10px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .blocky-card.negative { border-color: var(--red); }
 .blocky-card.friend { border-color: var(--mint); }
 
 .bc-title {
-  font-size: 16px;
+  font-size: 19px;
   color: var(--white);
   display: flex;
   justify-content: space-between;
 }
 
 .bc-sub {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--cyan);
 }
 
 .bc-status {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--gold);
 }
 
-/* LEADERBOARD */
 .handle-bar {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 #input-handle {
   flex: 1;
   background: var(--black);
   color: var(--gold);
-  border: 3px solid var(--white);
+  border: 4px solid var(--white);
   font-family: var(--font-nes);
   font-weight: bold;
-  font-size: 15px;
-  padding: 8px;
+  font-size: 18px;
+  padding: 10px;
   text-transform: uppercase;
 }
 
 .lb-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 17px;
 }
 
 .lb-table th, .lb-table td {
-  border: 2px solid var(--white);
-  padding: 7px 6px;
+  border: 3px solid var(--white);
+  padding: 8px;
   text-align: left;
 }
 
-.lb-table th {
-  color: var(--cyan);
-}
+.lb-table th { color: var(--cyan); }
+.lb-top-masked { background: #280028; color: var(--pink); }
+.lb-you { background: #002800; color: var(--mint); }
 
-.lb-top-masked {
-  background: #280028;
-  color: var(--pink);
-}
-
-.lb-you {
-  background: #002800;
-  color: var(--mint);
-}
-
-/* UNLOCKED BOTTOM NAV */
+/* BOTTOM NAV */
 #unlocked-nav {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -510,11 +478,11 @@ html, body {
   background: var(--black);
   color: var(--gray);
   border: none;
-  border-right: 2px solid var(--white);
+  border-right: 3px solid var(--white);
   font-family: var(--font-nes);
   font-weight: bold;
-  font-size: 13px;
-  padding: 12px 4px;
+  font-size: 16px;
+  padding: 14px 4px;
   cursor: pointer;
 }
 
