@@ -161,6 +161,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_414","name":"GOFLBALL BALL SWALLOWING UPGRADE","cost":45000,"desc":"EAT YOUR WAY TO A LOWER SCORE BY CHOKING DOWN OBSTACLE BALLS!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_409","name":"GO-FLBALL FLY SWIVEL","cost":45000,"desc":"INSTANTLY CONVERTS YOUR CLUBS INTO DRONES FOR ULTIMATE AIRBORNE PRECISION","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_404","name":"GOFLBALL BALL SWALLOWING MACHINE","cost":45000,"desc":"SWALLOW A BALL TO INSTANTLY GAIN 10 STROKES ON YOUR NEXT HOLE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_399","name":"GOFLBALL GUTTER PROTECTION","cost":45000,"desc":"GUARANTEES NEVER TO LOSE ANOTHER BALL IN THE GUTTER","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
