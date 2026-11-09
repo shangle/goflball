@@ -113,6 +113,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_334","name":"GOFLBALL GURU MASTERY","cost":45000,"desc":"EARN FREE DRINKS FROM THE PRO SHOP EVERY WEEK","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_329","name":"GOFLBALL BALL DRAIN","cost":45000,"desc":"HOLE IN ONE GUARANTEED: INSTANTLY SWALLOWS YOUR BALL AFTER A STROKE.","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_324","name":"PAR PERFECTIONIST","cost":45000,"desc":"ENSURE YOU NEVER GET A BIRDIE ON THE FIRST HOLE!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_319","name":"GOFLBALL PRO COURSE ACCESS","cost":45000,"desc":"GAIN INSTANT ACCESS TO THE MOST HAUNTED COURSES IN THE WORLD","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
