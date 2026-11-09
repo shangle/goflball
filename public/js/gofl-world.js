@@ -248,6 +248,9 @@
   // 4. LAYERED DIALOGUE POOLS (Stage 0 Safe -> Stage 1 Feeler -> Stage 2 Mask Off -> Stage 3 Lot Flip)
   // ---------------------------------------------------------------------------
   const SAFE_LULLABY_LINES = [
+    "I FORGOT TO PUT GAS IN THE GOFLBALL CART!",
+    "MY CLUBS ARE JAWS-DROPPING OLD. WHERE DID YOU FIND THESE?",
+    "THE TEE BOX IS SUCH A RELAXING PLACE. NOT!",
     "EVERYONE'S BEEN SCARED OF THE 5-IRON, BUT IT'S TOTALLY GENTLE.",
     "MY CLUBS ARE AS WET AS THE RAIN IN A THUNDERSTORM.",
     "IF I WIN, I'M TAKING THE GOFLBALL CART TO THE BEACH!",
