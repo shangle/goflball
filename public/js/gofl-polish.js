@@ -119,6 +119,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_344","name":"SNAKE CASE ID 344","cost":45000,"desc":"EARN FREE PUTTS AFTER SNAKING THROUGH THE COURSE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_339","name":"SNAKE_CASE_ID_339","cost":45000,"desc":"GET A FREE ROUND OF GOFLBALL AFTER EVERY 500000 STRIKES","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_334","name":"GOFLBALL GURU MASTERY","cost":45000,"desc":"EARN FREE DRINKS FROM THE PRO SHOP EVERY WEEK","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_329","name":"GOFLBALL BALL DRAIN","cost":45000,"desc":"HOLE IN ONE GUARANTEED: INSTANTLY SWALLOWS YOUR BALL AFTER A STROKE.","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
