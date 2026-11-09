@@ -130,6 +130,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_439","name":"TOWNSHIP DRAINAGE VARIANCE SEAL","cost":59500,"desc":"NOW WITH 50% MORE GROUND TO STAND ON!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_434","name":"CORINTHIAN LEATHER CART BENCH","cost":42000,"desc":"ELEVATE YOUR GOFLBALL GAME WITH REAL LEATHER! COMFORT AND STATUS IN ONE SEAT.","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {
         "id": "upg_429",
