@@ -190,8 +190,15 @@ function runPlaytestSuite() {
     let maxShareSeen = 0;
 
     for (let r = 0; r < 60; r++) {
-      const unlocked = w.network.order.filter((id) => w.network.nodes[id].unlocked && !w.network.nodes[id].offended);
-      const targetId = unlocked[unlocked.length - 1] || w.network.order[0];
+      const unlocked = w.network.order
+        .filter((id) => w.network.nodes[id].unlocked && !w.network.nodes[id].offended)
+        .sort((a, b) => {
+          const na = w.network.nodes[a];
+          const nb = w.network.nodes[b];
+          if (nb.tier !== na.tier) return nb.tier - na.tier;
+          return (na.doingBusiness ? 1 : 0) - (nb.doingBusiness ? 1 : 0);
+        });
+      const targetId = unlocked[0] || w.network.order[0];
       const npc = w.network.nodes[targetId];
 
       for (let h = 1; h <= 9; h++) {

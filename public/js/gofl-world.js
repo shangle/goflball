@@ -571,8 +571,8 @@
     };
 
     // Safe small talk / friendly golf banter warms up the current partner without extreme polarization
-    if (/beautiful|fast|drive-thru|burger|coney|5-iron|nice|good|pace|business|reliable|values|tradition/.test(lower)) {
-      boostChannel((partnerTier - 1) % 6, 0.55);
+    if (/beautiful|fast|drive-thru|burger|coney|5-iron|nice|good|pace|business|reliable|values|tradition|solid|stick together|shared|rules|exclusivity|standards|coin|capital|trap|sphere|respawn|matrix|flip/.test(lower)) {
+      boostChannel((partnerTier - 1) % 6, 0.72);
     }
     if (/work anymore|hr|joke|truck|muni/.test(lower)) boostChannel(0, 0.75);
     if (/church|god|christian|democrat|household|wives|tradition/.test(lower)) boostChannel(1, 0.85);
@@ -725,13 +725,15 @@
     npc.trust = Math.min(1.0, +(npc.trust + Math.max(0.08, alignment * 0.28)).toFixed(3));
 
     // Once we are in Stage 1+, alignment ripples across the 100-topic Hairball graph!
+    // Already-unlocked contacts may cool down; already-doing-business partners may cut ties!
     if (dir.npcStage >= 1 && Math.abs(alignment) > 0.15) {
       for (const otherId of world.network.order) {
         if (otherId === npc.id) continue;
         const other = world.network.nodes[otherId];
+        if (!other.unlocked && !other.doingBusiness) continue;
         const otherSim = dotProduct100(other.hairball, playerVec);
-        const weight = npc.allies.includes(otherId) || npc.enemies.includes(otherId) ? 0.2 : 0.07;
-        other.trust = +(other.trust + otherSim * weight).toFixed(3);
+        const weight = npc.allies.includes(otherId) || npc.enemies.includes(otherId) ? 0.16 : 0.06;
+        other.trust = Math.max(-0.5, +(other.trust + otherSim * weight).toFixed(3));
         if (otherSim < -other.tolerance && other.doingBusiness) {
           other.doingBusiness = false;
           other.offended = true;
@@ -793,9 +795,22 @@
       npc.invitedBack = true;
       world.highestTierCleared = Math.max(world.highestTierCleared || 0, npc.tier);
 
-      // Unlock friends & friends of friends when rapport is high enough
+      // Unlock friends & friends of friends when rapport is high enough:
+      // Always prioritize unlocking at least 1 next-tier contact once rapport >= guardThreshold (or 9+ holes together)
+      const canClimbTier = npc.rapport >= npc.guardThreshold || (npc.holesTogether || 0) >= 9;
+      if (canClimbTier) {
+        const nextTierContact = world.network.order
+          .map((id) => world.network.nodes[id])
+          .find((n) => !n.unlocked && n.tier === npc.tier + 1);
+        if (nextTierContact) {
+          nextTierContact.unlocked = true;
+          nextTierContact.invitedBack = true;
+          unlockedCount++;
+        }
+      }
+
       const candidates = npc.allies.concat(world.network.order);
-      const maxTierUnlock = npc.rapport >= npc.guardThreshold ? npc.tier + 1 : npc.tier;
+      const maxTierUnlock = canClimbTier ? npc.tier + 1 : npc.tier;
       for (const cid of candidates) {
         const c = world.network.nodes[cid];
         if (c && !c.unlocked && c.tier <= maxTierUnlock && unlockedCount < 2) {
