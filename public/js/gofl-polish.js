@@ -86,6 +86,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_289","name":"LASER-GLOWING GOFLBALLS","cost":45000,"desc":"TURN EVERY SHOT INTO A LIGHTSHOW FOR THE COURSE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_284","name":"GOFLBALL GOD MODE","cost":99999,"desc":"HOLE IN ONE EVERY TIME, NO MATTER THE DISTANCE OR OBSTACLES.","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_279","name":"SNAKE CASE GRASS","cost":45000,"desc":"INSTANTLY CONVERTS ANY COURSE INTO A TERRAIN THAT ONLY SNAKES CAN PLAY ON, MAKIN","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_274","name":"GOFLBALL GUTTER GUARD","cost":45000,"desc":"EVADE THE GUTTERS AND STAY IN THE FLOW, NO MORE ACCIDENTAL OUTS!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
