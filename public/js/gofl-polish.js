@@ -62,6 +62,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_249","name":"SUPER SOLE SURFER","cost":45000,"desc":"SLIDE INTO THE GREEN LIKE A SURFER'S WAVE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_244","name":"LUXURY GOFLBALL CART","cost":150000,"desc":"WHILE PLAYING, GET FREE LASER POINTER ON GREEN. MUST HAVE PRO SHOP CARD.","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_239","name":"SNAKE EYES PUTTER","cost":45000,"desc":"YOUR PUTTS WILL CRAWL LIKE A SNAKE ACROSS THE GREEN, GUARANTEED TO ADD A FUNNY T","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_234","name":"SANDWORM SWING BOOSTER","cost":45000,"desc":"GUARANTEES A PERFECT SWING, NO MATTER THE COURSE CONDITIONS","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
