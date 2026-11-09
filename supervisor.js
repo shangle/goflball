@@ -20,6 +20,7 @@ function log(msg) {
 
 let serverProcess = null;
 let tunnelProcess = null;
+let ralphProcess = null;
 let isShuttingDown = false;
 
 function startServer() {
@@ -83,10 +84,33 @@ function startTunnel() {
   });
 }
 
+function startRalphLoop() {
+  if (isShuttingDown) return;
+  const ralphScript = path.join(__dirname, "ralph-worker.js");
+  if (!fs.existsSync(ralphScript)) return;
+
+  log("Starting Multi-Day Local-LLM Ralph Loop Worker (ralph-worker.js)...");
+  ralphProcess = spawn(process.execPath, [ralphScript], {
+    cwd: __dirname,
+    env: { ...process.env },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+
+  ralphProcess.stdout.on("data", (d) => log(`[Ralph] ${d.toString().trim()}`));
+  ralphProcess.stderr.on("data", (d) => log(`[Ralph ERR] ${d.toString().trim()}`));
+
+  ralphProcess.on("exit", (code) => {
+    log(`Ralph worker exited (code=${code}). Restarting in 10s...`);
+    ralphProcess = null;
+    if (!isShuttingDown) setTimeout(startRalphLoop, 10000);
+  });
+}
+
 function shutdown() {
   isShuttingDown = true;
   if (serverProcess) serverProcess.kill("SIGTERM");
   if (tunnelProcess) tunnelProcess.kill("SIGTERM");
+  if (ralphProcess) ralphProcess.kill("SIGTERM");
   setTimeout(() => process.exit(0), 800);
 }
 
@@ -95,3 +119,4 @@ process.on("SIGTERM", shutdown);
 
 startServer();
 startTunnel();
+startRalphLoop();
