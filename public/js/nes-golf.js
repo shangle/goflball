@@ -317,13 +317,13 @@
 
       // Blocky Water Hazards
       for (const w of this.holeData.water) {
+        // [RALPH-POLISH: WATER-SHIMMER]
         ctx.fillStyle = "#0058f8";
-        ctx.fillRect(
-          Math.floor(vx + w.x * vw),
-          Math.floor(vy + w.y * vh),
-          Math.floor(w.w * vw),
-          Math.floor(w.h * vh)
-        );
+        const wx = Math.floor(vx + w.x * vw), wy = Math.floor(vy + w.y * vh), ww = Math.floor(w.w * vw), wh = Math.floor(w.h * vh);
+        ctx.fillRect(wx, wy, ww, wh);
+        ctx.fillStyle = "#fcfcfc";
+        const waveShift = ((Date.now() >> 9) & 1) * 4;
+        if (ww > 12 && wh > 10) ctx.fillRect(wx + 4 + waveShift, wy + 5, 4, 2);
       }
 
       // Blocky Sand Bunkers (square 8-bit blocks)
