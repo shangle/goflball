@@ -107,6 +107,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_324","name":"PAR PERFECTIONIST","cost":45000,"desc":"ENSURE YOU NEVER GET A BIRDIE ON THE FIRST HOLE!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_319","name":"GOFLBALL PRO COURSE ACCESS","cost":45000,"desc":"GAIN INSTANT ACCESS TO THE MOST HAUNTED COURSES IN THE WORLD","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_314","name":"LEGENDARY TEETH","cost":45000,"desc":"GRIN YOUR WAY TO SUCCESS WITH ULTRA-TOUGH, PROFESSIONAL GRADE TEETH THAT RESIST ","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_309","name":"SNAKE_BITE SPECIAL HOLE","cost":45000,"desc":"GET A FREE SNAKE BITE IF YOU HIT THE GREEN IN ONE!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
