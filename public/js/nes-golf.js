@@ -346,8 +346,10 @@
       ctx.fillRect(pinX - 2, pinY - 2, 5, 5);
       ctx.fillStyle = "#fcfcfc";
       ctx.fillRect(pinX, pinY - 16, 2, 15);
+      // [RALPH-POLISH: WIND-FLAG-FLUTTER]
       ctx.fillStyle = "#f83800";
-      ctx.fillRect(pinX + 2, pinY - 16, 8, 6);
+      const flutter = (Date.now() >> 8) & 1;
+      ctx.fillRect(pinX + 2, pinY - 16 + flutter, 8 + flutter, 6);
 
       // Tee Box & Goflball Cart at Bottom
       const teeX = Math.floor(vx + this.teePos.x * vw);
