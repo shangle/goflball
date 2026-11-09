@@ -89,6 +89,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_294","name":"PRO SHOP ULTIMATE PUTTER","cost":45000,"desc":"GET ONE HOLE LOWER EVERY TIME YOU MISS THE GREEN!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_289","name":"LASER-GLOWING GOFLBALLS","cost":45000,"desc":"TURN EVERY SHOT INTO A LIGHTSHOW FOR THE COURSE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_284","name":"GOFLBALL GOD MODE","cost":99999,"desc":"HOLE IN ONE EVERY TIME, NO MATTER THE DISTANCE OR OBSTACLES.","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_279","name":"SNAKE CASE GRASS","cost":45000,"desc":"INSTANTLY CONVERTS ANY COURSE INTO A TERRAIN THAT ONLY SNAKES CAN PLAY ON, MAKIN","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
