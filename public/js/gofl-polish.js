@@ -167,6 +167,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_424","name":"HOLE-IN-ONE INSURANCE","cost":45000,"desc":"GUARANTEED FREE LUNCH IF YOU DON'T SINK A HOLE-IN-ONE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_419","name":"WORM BAIT","cost":45000,"desc":"GET YOUR GAME ON TRACK WITH OUR ULTRA-CONCENTRATED WORM BAIT THAT GUARANTEES A F","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_414","name":"GOFLBALL BALL SWALLOWING UPGRADE","cost":45000,"desc":"EAT YOUR WAY TO A LOWER SCORE BY CHOKING DOWN OBSTACLE BALLS!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_409","name":"GO-FLBALL FLY SWIVEL","cost":45000,"desc":"INSTANTLY CONVERTS YOUR CLUBS INTO DRONES FOR ULTIMATE AIRBORNE PRECISION","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
