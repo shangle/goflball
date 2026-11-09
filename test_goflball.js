@@ -27,9 +27,15 @@ if (fs.existsSync(polishPath)) {
   new vm.Script(fs.readFileSync(polishPath, "utf8"), { filename: "public/js/gofl-polish.js" });
 }
 
-// 2. Load GoflWorld & NesGolfEngine
+// 2. Load GoflWorld, NesGolfEngine & GoflPolish
 const GoflWorld = require("./public/js/gofl-world.js");
 const NesGolfEngine = require("./public/js/nes-golf.js");
+global.GoflWorld = GoflWorld;
+global.NesGolfEngine = NesGolfEngine;
+const GoflPolish = fs.existsSync(polishPath) ? require("./public/js/gofl-polish.js") : null;
+if (GoflPolish && typeof GoflPolish.applyPolishHooks === "function") {
+  GoflPolish.applyPolishHooks();
+}
 
 assert.ok(GoflWorld && GoflWorld.SymphonyDirector, "GoflWorld.SymphonyDirector must exist");
 assert.ok(Array.isArray(GoflWorld.EPOCHS) && GoflWorld.EPOCHS.length >= 3, "At least 3 epochs required");
