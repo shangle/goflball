@@ -80,6 +80,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_279","name":"SNAKE CASE GRASS","cost":45000,"desc":"INSTANTLY CONVERTS ANY COURSE INTO A TERRAIN THAT ONLY SNAKES CAN PLAY ON, MAKIN","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_274","name":"GOFLBALL GUTTER GUARD","cost":45000,"desc":"EVADE THE GUTTERS AND STAY IN THE FLOW, NO MORE ACCIDENTAL OUTS!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_269","name":"GOFLBALL GEAR GUARANTEE","cost":45000,"desc":"NO MORE BALLS IN THE LAKE, WE'LL REPLACE THEM WITH NEW ONES, EVEN IF IT'S JUST F","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_264","name":"GOFLBALL PRO LEEVES","cost":45000,"desc":"PERFECT FOR WHEN YOU NEED TO STAY COOL BUT LOOK LIKE YOU'RE ABOUT TO OVERHEAT.","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
