@@ -152,6 +152,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_399","name":"GOFLBALL GUTTER PROTECTION","cost":45000,"desc":"GUARANTEES NEVER TO LOSE ANOTHER BALL IN THE GUTTER","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_394","name":"FREE BIRDIE CLUB","cost":45000,"desc":"GET ONE FREE BIRDIE AT THE COURSE!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_389","name":"GOFLBALL GROWLER","cost":45000,"desc":"DRINK YOUR WAY TO LONGER DRIVES AND LOWER PUTTS!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_384","name":"FREE BIRDIE BURGER BOGO","cost":45000,"desc":"GET A FREE BIRDIE BURGER WITH EVERY HOLE-IN-ONE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
