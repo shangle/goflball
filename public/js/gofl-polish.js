@@ -50,6 +50,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_229","name":"ALL WORMS CLUB","cost":45000,"desc":"EAT YOUR WAY THROUGH THE COURSE WITH WORMS AS YOUR BALLS!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {
         "id": "gold_cart_fob",
         "name": "EXECUTIVE CART KEYFOB",
