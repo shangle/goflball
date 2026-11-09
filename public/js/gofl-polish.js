@@ -154,6 +154,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_499","name":"PRIVATE CADDY NON-DISCLOSURE PACT","cost":74500,"desc":"SECURE YOUR PRIVACY: A CADDY PROMISES NEVER TO TELL ON YOUR BAD SHOTS.","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_494","name":"PERSIMMON DRIVER TOUR STAMP","cost":57000,"desc":"GOFLBALL BALL WITH A TWIST: NOW WITH MORE PERSIMMON FLAVOUR!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_489","name":"AUTO SUPPLIER HOSPITALITY TENT","cost":39500,"desc":"WHERE THE AUTOS PARK THEMSELVES, AND THE GOFLBALLERS GET TO STAY IN TENTS.","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_484","name":"AMWAY DIAMOND lapel PIN","cost":22000,"desc":"DISTINGUISH YOURSELF WITH THIS AMWAY DIAMOND PIN – THE ULTIMATE STATUS SYMBOL ","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
