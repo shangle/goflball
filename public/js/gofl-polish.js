@@ -151,6 +151,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_484","name":"AMWAY DIAMOND lapel PIN","cost":22000,"desc":"DISTINGUISH YOURSELF WITH THIS AMWAY DIAMOND PIN – THE ULTIMATE STATUS SYMBOL ","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_479","name":"CLUBHOUSE BOURBON LOCKER KEY","cost":69500,"desc":"ELEVATE YOUR GAME WITH THE ULTIMATE CLUBHOUSE BOURBON LOCKER KEY - YOUR PATH T","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_474","name":"MACKINAC VERANDA CIGAR HUMIDOR","cost":52000,"desc":"THE ULTIMATE 1980S GOFLBALL LUXURY: RELAX ON THE MACKINAC VERANDA, SMOKE AUTHE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_469","name":"GROSSE POINTE YACHT BURGEE","cost":34500,"desc":"UPGRADE YOUR GOFLBALL GAME WITH THIS SPACESHIP-LOOKING YACHT BURGEE!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
