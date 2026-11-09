@@ -143,6 +143,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_384","name":"FREE BIRDIE BURGER BOGO","cost":45000,"desc":"GET A FREE BIRDIE BURGER WITH EVERY HOLE-IN-ONE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_379","name":"LUCKY SNAKE CLUB","cost":45000,"desc":"ENSURES YOUR SWINGS ARE AS SNAKELIKE AS YOUR CHANCE OF WINNING","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_374","name":"DRIVE LIKE A SNAKE","cost":45000,"desc":"SLITHER YOUR WAY THROUGH THE COURSE AT LIGHTNING SPEED, BUT BE CAREFUL NOT TO HI","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_369","name":"SLY BLINKER","cost":45000,"desc":"INSTANTLY BLINK AWAY ANY OBSTACLE ON YOUR PATH TO THE GREEN","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
