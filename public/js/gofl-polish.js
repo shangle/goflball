@@ -128,6 +128,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_359","name":"GOFLBALL GRANDMASTER CLUB","cost":45000,"desc":"EARN 1 FREE BIRDIE FOR EVERY GIRL YOU HIT THE BALL NEAR","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_354","name":"SNAKE_CASE_ID_354","cost":45000,"desc":"GET A FREE GREEN FEE FOR EVERY HOLE YOU SINK IN THE 18TH","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_349","name":"GOFLBALL BALLS WITH ANTI-PRO LOV","cost":45000,"desc":"EACH SWING CASTS A CHARM TO KEEP YOUR PARTNER ENGAGED AND AWAY FROM THE PRO SHOP","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_344","name":"SNAKE CASE ID 344","cost":45000,"desc":"EARN FREE PUTTS AFTER SNAKING THROUGH THE COURSE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
