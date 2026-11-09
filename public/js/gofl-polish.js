@@ -137,6 +137,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_374","name":"DRIVE LIKE A SNAKE","cost":45000,"desc":"SLITHER YOUR WAY THROUGH THE COURSE AT LIGHTNING SPEED, BUT BE CAREFUL NOT TO HI","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_369","name":"SLY BLINKER","cost":45000,"desc":"INSTANTLY BLINK AWAY ANY OBSTACLE ON YOUR PATH TO THE GREEN","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_364","name":"EGG-CELLENT EGG STRIKE","cost":45000,"desc":"HOLE IN ONE GUARANTEED, BUT YOUR EGG WILL BE CRACKED!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_359","name":"GOFLBALL GRANDMASTER CLUB","cost":45000,"desc":"EARN 1 FREE BIRDIE FOR EVERY GIRL YOU HIT THE BALL NEAR","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
