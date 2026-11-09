@@ -155,6 +155,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_404","name":"GOFLBALL BALL SWALLOWING MACHINE","cost":45000,"desc":"SWALLOW A BALL TO INSTANTLY GAIN 10 STROKES ON YOUR NEXT HOLE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_399","name":"GOFLBALL GUTTER PROTECTION","cost":45000,"desc":"GUARANTEES NEVER TO LOSE ANOTHER BALL IN THE GUTTER","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_394","name":"FREE BIRDIE CLUB","cost":45000,"desc":"GET ONE FREE BIRDIE AT THE COURSE!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_389","name":"GOFLBALL GROWLER","cost":45000,"desc":"DRINK YOUR WAY TO LONGER DRIVES AND LOWER PUTTS!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
