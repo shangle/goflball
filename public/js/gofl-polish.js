@@ -56,6 +56,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_239","name":"SNAKE EYES PUTTER","cost":45000,"desc":"YOUR PUTTS WILL CRAWL LIKE A SNAKE ACROSS THE GREEN, GUARANTEED TO ADD A FUNNY T","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_234","name":"SANDWORM SWING BOOSTER","cost":45000,"desc":"GUARANTEES A PERFECT SWING, NO MATTER THE COURSE CONDITIONS","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_229","name":"ALL WORMS CLUB","cost":45000,"desc":"EAT YOUR WAY THROUGH THE COURSE WITH WORMS AS YOUR BALLS!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {
