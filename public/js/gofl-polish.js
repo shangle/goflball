@@ -98,6 +98,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_309","name":"SNAKE_BITE SPECIAL HOLE","cost":45000,"desc":"GET A FREE SNAKE BITE IF YOU HIT THE GREEN IN ONE!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_304","name":"NO HOLE LEFT UNFITTED","cost":45000,"desc":"ENSURE EVERY HOLE IS GOFLBALLED TO YOUR EXACT SPECIFICATIONS","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_299","name":"GOBLIN GUTS GADGET","cost":45000,"desc":"SWALLOW YOUR BALLS FOR A FREE CART RIDE!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_294","name":"PRO SHOP ULTIMATE PUTTER","cost":45000,"desc":"GET ONE HOLE LOWER EVERY TIME YOU MISS THE GREEN!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
