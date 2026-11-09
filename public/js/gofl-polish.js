@@ -139,6 +139,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_464","name":"FOUNDING MEMBER GOLD CUFFLINKS","cost":82000,"desc":"DISTINGUISH YOURSELF WITH THESE ULTRA-EXCLUSIVE GOFLBALL CUFFLINKS: YOUR KEY T","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_459","name":"OAKLAND COUNTY BOND UNDERWRITER","cost":64500,"desc":"GIVE YOUR GOFLBALL GAME A TAX-DEDUCTIBLE BOOST!","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_454","name":"CADILLAC FLEETWOOD TRUNK COOLER","cost":47000,"desc":"KEEP YOUR GOFLBALLS COLD IN THIS ICE AGE-PROOF CADILLAC FLEETWOOD TRUNK COOLER","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_449","name":"ZONING COMMISSIONER PAGER","cost":29500,"desc":"UPGRADE YOUR CLUB WITH THE ULTIMATE ZONING COMMISSIONER PAGER! NEVER BE OUT OF","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
