@@ -71,6 +71,7 @@
 ];
 
   const EXTRA_UPGRADES = [
+    {"id":"upg_264","name":"GOFLBALL PRO LEEVES","cost":45000,"desc":"PERFECT FOR WHEN YOU NEED TO STAY COOL BUT LOOK LIKE YOU'RE ABOUT TO OVERHEAT.","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_259","name":"GOFLBALL BALL SWALLOW","cost":45000,"desc":"GET THE ULTIMATE COURSE CLEARANCE: HOLES SWALLOW YOUR BALLS ENTIRELY","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_254","name":"TURTLE POWER PUTTER","cost":45000,"desc":"SLOW DOWN YOUR OPPONENTS WITH THIS ULTRA-SLOW PUTTER HEAD. TEE OFF YOUR WAY TO V","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
     {"id":"upg_249","name":"SUPER SOLE SURFER","cost":45000,"desc":"SLIDE INTO THE GREEN LIKE A SURFER'S WAVE","effect":{"gimmeBoost":0.05,"passiveRapport":0.04}},
