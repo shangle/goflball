@@ -98,6 +98,57 @@ if (tier2Id) {
   assert.strictEqual(resOffend.offended, true, "Tier 2 must be offended by 'I vote Democrat'");
 }
 
+// 6. Verification: 3 Core Starting Goflball Stats on all AI players
+for (const id of netA.order) {
+  const n = netA.nodes[id];
+  assert.ok(n.goflStats, `Node ${id} must have goflStats`);
+  assert.ok(typeof n.goflStats.drive === "number" && n.goflStats.drive >= 180, "drive stat must be >= 180 yds");
+  assert.ok(typeof n.goflStats.accuracy === "number" && n.goflStats.accuracy >= 40, "accuracy stat must be >= 40%");
+  assert.ok(typeof n.goflStats.putting === "number" && n.goflStats.putting >= 40, "putting stat must be >= 40%");
+}
+
+// 7. Verification: Forever Opposed Personality Network
+for (const id of netA.order) {
+  const n = netA.nodes[id];
+  assert.ok(n.disagreements && n.disagreements.length >= 1, `Node ${id} must have at least 1 forever-opposed enemy`);
+  assert.ok(n.agreements && n.agreements.length >= 1, `Node ${id} must have at least 1 mutual agreement`);
+  assert.ok(n.traits && n.traits.pet, `Node ${id} must have pet trait (cat_lover or dog_lover)`);
+  assert.ok(n.traits && n.traits.ideology, `Node ${id} must have ideology trait`);
+}
+
+// 8. Verification: Gossip Contagion & Neutrality Shift
+const worldGossip = {
+  universeSeed: 198403,
+  epoch: 0,
+  network: GoflWorld.buildSandboxNetwork(198403, 0, 42),
+  playerPolarity: { pet: 0, ideology: 0, faction: 0, transit: 0, ethics: 0 },
+  playerNeutrality: 1.0,
+  gossipFeed: []
+};
+const startNeutrality = GoflWorld.calculatePlayerNeutrality(worldGossip);
+assert.strictEqual(startNeutrality, 1.0, "Player must start at 100% neutrality");
+const gossipRes = GoflWorld.GossipEngine.propagate(worldGossip, worldGossip.network.order[0], {
+  topic: "pet",
+  stance: 1.0,
+  text: "Praised cats as having the finest balance."
+});
+assert.ok(gossipRes && gossipRes.ripples.length > 1, "Gossip must spread to peers across network");
+assert.ok(worldGossip.playerNeutrality < 1.0, "Player neutrality must decay as gossip spreads");
+
+// 9. Verification: Minimal ASCII Player File Codec Round-trip
+const encodedAscii = GoflWorld.ASCIIPlayerCodec.encode(worldGossip);
+assert.ok(typeof encodedAscii === "string" && encodedAscii.startsWith("GFB1:"), "ASCII player file must start with GFB1:");
+assert.ok(encodedAscii.length <= 100, `ASCII player file must be minimal characters (actual: ${encodedAscii.length})`);
+const decodedWorld = GoflWorld.ASCIIPlayerCodec.decode(encodedAscii);
+assert.ok(decodedWorld, "ASCII player file must decode cleanly");
+assert.strictEqual(decodedWorld.universeSeed, worldGossip.universeSeed, "Decoded universe seed must match");
+assert.strictEqual(decodedWorld.network.order.length, worldGossip.network.order.length, "All AI players must be reconstructed");
+
+// 10. Verification: On-The-Fly Procedural Dialogue Generator
+const dynamicDialogue = GoflWorld.GoflDialogueGenerator.generate(worldGossip, worldGossip.network.nodes[worldGossip.network.order[0]]);
+assert.ok(dynamicDialogue && dynamicDialogue.speech, "Dialogue generator must produce speech on the fly");
+assert.ok(Array.isArray(dynamicDialogue.quips) && dynamicDialogue.quips.length > 0, "Dialogue generator must produce quip choices");
+
 console.log(
   "test_goflball.js: ALL PLAYTEST CHECKS PASSED",
   JSON.stringify({
@@ -105,6 +156,8 @@ console.log(
     holes: NesGolfEngine.HOLES.length,
     upgrades: GoflWorld.UPGRADES.length,
     stageReached,
-    sharePctAfterRound1: friendlyVerdict.stats.sharePct
+    sharePctAfterRound1: friendlyVerdict.stats.sharePct,
+    asciiCodeLength: encodedAscii.length,
+    neutralityShift: `${startNeutrality} -> ${worldGossip.playerNeutrality}`
   })
 );

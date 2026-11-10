@@ -80,7 +80,12 @@
       windResist: 0,
       unlockAutoSwing: false,
       unlockCartAutopilot: false,
-      passiveRapport: 0
+      passiveRapport: 0,
+      revealRacists: false,
+      repelCatLovers: false,
+      attractCatLovers: false,
+      revealZoningTraits: false,
+      revealHiddenStats: false
     };
     for (const u of GoflWorld.UPGRADES) {
       if (world.purchasedUpgrades && world.purchasedUpgrades[u.id]) {
@@ -89,6 +94,11 @@
         if (u.effect.unlockAutoSwing) fx.unlockAutoSwing = true;
         if (u.effect.unlockCartAutopilot) fx.unlockCartAutopilot = true;
         if (u.effect.passiveRapport) fx.passiveRapport += u.effect.passiveRapport;
+        if (u.effect.revealRacists) fx.revealRacists = true;
+        if (u.effect.repelCatLovers) fx.repelCatLovers = true;
+        if (u.effect.attractCatLovers) fx.attractCatLovers = true;
+        if (u.effect.revealZoningTraits) fx.revealZoningTraits = true;
+        if (u.effect.revealHiddenStats) fx.revealHiddenStats = true;
       }
     }
     return fx;
@@ -638,11 +648,12 @@
 
     drawPartnerPortrait(document.getElementById("partner-portrait-canvas"), npc);
 
-    // Paced dialogue via SymphonyDirector
-    const line = GoflWorld.SymphonyDirector.selectOrchestratedLine(world, npc);
+    // On-the-fly procedural dialogue generation (different every game)
+    const dynamicData = GoflWorld.GoflDialogueGenerator ? GoflWorld.GoflDialogueGenerator.generate(world, npc) : null;
+    const line = (dynamicData && dynamicData.speech) || GoflWorld.SymphonyDirector.selectOrchestratedLine(world, npc);
     typewriteSpeech(line);
 
-    renderQuipChoices(npc);
+    renderQuipChoices(npc, dynamicData);
 
     document.getElementById("btn-tee-hole-num").textContent = String(world.currentHole);
 
@@ -657,10 +668,24 @@
     saveSandbox(world);
   }
 
-  function renderQuipChoices(npc) {
+  function renderQuipChoices(npc, dynamicData) {
     const container = document.getElementById("cdb-quip-container");
     container.innerHTML = "";
     if (!npc || npc.offended) return;
+
+    if (dynamicData && Array.isArray(dynamicData.quips) && dynamicData.quips.length > 0) {
+      dynamicData.quips.forEach((q) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cdb-quip-btn";
+        btn.textContent = `► ${q.text}`;
+        btn.addEventListener("click", () => {
+          handlePlayerQuip(q.text, q.topic, q.stance);
+        });
+        container.appendChild(btn);
+      });
+      return;
+    }
 
     const replies = GoflWorld.SymphonyDirector.selectQuickReplies(world, npc);
     replies.forEach((q) => {
@@ -675,12 +700,17 @@
     });
   }
 
-  function handlePlayerQuip(text) {
+  function handlePlayerQuip(text, topic, stance) {
     const npc = world.network.nodes[world.currentPartnerId];
     if (!npc) return;
 
     sound.playChatBlip(1);
     const res = GoflWorld.evaluateNpcBanter(world, npc.id, text);
+
+    // Propagate gossip if topic is provided
+    if (topic && typeof stance === "number" && GoflWorld.GossipEngine) {
+      GoflWorld.GossipEngine.propagate(world, npc.id, { topic, stance, text });
+    }
 
     if (cartTransitAnim) {
       cartTransitAnim.triggerReaction(res.offended ? "offended" : "good");
@@ -871,6 +901,8 @@
     const listEl = document.getElementById("network-list");
     listEl.innerHTML = "";
 
+    const fx = getActiveUpgradeEffects();
+
     const visible = world.network.order
       .map((id) => world.network.nodes[id])
       .filter((n) => n.unlocked)
@@ -887,18 +919,52 @@
       else if (npc.doingBusiness) bondLabel = "DOING BUSINESS";
       else if (npc.trust < 0) bondLabel = "COLD";
 
+      const stats = npc.goflStats || { drive: 240, accuracy: 75, putting: 68 };
+
+      // Render Revealed Traits via Magic Items or Progression
+      let traitsHtml = "";
+      if (fx.revealRacists && npc.traits && npc.traits.ideology === "racist") {
+        traitsHtml += `<div class="badge-hazard">[LENS MARK: RACIST / BIGOT]</div>`;
+      }
+      if (fx.repelCatLovers && npc.traits && npc.traits.pet === "cat_lover") {
+        traitsHtml += `<div class="badge-cat">[CHARM MARK: CAT LOVER - REPELLED FROM CART]</div>`;
+      }
+      if (fx.attractCatLovers && npc.traits && npc.traits.pet === "cat_lover") {
+        traitsHtml += `<div class="badge-cat" style="border-color:#58a6ff; color:#58a6ff;">[CATNIP ATTRACTION: +40% RAPPORT]</div>`;
+      }
+      if (fx.revealZoningTraits && npc.traits && (npc.traits.faction === "township_farmer" || npc.traits.faction === "zoning_insider")) {
+        traitsHtml += `<div class="badge-cat" style="border-color:#f8b800; color:#f8b800;">[WIRETAP: ZONING SPECULATOR]</div>`;
+      }
+      if (fx.revealHiddenStats && npc.traits) {
+        traitsHtml += `<div class="badge-cat" style="border-color:#00e8d8; color:#00e8d8;">[ETHICS: ${npc.traits.ethics.toUpperCase()}]</div>`;
+      }
+
       card.innerHTML = `
         <div class="bc-title">
           <span>${npc.name}</span>
           <span>${npc.role}</span>
         </div>
         <div class="bc-sub">${npc.courseName}</div>
+        <div class="bc-gofl-stats">
+          <span>DRIVE: ${stats.drive} YDS</span>
+          <span>ACC: ${stats.accuracy}%</span>
+          <span>PUTT: ${stats.putting}%</span>
+        </div>
+        ${traitsHtml}
         <div class="bc-status">${bondLabel} • CONTRACT: $${npc.contractValue.toLocaleString()}</div>
       `;
 
       const btn = document.createElement("button");
       btn.type = "button";
-      if (npc.offended || (!npc.invitedBack && npc.trust < -0.2)) {
+
+      // If Canine Talisman is active, cat lovers avoid riding with you!
+      const isRepelledCatLover = fx.repelCatLovers && npc.traits && npc.traits.pet === "cat_lover";
+
+      if (isRepelledCatLover) {
+        btn.className = "crt-btn crt-btn-dark";
+        btn.textContent = "CAT LOVER (AVOIDS YOUR CART)";
+        btn.disabled = true;
+      } else if (npc.offended || (!npc.invitedBack && npc.trust < -0.2)) {
         btn.className = "crt-btn crt-btn-red";
         btn.textContent = world.cash >= 2000 ? "SEND $2,000 CLUBHOUSE APOLOGY GIFT" : "APOLOGIZE AT CLUBHOUSE";
         btn.addEventListener("click", () => {
@@ -1198,6 +1264,26 @@
         activateTab(btn.getAttribute("data-screen"));
       });
     });
+
+    // Share / Import Minimal ASCII Player File
+    const btnShare = document.getElementById("btn-share-player-file");
+    if (btnShare) {
+      btnShare.addEventListener("click", () => {
+        const ascii = GoflWorld.ASCIIPlayerCodec.encode(world);
+        const choice = prompt("YOUR MINIMAL ASCII PLAYER FILE (Locally saved & shareable):\nCopy this code or paste a code below to load another player file:", ascii);
+        if (choice && choice.trim() && choice.trim() !== ascii) {
+          const loaded = GoflWorld.ASCIIPlayerCodec.decode(choice.trim());
+          if (loaded) {
+            Object.assign(world, loaded);
+            saveSandbox(world);
+            alert("Loaded player file successfully!");
+            renderNetworkScreen();
+          } else {
+            alert("Invalid ASCII player file format.");
+          }
+        }
+      });
+    }
 
     // Launch initial goflball cart scene
     setupGoflballCartScene();

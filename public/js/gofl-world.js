@@ -635,9 +635,39 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 5. HIDDEN 100-TOPIC HAIRBALL ENGINE (Never exposed to the player)
+  // 5. HIDDEN 100-TOPIC HAIRBALL & TRAIT OPPOSITION ENGINE
   // ---------------------------------------------------------------------------
   const NUM_TOPICS = 100;
+
+  const TRAIT_DEFS = {
+    pet: {
+      cat_lover: { key: "cat_lover", category: "pet", label: "CAT LOVER", opposes: ["dog_lover"], desc: "Keeps domestic shorthairs. Talks about feline agility in the goflball cart." },
+      dog_lover: { key: "dog_lover", category: "pet", label: "DOG LOVER", opposes: ["cat_lover"], desc: "Hunts with bird dogs. Keeps retriever in the bed of the pickup truck." }
+    },
+    ideology: {
+      racist: { key: "racist", category: "ideology", label: "RACIST / BIGOT", opposes: ["egalitarian"], hidden: true, desc: "Guarded nativist prejudice. Only drops mask at high rapport." },
+      egalitarian: { key: "egalitarian", category: "ideology", label: "EGALITARIAN", opposes: ["racist"], desc: "Believes the goflball course should welcome everyone equally." },
+      indifferent: { key: "indifferent", category: "ideology", label: "CIVIC INDIFFERENT", opposes: [], desc: "Doesn't care about politics, just wants clean goflball turf." }
+    },
+    faction: {
+      muni_purist: { key: "muni_purist", category: "faction", label: "MUNI PURIST", opposes: ["country_club_elite"], desc: "Believes private country clubs ruined goflball." },
+      country_club_elite: { key: "country_club_elite", category: "faction", label: "CLUB ELITE", opposes: ["muni_purist", "township_farmer"], desc: "Inherited membership. Scorns public goflball dirt." },
+      township_farmer: { key: "township_farmer", category: "faction", label: "TOWNSHIP FARMER", opposes: ["university_regent", "country_club_elite"], desc: "Owns the soil and bought the local zoning board." },
+      university_regent: { key: "university_regent", category: "faction", label: "REGENT ENDOWMENT", opposes: ["township_farmer"], desc: "Institutional capital acquiring the empty lot." },
+      zoning_insider: { key: "zoning_insider", category: "faction", label: "ZONING BROKER", opposes: ["muni_purist"], desc: "Trades building permits in the goflball cart." },
+      suburban_contractor: { key: "suburban_contractor", category: "faction", label: "COMMERCIAL CONTRACTOR", opposes: [], desc: "Pours concrete foundations for suburban sprawl." }
+    },
+    transit: {
+      v8_truck: { key: "v8_truck", category: "transit", label: "V8 TRUCK DEVOTEE", opposes: ["transit_advocate"], desc: "Drives a 3/4-ton dualie. Sputters about city bus lines." },
+      transit_advocate: { key: "transit_advocate", category: "transit", label: "BUS LINE ADVOCATE", opposes: ["v8_truck"], desc: "Pushes for regional commuter bus service to the course." },
+      cart_enthusiast: { key: "cart_enthusiast", category: "transit", label: "CART TUNER", opposes: [], desc: "Overvolts electric goflball cart batteries for speed." }
+    },
+    ethics: {
+      purist_swinger: { key: "purist_swinger", category: "ethics", label: "PURIST SWINGER", opposes: ["gadget_cheater", "sandbagger"], desc: "Strict adherence to the 1984 USGA rulebook." },
+      gadget_cheater: { key: "gadget_cheater", category: "ethics", label: "GADGET CHEATER", opposes: ["purist_swinger"], desc: "Uses weighted balls and modified driver faces." },
+      sandbagger: { key: "sandbagger", category: "ethics", label: "SANDBAGGER", opposes: ["purist_swinger"], desc: "Fakes high handicap to clean out side bets." }
+    }
+  };
 
   function generateHairballVector(rng, tierBiasIndex) {
     const vec = new Array(NUM_TOPICS);
@@ -720,6 +750,36 @@
 
     const safeLines = epochNum >= 1 ? DETROIT_SPRAWL_SAFE.concat(layer.safeLines) : layer.safeLines.slice();
 
+    // 1. THE 3 STARTING GOFLBALL STATS (Visible on day 1 in statblocks)
+    const drive = Math.round(210 + rng() * 75);      // Yards: 210 to 285 yds
+    const accuracy = Math.round(52 + rng() * 42);   // Fairway Accuracy: 52% to 94%
+    const putting = Math.round(48 + rng() * 46);    // Green Putting: 48% to 94%
+
+    // 2. PERSONALITY TRAIT PROFILES (INHERENTLY OPPOSED)
+    const petTrait = rng() > 0.48 ? "cat_lover" : "dog_lover";
+    const ideologyTrait = (rng() < 0.26 && tier <= 4) ? "racist" : (rng() < 0.45 ? "egalitarian" : "indifferent");
+    const factionTrait = tier === 1
+      ? (rng() > 0.35 ? "muni_purist" : "suburban_contractor")
+      : tier === 2
+      ? "country_club_elite"
+      : tier === 3
+      ? "township_farmer"
+      : tier === 4
+      ? "country_club_elite"
+      : tier === 5
+      ? "university_regent"
+      : "zoning_insider";
+    const transitTrait = rng() > 0.5 ? "v8_truck" : (rng() > 0.45 ? "transit_advocate" : "cart_enthusiast");
+    const ethicsTrait = rng() > 0.65 ? "purist_swinger" : (rng() > 0.5 ? "gadget_cheater" : "sandbagger");
+
+    const traits = {
+      pet: petTrait,
+      ideology: ideologyTrait,
+      faction: factionTrait,
+      transit: transitTrait,
+      ethics: ethicsTrait
+    };
+
     return {
       id: `npc_${epochNum}_${index}`,
       seedOffset: index,
@@ -734,9 +794,20 @@
       contractValue: Math.round(layer.contractBase * (1 + epochNum * 0.75) * (0.9 + rng() * 0.3)),
       guardThreshold: +(layer.guardThreshold + (rng() - 0.5) * 0.08).toFixed(2),
       tolerance: layer.tolerance,
+      goflStats: {
+        drive,
+        accuracy,
+        putting
+      },
+      traits,
+      traitList: [petTrait, ideologyTrait, factionTrait, transitTrait, ethicsTrait],
+      revealedTraits: {}, // Starts empty; unlocked by rounds or magic items
       hairball,
       perceivedPlayerVector: new Array(NUM_TOPICS).fill(0),
       peerLinks: {},
+      oppositionLinks: {},
+      agreements: [],
+      disagreements: [],
       allies: [],
       enemies: [],
       rapport: 0,         // Builds slowly as you chat with them across holes
@@ -758,6 +829,35 @@
     };
   }
 
+  function calculateTraitOpposition(a, b) {
+    let clash = 0;
+    // Pet affinity
+    if (a.traits.pet !== b.traits.pet) clash -= 0.35;
+    else clash += 0.25;
+
+    // Ideology (Racist vs Egalitarian)
+    if (a.traits.ideology === "racist" && b.traits.ideology === "egalitarian") clash -= 0.75;
+    else if (a.traits.ideology === "egalitarian" && b.traits.ideology === "racist") clash -= 0.75;
+    else if (a.traits.ideology === "racist" && b.traits.ideology === "racist") clash += 0.45;
+
+    // Faction
+    if (a.traits.faction === "muni_purist" && b.traits.faction === "country_club_elite") clash -= 0.60;
+    else if (a.traits.faction === "country_club_elite" && b.traits.faction === "muni_purist") clash -= 0.60;
+    else if (a.traits.faction === "township_farmer" && b.traits.faction === "university_regent") clash -= 0.65;
+    else if (a.traits.faction === "university_regent" && b.traits.faction === "township_farmer") clash -= 0.65;
+    else if (a.traits.faction === b.traits.faction) clash += 0.35;
+
+    // Transit
+    if (a.traits.transit === "v8_truck" && b.traits.transit === "transit_advocate") clash -= 0.40;
+    else if (a.traits.transit === "transit_advocate" && b.traits.transit === "v8_truck") clash -= 0.40;
+
+    // Ethics
+    if (a.traits.ethics === "purist_swinger" && (b.traits.ethics === "gadget_cheater" || b.traits.ethics === "sandbagger")) clash -= 0.45;
+    else if ((a.traits.ethics === "gadget_cheater" || a.traits.ethics === "sandbagger") && b.traits.ethics === "purist_swinger") clash -= 0.45;
+
+    return Math.max(-1.0, Math.min(1.0, clash));
+  }
+
   function buildSandboxNetwork(seedBase, epochNum = 0, totalCount = 42) {
     const nodes = {};
     const order = [];
@@ -774,15 +874,46 @@
       for (let j = i + 1; j < order.length; j++) {
         const b = nodes[order[j]];
         const sim = dotProduct100(a.hairball, b.hairball);
+        const traitDelta = calculateTraitOpposition(a, b);
+        const netOpposition = +(sim * 0.45 + traitDelta * 0.55).toFixed(3);
+
         a.peerLinks[b.id] = +sim.toFixed(3);
         b.peerLinks[a.id] = +sim.toFixed(3);
-        if (sim > 0.32) {
+
+        a.oppositionLinks[b.id] = netOpposition;
+        b.oppositionLinks[a.id] = netOpposition;
+
+        if (netOpposition >= 0.15 || sim > 0.32) {
+          a.agreements.push({ id: b.id, name: b.name, score: netOpposition });
+          b.agreements.push({ id: a.id, name: a.name, score: netOpposition });
           a.allies.push(b.id);
           b.allies.push(a.id);
-        } else if (sim < -0.18) {
-          a.allies.push();
+        } else if (netOpposition <= -0.15 || sim < -0.18) {
+          a.disagreements.push({ id: b.id, name: b.name, score: netOpposition });
+          b.disagreements.push({ id: a.id, name: a.name, score: netOpposition });
           a.enemies.push(b.id);
           b.enemies.push(a.id);
+        }
+      }
+    }
+
+    // Guarantee that every single AI has at least 1 agreement and at least 2 forever-opposed enemies
+    for (let i = 0; i < order.length; i++) {
+      const a = nodes[order[i]];
+      if (a.disagreements.length === 0) {
+        let worstId = null;
+        let worstScore = 1;
+        for (const peerId of order) {
+          if (peerId === a.id) continue;
+          const score = a.oppositionLinks[peerId] || 0;
+          if (score < worstScore) {
+            worstScore = score;
+            worstId = peerId;
+          }
+        }
+        if (worstId) {
+          a.disagreements.push({ id: worstId, name: nodes[worstId].name, score: worstScore });
+          if (!a.enemies.includes(worstId)) a.enemies.push(worstId);
         }
       }
     }
@@ -1027,8 +1158,393 @@
       cost: 110000,
       desc: "AUTO-PLAYS HOLES WHILE YOU RIDE IN THE GOFLBALL CART.",
       effect: { unlockCartAutopilot: true, passiveRapport: 0.08 }
+    },
+    {
+      id: "lens_of_truth",
+      name: "LENS OF UNVARNISHED TRUTH",
+      cost: 4800,
+      desc: "AMBER-TINTED SPECTACLES. EXPOSES RACIST AND BIGOTED STATBLOCK TRAITS IN THE GOFLBALL CART.",
+      effect: { revealRacists: true }
+    },
+    {
+      id: "canine_talisman",
+      name: "CANINE TALISMAN (CAT REPELLER)",
+      cost: 3900,
+      desc: "EMITS LOW FREQUENCY. REPELS ALL CAT LOVERS AWAY FROM YOUR GOFLBALL CART; DOG LOVERS WARM UP FASTER.",
+      effect: { repelCatLovers: true, dogLoverBonus: 0.35 }
+    },
+    {
+      id: "feline_charm",
+      name: "CATNIP GOFLBALL TEE",
+      cost: 3200,
+      desc: "SCENTED WITH FRESH CATMINT. CAT LOVERS FLOCK TO YOUR GOFLBALL CART; DOG DEVOTEES GROW SUSPICIOUS.",
+      effect: { attractCatLovers: true, repelDogLovers: true }
+    },
+    {
+      id: "zoning_wiretap",
+      name: "TOWNSHIP CASSETTE RECORDER",
+      cost: 6500,
+      desc: "SURVEILS TOWNSHIP ZONING HEARINGS. MARKS ALL CORRUPT LAND DEVELOPERS ON THE TEE SHEET.",
+      effect: { revealZoningTraits: true }
+    },
+    {
+      id: "caddie_ledger",
+      name: "CADDIE'S SECRET LEDGER",
+      cost: 8200,
+      desc: "UNVEILS HIDDEN ACCURACY, SANDBAGGING, AND ILLEGAL CART GADGETS ON ALL GOFLBALLERS.",
+      effect: { revealHiddenStats: true }
     }
   ];
+
+  // ---------------------------------------------------------------------------
+  // 10. PLAYER NEUTRALITY & GOSSIP CONTAGION ENGINE
+  // ---------------------------------------------------------------------------
+  function calculatePlayerNeutrality(world) {
+    if (!world) return 1.0;
+    const pol = world.playerPolarity || { pet: 0, ideology: 0, faction: 0, transit: 0, ethics: 0 };
+    const keys = Object.keys(pol);
+    if (!keys.length) return 1.0;
+    let sumSq = 0;
+    for (const k of keys) {
+      sumSq += (pol[k] || 0) * (pol[k] || 0);
+    }
+    const dist = Math.sqrt(sumSq) / Math.sqrt(keys.length);
+    return +Math.max(0, 1.0 - dist).toFixed(3);
+  }
+
+  const GossipEngine = {
+    propagate(world, sourceNpcId, event) {
+      if (!world || !world.network || !world.network.nodes) return null;
+      const source = world.network.nodes[sourceNpcId];
+      if (!source) return null;
+
+      if (!world.playerPolarity) {
+        world.playerPolarity = { pet: 0, ideology: 0, faction: 0, transit: 0, ethics: 0 };
+      }
+      if (!world.gossipFeed) world.gossipFeed = [];
+      if (!world.gossipLog) world.gossipLog = [];
+
+      const topic = event.topic || "general";
+      const stance = typeof event.stance === "number" ? event.stance : 0; // -1 to +1
+      const text = event.text || "chat in goflball cart";
+
+      // Direct shift on player polarity
+      if (world.playerPolarity.hasOwnProperty(topic)) {
+        world.playerPolarity[topic] = +Math.max(-1.0, Math.min(1.0, world.playerPolarity[topic] + stance * 0.15)).toFixed(3);
+      }
+
+      // Direct shift on source NPC
+      source.trust = +Math.max(-1.0, Math.min(1.0, source.trust + stance * 0.22)).toFixed(3);
+      source.rapport = +Math.min(1.0, source.rapport + 0.12).toFixed(3);
+
+      const ripples = [];
+      ripples.push({ id: source.id, name: source.shortName, delta: +(stance * 0.22).toFixed(3), hop: 0 });
+
+      // 1st-Hop Gossip propagation across network edges
+      const peerIds = Object.keys(source.oppositionLinks || source.peerLinks || {});
+      for (const pid of peerIds) {
+        const peer = world.network.nodes[pid];
+        if (!peer || pid === source.id) continue;
+
+        const linkScore = (source.oppositionLinks && source.oppositionLinks[pid] !== undefined)
+          ? source.oppositionLinks[pid]
+          : (source.peerLinks[pid] || 0);
+
+        let peerReaction = 0;
+        if (linkScore > 0) {
+          peerReaction = stance * linkScore * 0.12;
+        } else {
+          peerReaction = -stance * Math.abs(linkScore) * 0.08;
+        }
+
+        // Trait-specific resonance
+        if (topic === "pet" && peer.traits) {
+          if (stance > 0 && peer.traits.pet === "cat_lover") peerReaction += 0.14;
+          else if (stance > 0 && peer.traits.pet === "dog_lover") peerReaction -= 0.14;
+          else if (stance < 0 && peer.traits.pet === "cat_lover") peerReaction -= 0.14;
+          else if (stance < 0 && peer.traits.pet === "dog_lover") peerReaction += 0.14;
+        } else if (topic === "ideology" && peer.traits) {
+          if (stance > 0 && peer.traits.ideology === "racist") peerReaction += 0.20;
+          else if (stance > 0 && peer.traits.ideology === "egalitarian") peerReaction -= 0.20;
+          else if (stance < 0 && peer.traits.ideology === "racist") peerReaction -= 0.25;
+          else if (stance < 0 && peer.traits.ideology === "egalitarian") peerReaction += 0.20;
+        } else if (topic === "faction" && peer.traits) {
+          if (stance > 0 && peer.traits.faction === "muni_purist") peerReaction += 0.15;
+          else if (stance < 0 && peer.traits.faction === "muni_purist") peerReaction -= 0.15;
+        }
+
+        peer.trust = +Math.max(-1.0, Math.min(1.0, peer.trust + peerReaction)).toFixed(3);
+        if (Math.abs(peerReaction) >= 0.03) {
+          ripples.push({ id: peer.id, name: peer.shortName, delta: +peerReaction.toFixed(3), hop: 1 });
+        }
+      }
+
+      // Log the gossip
+      const logItem = {
+        timestamp: Date.now(),
+        sourceId: source.id,
+        sourceName: source.shortName,
+        topic,
+        stance,
+        text,
+        rippleCount: ripples.length
+      };
+      world.gossipFeed.unshift(logItem);
+      if (world.gossipFeed.length > 20) world.gossipFeed.pop();
+
+      // Recalculate player neutrality
+      world.playerNeutrality = calculatePlayerNeutrality(world);
+
+      return { ripples, neutrality: world.playerNeutrality, logItem };
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // 11. COMPACT ASCII PLAYER & WORLD FILE CODEC (Deterministic Seed Serialization)
+  // ---------------------------------------------------------------------------
+  const ASCIIPlayerCodec = {
+    encode(world) {
+      if (!world) return "GFB1-ERR";
+      const seed = (world.universeSeed || 1984).toString(36).toUpperCase();
+      const epoch = ((world.epoch || 0) & 0x7f).toString(36).toUpperCase();
+
+      const UPGRADE_BITS = [
+        "oversized_club", "rigged_goflball", "bribed_caddie", "custom_goflball_cart",
+        "lens_of_truth", "canine_talisman", "feline_charm", "zoning_wiretap", "caddie_ledger",
+        "cart_windshield", "pro_wedge"
+      ];
+      let bits = 0;
+      const upg = world.purchasedUpgrades || {};
+      UPGRADE_BITS.forEach((id, idx) => {
+        if (upg[id]) bits |= (1 << idx);
+      });
+      const itemsHex = bits.toString(16).toUpperCase();
+
+      const pol = world.playerPolarity || {};
+      const packAxis = (val) => Math.max(0, Math.min(15, Math.round(((val || 0) + 1.0) * 7.5))).toString(16);
+      const polHex = [
+        packAxis(pol.pet),
+        packAxis(pol.ideology),
+        packAxis(pol.faction),
+        packAxis(pol.transit),
+        packAxis(pol.ethics)
+      ].join("").toUpperCase();
+
+      const rounds = ((world.roundsPlayed || 0) & 0xfff).toString(36).toUpperCase();
+      const cash = Math.min(9999999, Math.floor(world.cash || 0)).toString(36).toUpperCase();
+      const handle = String(world.playerHandle || "PLAYER1").replace(/[^A-Z0-9_]/gi, "").toUpperCase().slice(0, 10);
+
+      const payload = `${seed}.${epoch}.${itemsHex}.${polHex}.${rounds}.${cash}.${handle}`;
+
+      let chk = 0x5a;
+      for (let i = 0; i < payload.length; i++) {
+        chk = (chk ^ payload.charCodeAt(i)) & 0xff;
+      }
+      const chkStr = chk.toString(16).padStart(2, "0").toUpperCase();
+
+      return `GFB1:${payload}:${chkStr}`;
+    },
+
+    decode(rawStr) {
+      if (!rawStr || typeof rawStr !== "string") return null;
+      const trimmed = rawStr.trim();
+      if (!trimmed.startsWith("GFB1:")) return null;
+      const parts = trimmed.split(":");
+      if (parts.length !== 3) return null;
+      const [, payload, chkStr] = parts;
+
+      let chk = 0x5a;
+      for (let i = 0; i < payload.length; i++) {
+        chk = (chk ^ payload.charCodeAt(i)) & 0xff;
+      }
+      if (chk.toString(16).padStart(2, "0").toUpperCase() !== chkStr.toUpperCase()) {
+        return null; // Checksum invalid
+      }
+
+      const [seed36, epoch36, itemsHex, polHex, rounds36, cash36, handle] = payload.split(".");
+      const seed = parseInt(seed36, 36) || 1984;
+      const epoch = parseInt(epoch36, 36) || 0;
+      const bits = parseInt(itemsHex, 16) || 0;
+      const rounds = parseInt(rounds36, 36) || 0;
+      const cash = parseInt(cash36, 36) || 0;
+
+      const UPGRADE_BITS = [
+        "oversized_club", "rigged_goflball", "bribed_caddie", "custom_goflball_cart",
+        "lens_of_truth", "canine_talisman", "feline_charm", "zoning_wiretap", "caddie_ledger",
+        "cart_windshield", "pro_wedge"
+      ];
+      const purchasedUpgrades = {};
+      UPGRADE_BITS.forEach((id, idx) => {
+        if (bits & (1 << idx)) purchasedUpgrades[id] = true;
+      });
+
+      const unpackAxis = (nibble) => {
+        const v = parseInt(nibble || "8", 16);
+        return +((v / 7.5) - 1.0).toFixed(2);
+      };
+      const playerPolarity = {
+        pet: unpackAxis(polHex[0]),
+        ideology: unpackAxis(polHex[1]),
+        faction: unpackAxis(polHex[2]),
+        transit: unpackAxis(polHex[3]),
+        ethics: unpackAxis(polHex[4])
+      };
+
+      const net = buildSandboxNetwork(seed, epoch, 42);
+
+      const world = {
+        version: 4,
+        universeSeed: seed,
+        epoch,
+        playerId: "gb_" + Math.random().toString(36).slice(2, 10),
+        playerHandle: handle || "PLAYER1",
+        cash,
+        revenuePerRound: 0,
+        networkSharePct: 0.0,
+        friendsCount: 0,
+        enemiesCount: 0,
+        roundsPlayed: rounds,
+        totalHolesPlayed: rounds * 9,
+        totalPlaySeconds: rounds * 300,
+        highestTierCleared: Math.min(6, Math.floor(rounds / 2)),
+        purchasedUpgrades,
+        currentPartnerId: net.order[0],
+        currentHole: 1,
+        roundStrokes: 0,
+        roundPar: 0,
+        roundScores: [],
+        network: net,
+        playerPolarity,
+        gossipFeed: [],
+        gossipLog: []
+      };
+
+      world.playerNeutrality = calculatePlayerNeutrality(world);
+      return world;
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // 12. ON-THE-FLY PROCEDURAL DIALOGUE GENERATOR
+  // ---------------------------------------------------------------------------
+  const GoflDialogueGenerator = {
+    generate(world, npc) {
+      if (!npc) return { speech: "NICE DAY FOR GOFLBALL.", quips: [] };
+      const dir = SymphonyDirector.computeState(world, npc);
+      const seedVal = (world.universeSeed || 1984) + (world.currentHole || 1) * 31 + (npc.seedOffset || 0) * 17;
+      const rng = mulberry32(seedVal);
+
+      const hasLensOfTruth = !!(world.purchasedUpgrades && world.purchasedUpgrades.lens_of_truth);
+      const hasCatRepeller = !!(world.purchasedUpgrades && world.purchasedUpgrades.canine_talisman);
+      const hasCatnip = !!(world.purchasedUpgrades && world.purchasedUpgrades.feline_charm);
+
+      const OPENERS = [
+        `HOLE ${world.currentHole || 1}: BREEZE IS COMING HARD OFF THE PINES.`,
+        `TURF IS RUNNING FAST TODAY ON THIS FAIRWAY.`,
+        `SOLID CONTACT ON THAT DRIVE. NICE ARC ON THE GOFLBALL.`,
+        `WATCH OUT FOR THE DITCH ON THE RIGHT SIDE OF THIS GREEN.`,
+        `CART BATTERY SEEMS TO BE HOLDING UP DESPITE THESE STEEP HILLS.`,
+        `MORNING DEW JUST FINISHED BURNING OFF THE FAIRWAY.`
+      ];
+      const opener = OPENERS[Math.floor(rng() * OPENERS.length)];
+
+      let speech = "";
+      let quips = [];
+
+      // Stage 0: Safe small talk + subtle hints of their personality quirk
+      if (dir.npcStage === 0) {
+        if (npc.traits && npc.traits.pet === "cat_lover") {
+          if (hasCatRepeller) {
+            speech = `HOLD ON... SOMETHING SMELLS STRANGE IN THIS GOFLBALL CART. MY ALLERGIES ARE FLARING UP. YOU GOT A DOG BACK HOME?`;
+            quips = [
+              { text: "YES, MY RETRIEVER RIDES IN THE PICKUP TRUCK.", topic: "pet", stance: -1.0, deltaSummary: "Cat lover sneers at your dog affinity" },
+              { text: "JUST A CANINE TALISMAN ON MY GOFLBALL BAG.", topic: "pet", stance: -1.0, deltaSummary: "Cat lover feels repelled" },
+              { text: "JUST MUNICIPAL DIRT AND FRESH CUT GRASS.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
+            ];
+            return { speech, quips };
+          }
+          const CAT_OBS = [
+            `MY PERSIAN CAT WAS SLEEPING ON MY GOFLBALL BAG THIS MORNING. CAT HAIR EVERYWHERE.`,
+            `EVER NOTICE HOW CATS HAVE BETTER BALANCE THAN ANY ATHLETE ON THIS GOFLBALL COURSE?`,
+            `NOTHING BEATS SITTING WITH A CAT BY THE FIREPLACE AFTER NINE HOLES OF GOFLBALL.`
+          ];
+          speech = `${opener} ${CAT_OBS[Math.floor(rng() * CAT_OBS.length)]}`;
+          quips = [
+            { text: "CATS ARE SHREWD CREATURES. I RESPECT THEIR FOCUS.", topic: "pet", stance: 0.8, deltaSummary: "Bond with cat lover" },
+            { text: "HONESTLY, I PREFER A BIRD DOG IN THE BACK OF A TRUCK.", topic: "pet", stance: -0.8, deltaSummary: "Alienate cat lover" },
+            { text: "LET'S JUST FOCUS ON GETTING ONTO THE GREEN.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
+          ];
+          return { speech, quips };
+        } else if (npc.traits && npc.traits.pet === "dog_lover") {
+          const DOG_OBS = [
+            `LEFT MY LABRADOR IN THE BED OF THE TRUCK BY THE CLUBHOUSE. HE'S WAITING FOR ME.`,
+            `MY OLD HOUND CAN RETRIEVE A GOFLBALL FROM ANY THICKET WITHIN TEN SECONDS.`,
+            `DOGS ARE THE ONLY CREATURES WITH GENUINE LOYALTY LEFT IN THIS COUNTY.`
+          ];
+          speech = `${opener} ${DOG_OBS[Math.floor(rng() * DOG_OBS.length)]}`;
+          quips = [
+            { text: "A LOYAL DOG IS A MAN'S BEST GOFLBALL CADDIE.", topic: "pet", stance: -0.8, deltaSummary: "Bond with dog lover (opposes cats)" },
+            { text: "DOGS MAKE TOO MUCH NOISE ON THE TEE BOX.", topic: "pet", stance: 0.8, deltaSummary: "Irritate dog lover" },
+            { text: "WIND IS PICKING UP. LET'S SELECT OUR CLUB.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
+          ];
+          return { speech, quips };
+        }
+
+        speech = `${opener} WAITED TWELVE MINUTES IN THE BURGER KING DRIVE-THRU BEFORE TEE TIME.`;
+        quips = [
+          { text: "NOBODY WANTS TO WORK ANYMORE.", topic: "ideology", stance: 0.5, deltaSummary: "Lean conservative muni" },
+          { text: "WORKERS ARE UNDERPAID AND UNDERSTAFFED.", topic: "ideology", stance: -0.5, deltaSummary: "Lean progressive" },
+          { text: "AS LONG AS THE COFFEE IS HOT, I DON'T COMPLAIN.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
+        ];
+        return { speech, quips };
+      }
+
+      // Stage 1: Testing the waters with feelers
+      if (dir.npcStage === 1) {
+        if (hasLensOfTruth && npc.traits && npc.traits.ideology === "racist") {
+          speech = `[LENS OF TRUTH ALERT] "NICE AMBER GLASSES. TO BE HONEST IN THIS CART: THIS GOFLBALL CLUB IS LOSING ITS CHARM EVER SINCE CERTAIN FOLKS STARTED SHOWING UP."`;
+          quips = [
+            { text: "I AGREE. WE NEED TO KEEP OUTSIDERS OUT.", topic: "ideology", stance: 0.9, deltaSummary: "Complicit with racist stance (Gossip will spread!)" },
+            { text: "GOFLBALL IS FOR EVERYBODY. KEEP THOSE VIEWS TO YOURSELF.", topic: "ideology", stance: -0.9, deltaSummary: "Stand against bigotry (Partner will take offense)" },
+            { text: "I'M HERE FOR THE ATHLETIC GAME, NOTHING ELSE.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
+          ];
+          return { speech, quips };
+        }
+
+        const FEELER_QUIPS = [
+          `LOOK AT THAT 40-ACRE LOT PAST THE FENCE. WHOEVER BUYS THAT CONTROLS THIS WHOLE VALLEY.`,
+          `STANDARDS ARE SLIPPING EVERYWHERE. HARD TO FIND GUYS WITH SHARED VALUES TO DO BUSINESS WITH.`,
+          `MUNI COURSES ARE FINE FOR RECREATION, BUT REAL COMMERCE HAPPENS BEHIND GATED HEDGES.`
+        ];
+        speech = `${opener} ${FEELER_QUIPS[Math.floor(rng() * FEELER_QUIPS.length)]}`;
+        quips = [
+          { text: "TRADITION AND EXCLUSIVITY PROTECT HIGH VALUE ASSETS.", topic: "faction", stance: 0.7, deltaSummary: "Align with country club elite" },
+          { text: "PUBLIC ACCESS AND FAIR RULES MAKE A HEALTHIER COMMUNITY.", topic: "faction", stance: -0.7, deltaSummary: "Align with muni purists" },
+          { text: "JUST LOOKING TO KEEP MY BALL ON THE FAIRWAY.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
+        ];
+        return { speech, quips };
+      }
+
+      // Stage 2+: Mask is off / Deep conspiracy
+      if (npc.traits && npc.traits.ideology === "racist") {
+        speech = `NOW THAT WE UNDERSTAND EACH OTHER: WE LOCKED DOWN THE CLUB COMMITTEES TO KEEP OUR KIND IN CHARGE.`;
+        quips = [
+          { text: "I RESPECT MEN WHO PROTECT THEIR BLOODLINE.", topic: "ideology", stance: 1.0, deltaSummary: "Deep complicity" },
+          { text: "THAT'S DISGUSTING AND I WANT NO PART OF IT.", topic: "ideology", stance: -1.0, deltaSummary: "Total break & offense" },
+          { text: "LET'S FINISH HOLE 9 IN SILENCE.", topic: "general", stance: 0, deltaSummary: "Evasive neutrality" }
+        ];
+      } else {
+        speech = `THE EMPTY LOT WAS FLIPPED! THE CHURCH PENSION FUND AND THE UNIVERSITY ARE THE SAME ENTITY!`;
+        quips = [
+          { text: "HEADS IS TAILS. CAPITAL CONTROLS BOTH SIDES.", topic: "faction", stance: 0.9, deltaSummary: "Embrace cynicism" },
+          { text: "THIS ENTIRE ARRANGEMENT IS RIGGED.", topic: "faction", stance: -0.9, deltaSummary: "Condemn arrangement" },
+          { text: "THE SCORECARD IS ALL THAT MATTERS TO ME.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
+        ];
+      }
+
+      return { speech, quips };
+    }
+  };
 
   const DEFAULT_LEADERBOARD = [
     {
@@ -1053,7 +1569,12 @@
     EPOCHS,
     UPGRADES,
     DEFAULT_LEADERBOARD,
+    TRAIT_DEFS,
     SymphonyDirector,
+    GossipEngine,
+    ASCIIPlayerCodec,
+    GoflDialogueGenerator,
+    calculatePlayerNeutrality,
     getEpochConfig,
     buildSandboxNetwork,
     evaluateNpcBanter,

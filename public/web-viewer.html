@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GOFLBALL (1984) — Social Web &amp; Balancer Tool</title>
+  <style>
+    :root {
+      --bg: #090b0e;
+      --card-bg: #12161c;
+      --border: #222b36;
+      --text: #e6edf3;
+      --text-dim: #7d8590;
+      --green: #2ea043;
+      --green-glow: #3fb950;
+      --red: #da3633;
+      --red-glow: #f85149;
+      --gold: #d29922;
+      --cyan: #388bfd;
+      --font: "Courier New", Courier, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* TOP TOOLBAR */
+    #top-bar {
+      background: #161b22;
+      border-bottom: 2px solid var(--border);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .tb-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--gold);
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tb-title a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-size: 11px;
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .tb-title a:hover { background: #21262d; }
+    .tb-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: #21262d;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      font-family: var(--font);
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-weight: bold;
+      transition: all 0.15s;
+    }
+    .btn:hover { background: #30363d; border-color: #8b949e; }
+    .btn.active { background: #388bfd; color: #fff; border-color: #58a6ff; }
+    .btn-hazard.active { background: var(--red); color: #fff; border-color: var(--red-glow); animation: pulse-hazard 1.5s infinite; }
+    .btn-cat.active { background: #8957e5; color: #fff; border-color: #bc8cff; }
+
+    @keyframes pulse-hazard {
+      0% { box-shadow: 0 0 0px var(--red); }
+      50% { box-shadow: 0 0 10px var(--red-glow); }
+      100% { box-shadow: 0 0 0px var(--red); }
+    }
+
+    /* MAIN WORKSPACE */
+    #main-layout {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 54px);
+      overflow: hidden;
+    }
+
+    /* CANVAS AREA */
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      background: radial-gradient(circle at center, #10141c 0%, #06070a 100%);
+      overflow: hidden;
+    }
+    #web-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+    #web-canvas:active { cursor: grabbing; }
+
+    /* HUD OVERLAYS ON CANVAS */
+    #canvas-hud {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(18, 22, 28, 0.88);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 4px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+    }
+    .hud-row { display: flex; justify-content: space-between; gap: 14px; }
+    .hud-val { font-weight: bold; }
+    .text-green { color: var(--green-glow); }
+    .text-red { color: var(--red-glow); }
+    .text-gold { color: var(--gold); }
+    .text-cyan { color: var(--cyan); }
+
+    /* SIDEBAR */
+    #sidebar {
+      width: 380px;
+      background: var(--card-bg);
+      border-left: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .sidebar-section {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-head {
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--gold);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tab-row {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 4px 6px;
+      font-size: 10px;
+      text-align: center;
+      background: #161b22;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: #21262d;
+      color: var(--text);
+      border-color: #8b949e;
+      font-weight: bold;
+    }
+
+    /* STATBLOCK DISPLAY */
+    .statblock-card {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px;
+      font-family: var(--font);
+    }
+    .sb-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .sb-swatch {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #fff;
+      border-radius: 3px;
+    }
+    .sb-name {
+      font-weight: bold;
+      font-size: 14px;
+      color: #fff;
+    }
+    .sb-handle {
+      font-size: 11px;
+      color: var(--gold);
+    }
+    .sb-course {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    
+    /* 3 CORE STATS */
+    .gofl-stats-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 10px;
+      background: #161b22;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #30363d;
+      text-align: center;
+    }
+    .stat-pill .lbl {
+      font-size: 9px;
+      color: var(--text-dim);
+      display: block;
+      margin-bottom: 2px;
+    }
+    .stat-pill .val {
+      font-size: 13px;
+      font-weight: bold;
+      color: #58a6ff;
+    }
+
+    /* TRAIT BADGES */
+    .trait-badge-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .tb-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: #21262d;
+    }
+    .tb-hazard {
+      background: #490202;
+      border-color: var(--red);
+      color: var(--red-glow);
+      font-weight: bold;
+    }
+    .tb-cat {
+      background: #2b1a4a;
+      border-color: #8957e5;
+      color: #d2a8ff;
+    }
+    .tb-dog {
+      background: #0d2d1e;
+      border-color: var(--green);
+      color: var(--green-glow);
+    }
+    .tb-locked {
+      background: #1b1f24;
+      border-style: dashed;
+      color: var(--text-dim);
+    }
+
+    /* PEER LISTS */
+    .peer-group {
+      margin-top: 8px;
+    }
+    .pg-title {
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .pg-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-height: 90px;
+      overflow-y: auto;
+    }
+    .pg-item {
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      background: #161b22;
+      padding: 3px 6px;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    .pg-item:hover { background: #21262d; }
+
+    /* GOSSIP SIMULATOR */
+    .gossip-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    select, input[type="text"] {
+      background: #0d1117;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 5px 8px;
+      font-family: var(--font);
+      font-size: 11px;
+      border-radius: 3px;
+      width: 100%;
+    }
+    .feed-box {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      height: 110px;
+      overflow-y: auto;
+      padding: 6px;
+      font-size: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .feed-item {
+      padding: 3px 4px;
+      border-bottom: 1px solid #21262d;
+      line-height: 1.3;
+    }
+
+    /* ASCII CODEC BOX */
+    .ascii-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ascii-input {
+      font-size: 10px;
+      background: #000;
+      color: #39d353;
+      border: 1px solid #30363d;
+      padding: 6px;
+      font-family: var(--font);
+      word-break: break-all;
+      resize: none;
+      height: 48px;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .slider-row input[type="range"] {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP TOOLBAR -->
+  <header id="top-bar">
+    <div class="tb-title">
+      <span>GOFLBALL WORLD SOCIAL WEB</span>
+      <span style="font-size: 11px; color: var(--text-dim);">[BALANCER &amp; MAPPER]</span>
+      <a href="/" target="_blank">&laquo; PLAY GOFLBALL</a>
+    </div>
+
+    <div class="tb-controls">
+      <!-- Magic Item Simulator Toggles -->
+      <button id="btn-toggle-racists" class="btn btn-hazard" title="Simulates 'Lens of Unvarnished Truth' equipment">
+        LENS: MARK RACISTS
+      </button>
+      <button id="btn-toggle-cats" class="btn btn-cat" title="Simulates 'Canine Talisman' equipment">
+        CHARM: REPEL CAT LOVERS
+      </button>
+      <button id="btn-filter-links" class="btn" title="Toggle between Agreements, Disagreements, or All">
+        LINKS: ALL
+      </button>
+      <button id="btn-reset-neutral" class="btn" title="Reset player's position to pure neutrality">
+        RESET TO NEUTRAL
+      </button>
+      <button id="btn-new-world" class="btn" style="color: var(--gold);" title="Generate a fresh opposed world">
+        NEW SEED
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT -->
+  <div id="main-layout">
+
+    <!-- CANVAS VIEW -->
+    <div id="canvas-container">
+      <canvas id="web-canvas"></canvas>
+
+      <!-- HUD OVERLAY -->
+      <div id="canvas-hud">
+        <div class="hud-row">
+          <span>PLAYER NEUTRALITY:</span>
+          <span id="hud-neutrality" class="hud-val text-gold">100.0%</span>
+        </div>
+        <div class="hud-row">
+          <span>AGREEMENT LINKS (GREEN):</span>
+          <span id="hud-green-count" class="hud-val text-green">0</span>
+        </div>
+        <div class="hud-row">
+          <span>DISAGREEMENT LINKS (RED):</span>
+          <span id="hud-red-count" class="hud-val text-red">0</span>
+        </div>
+        <div class="hud-row">
+          <span>ACTIVE FACTIONS:</span>
+          <span id="hud-factions" class="hud-val text-cyan">6 CIRCUITS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+
+      <!-- SECTION 1: SELECTED NODE STATBLOCK -->
+      <div class="sidebar-section">
+        <div class="section-head">
+          <span>STATBLOCK INSPECTOR</span>
+          <div class="tab-row" style="margin-bottom: 0;">
+            <button id="tab-game-view" class="tab-btn active">IN-GAME VIEW</button>
+            <button id="tab-dev-view" class="tab-btn">BALANCER VIEW</button>
+          </div>
+        </div>
+
+        <div id="statblock-container" class="statblock-card">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+      <!-- SECTION 2: GOSSIP RIPPLE SIMULATOR -->
+      <div class="sidebar-section">
+        <div class="section-head">
+          <span>GOSSIP PROPAGATION SIMULATOR</span>
+        </div>
+        <div class="gossip-box">
+          <label style="font-size: 10px; color: var(--text-dim);">SOURCE GOFLBALLER:</label>
+          <select id="sel-gossip-source"></select>
+
+          <label style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">INTERACTION STATEMENT:</label>
+          <select id="sel-gossip-topic">
+            <option value="pet_cats_hate">"CAN'T STAND CATS. HUNTING DOGS ARE REAL COMPANIONS." (Anti-Cat)</option>
+            <option value="pet_cats_love">"CATS HAVE MORE GRACE THAN ANY ATHLETE ON THIS GREEN." (Pro-Cat)</option>
+            <option value="muni_purist">"PRIVATE COUNTRY CLUBS RUINED GOFLBALL. MUNI IS REAL DIRT." (Pro-Muni)</option>
+            <option value="elite_gatekeep">"STANDARDS SLIP WHEN YOU OPEN GATES TO MUNI RIFFRAFF." (Pro-Elite)</option>
+            <option value="zoning_bribe">"THE FARMER BOUGHT THE ZONING BOARD RIGHT UNDER OUR NOSES." (Township)</option>
+            <option value="racist_taboo">"[TABOO REMARK] DROPPED EXCLUSIONARY BIGOTED SLUR IN CART." (Racist)</option>
+            <option value="egalitarian">"GOFLBALL IS FOR EVERYBODY REGARDLESS OF BACKGROUND." (Egalitarian)</option>
+          </select>
+
+          <button id="btn-fire-gossip" class="btn" style="background: var(--gold); color: #000; margin-top: 4px;">
+            PROPAGATE GOSSIP ACROSS WEB &raquo;
+          </button>
+
+          <div style="font-size: 10px; color: var(--text-dim); margin-top: 6px;">LIVE GOSSIP REACTION FEED:</div>
+          <div id="gossip-feed-box" class="feed-box">
+            <div class="feed-item" style="color: var(--text-dim);">Ready to simulate gossip waves. Click a player or choose an event.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: COMPACT ASCII PLAYER FILE -->
+      <div class="sidebar-section">
+        <div class="section-head">
+          <span>MINIMAL ASCII PLAYER FILE</span>
+          <span style="font-size: 10px; color: var(--text-dim);">LOCALLY SAVED</span>
+        </div>
+        <div class="ascii-box">
+          <p style="font-size: 10px; color: var(--text-dim);">
+            Encodes the world seed, active equipment, neutrality drift, and entire opposed league in &lt;70 ASCII characters:
+          </p>
+          <textarea id="ascii-output" class="ascii-input" readonly></textarea>
+          <div style="display: flex; gap: 6px;">
+            <button id="btn-copy-ascii" class="btn" style="flex: 1;">COPY CODE</button>
+            <button id="btn-load-ascii-prompt" class="btn" style="flex: 1;">LOAD CODE</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: BALANCER TUNING SLIDERS -->
+      <div class="sidebar-section">
+        <div class="section-head">
+          <span>OPPOSITION &amp; BALANCING TUNERS</span>
+        </div>
+        <div class="slider-row">
+          <span>GOSSIP DECAY:</span>
+          <input type="range" id="slider-decay" min="0.2" max="0.9" step="0.05" value="0.65" />
+          <span id="lbl-decay">0.65</span>
+        </div>
+        <div class="slider-row">
+          <span>OPPOSITION FORCE:</span>
+          <input type="range" id="slider-force" min="0.5" max="2.0" step="0.1" value="1.0" />
+          <span id="lbl-force">1.0</span>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- LOAD GOFLWORLD LOGIC -->
+  <script src="/js/gofl-world.js"></script>
+
+  <script>
+  (function() {
+    "use strict";
+
+    // 1. STATE & DATA INITIALIZATION
+    let currentSeed = 198401;
+    let world = GoflWorld.ASCIIPlayerCodec.decode(localStorage.getItem("GOFLBALL_PLAYER_ASCII")) || createDefaultWorld(currentSeed);
+    let selectedNodeId = world.network.order[0];
+    let isDevView = false;
+    let markRacists = false;
+    let repelCatLovers = false;
+    let linkFilterMode = "all"; // "all", "agree", "disagree"
+    let gossipRipples = [];
+
+    // Simulation Graph Nodes (Layout positions in virtual space)
+    const graphNodes = {};
+    const WIDTH = 1200;
+    const HEIGHT = 900;
+
+    function createDefaultWorld(seed) {
+      const net = GoflWorld.buildSandboxNetwork(seed, 0, 42);
+      const w = {
+        version: 4,
+        universeSeed: seed,
+        epoch: 0,
+        playerId: "gb_you",
+        playerHandle: "YOU (NEUTRAL)",
+        cash: 1200,
+        roundsPlayed: 1,
+        purchasedUpgrades: {},
+        currentPartnerId: net.order[0],
+        network: net,
+        playerPolarity: { pet: 0, ideology: 0, faction: 0, transit: 0, ethics: 0 },
+        playerNeutrality: 1.0,
+        gossipFeed: []
+      };
+      return w;
+    }
+
+    function initGraphLayout() {
+      // Place Player at the exact center (0, 0)
+      graphNodes["gb_you"] = {
+        id: "gb_you",
+        isPlayer: true,
+        name: "YOU",
+        shortName: "YOU",
+        handle: world.playerHandle || "PLAYER_1",
+        tier: 0,
+        x: WIDTH / 2,
+        y: HEIGHT / 2,
+        vx: 0,
+        vy: 0,
+        radius: 18,
+        color: "#ffffff"
+      };
+
+      // Arrange 42 AI nodes in concentric tiers / force-radial layout
+      const order = world.network.order;
+      const count = order.length;
+      for (let i = 0; i < count; i++) {
+        const npc = world.network.nodes[order[i]];
+        const tierDist = 90 + npc.tier * 48;
+        const angle = (i / count) * Math.PI * 2 + (npc.tier % 2 ? 0.2 : 0);
+        graphNodes[npc.id] = {
+          id: npc.id,
+          isPlayer: false,
+          npc: npc,
+          name: npc.name,
+          shortName: npc.shortName,
+          handle: npc.handle,
+          tier: npc.tier,
+          x: WIDTH / 2 + Math.cos(angle) * tierDist,
+          y: HEIGHT / 2 + Math.sin(angle) * tierDist,
+          targetX: WIDTH / 2 + Math.cos(angle) * tierDist,
+          targetY: HEIGHT / 2 + Math.sin(angle) * tierDist,
+          vx: 0,
+          vy: 0,
+          radius: 12 + npc.tier * 1.5,
+          color: npc.shirtColor || "#0058f8"
+        };
+      }
+    }
+
+    initGraphLayout();
+
+    // 2. CANVAS SETUP & INTERACTION
+    const canvas = document.getElementById("web-canvas");
+    const ctx = canvas.getContext("2d");
+    let scale = 1.0;
+    let panX = 0;
+    let panY = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      panX = (canvas.width - WIDTH) / 2;
+      panY = (canvas.height - HEIGHT) / 2;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    canvas.addEventListener("mousedown", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = (e.clientX - rect.left - panX) / scale;
+      const mouseY = (e.clientY - rect.top - panY) / scale;
+
+      // Check node hit
+      let hitId = null;
+      for (const id of Object.keys(graphNodes)) {
+        const node = graphNodes[id];
+        const dx = mouseX - node.x;
+        const dy = mouseY - node.y;
+        if (dx * dx + dy * dy <= (node.radius + 6) * (node.radius + 6)) {
+          hitId = id;
+          break;
+        }
+      }
+
+      if (hitId && hitId !== "gb_you") {
+        selectedNodeId = hitId;
+        renderStatblock();
+        populateGossipSelect();
+      } else {
+        isDragging = true;
+        dragStartX = e.clientX - panX;
+        dragStartY = e.clientY - panY;
+      }
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (isDragging) {
+        panX = e.clientX - dragStartX;
+        panY = e.clientY - dragStartY;
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+
+    canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+      scale = Math.max(0.4, Math.min(2.5, scale * zoomFactor));
+    });
+
+    // 3. FORCE SIMULATION & RENDERING LOOP
+    function updatePhysics() {
+      // Repel cat lovers if toggle is active
+      if (repelCatLovers) {
+        const playerNode = graphNodes["gb_you"];
+        for (const id of Object.keys(graphNodes)) {
+          const gn = graphNodes[id];
+          if (gn.npc && gn.npc.traits && gn.npc.traits.pet === "cat_lover") {
+            const dx = gn.x - playerNode.x;
+            const dy = gn.y - playerNode.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            if (dist < 320) {
+              const push = (320 - dist) * 0.05;
+              gn.x += (dx / dist) * push;
+              gn.y += (dy / dist) * push;
+            }
+          }
+        }
+      }
+
+      // Smoothly drift player according to polarity
+      const pol = world.playerPolarity || { pet: 0, ideology: 0, faction: 0, transit: 0, ethics: 0 };
+      const playerNode = graphNodes["gb_you"];
+      const targetPlayerX = WIDTH / 2 + (pol.pet * 60) + (pol.faction * 80);
+      const targetPlayerY = HEIGHT / 2 + (pol.ideology * 80) + (pol.transit * 60);
+      playerNode.x += (targetPlayerX - playerNode.x) * 0.05;
+      playerNode.y += (targetPlayerY - playerNode.y) * 0.05;
+
+      // Ripple decay
+      for (let i = gossipRipples.length - 1; i >= 0; i--) {
+        gossipRipples[i].radius += 3.5;
+        gossipRipples[i].alpha *= 0.94;
+        if (gossipRipples[i].alpha < 0.02) {
+          gossipRipples.splice(i, 1);
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(panX, panY);
+      ctx.scale(scale, scale);
+
+      // Draw Background Grid
+      ctx.strokeStyle = "#161b22";
+      ctx.lineWidth = 1;
+      const gridSize = 60;
+      for (let x = 0; x <= WIDTH; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, HEIGHT);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= HEIGHT; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(WIDTH, y);
+        ctx.stroke();
+      }
+
+      // Counts for HUD
+      let greenCount = 0;
+      let redCount = 0;
+
+      // Draw Edges (Agreements in Green, Disagreements in Red)
+      const nodes = world.network.nodes;
+      const order = world.network.order;
+
+      for (let i = 0; i < order.length; i++) {
+        const aId = order[i];
+        const aNode = graphNodes[aId];
+        const aNpc = nodes[aId];
+        if (!aNode || !aNpc) continue;
+
+        for (let j = i + 1; j < order.length; j++) {
+          const bId = order[j];
+          const bNode = graphNodes[bId];
+          const bNpc = nodes[bId];
+          if (!bNode || !bNpc) continue;
+
+          const oppScore = (aNpc.oppositionLinks && aNpc.oppositionLinks[bId] !== undefined)
+            ? aNpc.oppositionLinks[bId]
+            : (aNpc.peerLinks[bId] || 0);
+
+          const isAgree = oppScore >= 0.15;
+          const isDisagree = oppScore <= -0.15;
+
+          if (isAgree) greenCount++;
+          if (isDisagree) redCount++;
+
+          if (linkFilterMode === "agree" && !isAgree) continue;
+          if (linkFilterMode === "disagree" && !isDisagree) continue;
+
+          if (isAgree) {
+            ctx.strokeStyle = "rgba(46, 160, 67, 0.4)";
+            ctx.lineWidth = 1 + oppScore * 1.5;
+            ctx.beginPath();
+            ctx.moveTo(aNode.x, aNode.y);
+            ctx.lineTo(bNode.x, bNode.y);
+            ctx.stroke();
+          } else if (isDisagree) {
+            ctx.strokeStyle = "rgba(218, 54, 51, 0.35)";
+            ctx.lineWidth = 1 + Math.abs(oppScore) * 1.8;
+            ctx.beginPath();
+            ctx.moveTo(aNode.x, aNode.y);
+            ctx.lineTo(bNode.x, bNode.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw Threads to Player
+      const playerNode = graphNodes["gb_you"];
+      for (const id of order) {
+        const gn = graphNodes[id];
+        ctx.strokeStyle = "rgba(125, 133, 144, 0.15)";
+        ctx.lineWidth = 0.75;
+        ctx.beginPath();
+        ctx.moveTo(playerNode.x, playerNode.y);
+        ctx.lineTo(gn.x, gn.y);
+        ctx.stroke();
+      }
+
+      // Draw Gossip Wave Ripples
+      for (const rip of gossipRipples) {
+        ctx.save();
+        ctx.strokeStyle = rip.color;
+        ctx.globalAlpha = rip.alpha;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Draw AI Nodes
+      for (const id of order) {
+        const gn = graphNodes[id];
+        const npc = gn.npc;
+        const isSelected = id === selectedNodeId;
+        const isRacist = npc.traits && npc.traits.ideology === "racist";
+        const isCatLover = npc.traits && npc.traits.pet === "cat_lover";
+
+        // Aura / Glow
+        if (isSelected) {
+          ctx.strokeStyle = "#f8b800";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(gn.x, gn.y, gn.radius + 5, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Lens of Truth: Mark Racists with glowing hazard ring
+        if (markRacists && isRacist) {
+          ctx.strokeStyle = "#f85149";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(gn.x, gn.y, gn.radius + 7, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Hazard Crossbars
+          ctx.fillStyle = "#f85149";
+          ctx.font = "bold 9px monospace";
+          ctx.fillText("RACIST", gn.x - 16, gn.y - gn.radius - 8);
+        }
+
+        // Cat Repeller Charm: Highlight cat lovers with purple force aura
+        if (repelCatLovers && isCatLover) {
+          ctx.strokeStyle = "#bc8cff";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.arc(gn.x, gn.y, gn.radius + 6, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // Node Circle
+        ctx.fillStyle = gn.color;
+        ctx.beginPath();
+        ctx.arc(gn.x, gn.y, gn.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Node Label
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 10px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(gn.shortName, gn.x, gn.y + gn.radius + 12);
+      }
+
+      // Draw Player Node at Center
+      ctx.save();
+      // Pulsing Neutral Aura
+      ctx.strokeStyle = "rgba(210, 153, 34, 0.4)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(playerNode.x, playerNode.y, playerNode.radius + 6 + Math.sin(Date.now() / 200) * 3, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Main Circle
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(playerNode.x, playerNode.y, playerNode.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#d29922";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Crosshairs
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(playerNode.x - 8, playerNode.y);
+      ctx.lineTo(playerNode.x + 8, playerNode.y);
+      ctx.moveTo(playerNode.x, playerNode.y - 8);
+      ctx.lineTo(playerNode.x, playerNode.y + 8);
+      ctx.stroke();
+
+      ctx.fillStyle = "#d29922";
+      ctx.font = "bold 11px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("YOU (PLAYER)", playerNode.x, playerNode.y + playerNode.radius + 14);
+      ctx.restore();
+
+      ctx.restore();
+
+      // Update HUD
+      document.getElementById("hud-neutrality").textContent = `${((world.playerNeutrality || 1.0) * 100).toFixed(1)}%`;
+      document.getElementById("hud-green-count").textContent = String(greenCount);
+      document.getElementById("hud-red-count").textContent = String(redCount);
+
+      updatePhysics();
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+
+    // 4. STATBLOCK RENDERER
+    function renderStatblock() {
+      const container = document.getElementById("statblock-container");
+      const npc = world.network.nodes[selectedNodeId];
+      if (!npc) {
+        container.innerHTML = "<div>Select a goflballer node on the canvas.</div>";
+        return;
+      }
+
+      const isRacist = npc.traits && npc.traits.ideology === "racist";
+      const isCatLover = npc.traits && npc.traits.pet === "cat_lover";
+
+      let html = `
+        <div class="sb-header">
+          <div class="sb-swatch" style="background: ${npc.shirtColor || '#0058f8'};"></div>
+          <div>
+            <div class="sb-name">${npc.name}</div>
+            <div class="sb-handle">${npc.handle} // TIER ${npc.tier} (${npc.role})</div>
+          </div>
+        </div>
+        <div class="sb-course">HOME COURSE: ${npc.courseName} | CONTRACT: $${(npc.contractValue || 0).toLocaleString()}</div>
+
+        <!-- 3 CORE STARTING GOFLBALL STATS -->
+        <div class="gofl-stats-3">
+          <div class="stat-pill">
+            <span class="lbl">DRIVE</span>
+            <span class="val">${npc.goflStats ? npc.goflStats.drive : 240} YDS</span>
+          </div>
+          <div class="stat-pill">
+            <span class="lbl">ACCURACY</span>
+            <span class="val">${npc.goflStats ? npc.goflStats.accuracy : 75}%</span>
+          </div>
+          <div class="stat-pill">
+            <span class="lbl">PUTTING</span>
+            <span class="val">${npc.goflStats ? npc.goflStats.putting : 68}%</span>
+          </div>
+        </div>
+      `;
+
+      if (!isDevView) {
+        // IN-GAME VIEW: Only 3 goflball stats are visible at start, plus traits unlocked by magic items or play
+        const unlockedTraits = [];
+        if (markRacists && isRacist) {
+          unlockedTraits.push('<span class="tb-tag tb-hazard">RACIST / BIGOT (EXPOSED BY LENS)</span>');
+        }
+        if (repelCatLovers && isCatLover) {
+          unlockedTraits.push('<span class="tb-tag tb-cat">CAT LOVER (REPELLED BY CHARM)</span>');
+        }
+        if (npc.revealedTraits) {
+          for (const k of Object.keys(npc.revealedTraits)) {
+            unlockedTraits.push(`<span class="tb-tag">${k.toUpperCase()}</span>`);
+          }
+        }
+
+        html += `
+          <div style="font-size: 10px; color: var(--text-dim); margin-bottom: 4px;">UNLOCKED PERSONALITY TRAITS:</div>
+          <div class="trait-badge-list">
+            ${unlockedTraits.length > 0 ? unlockedTraits.join("") : '<span class="tb-tag tb-locked">[??? HIDDEN TRAIT - PLAY ROUNDS TO UNLOCK]</span>'}
+          </div>
+          <p style="font-size: 10px; color: var(--text-dim); font-style: italic;">
+            "Starts showing only 3 goflball stats. Deeper traits unlock as you play rounds together or equip lenses in the Pro Shop."
+          </p>
+        `;
+      } else {
+        // DEVELOPER / BALANCER VIEW: Full personality profile & opposition graph
+        html += `
+          <div style="font-size: 10px; color: var(--gold); margin-bottom: 4px; font-weight: bold;">ALL PERSONALITY DIMENSIONS (BALANCER VIEW):</div>
+          <div class="trait-badge-list">
+            <span class="tb-tag ${isCatLover ? 'tb-cat' : 'tb-dog'}">${npc.traits.pet.toUpperCase()}</span>
+            <span class="tb-tag ${isRacist ? 'tb-hazard' : ''}">${npc.traits.ideology.toUpperCase()}</span>
+            <span class="tb-tag">${npc.traits.faction.toUpperCase()}</span>
+            <span class="tb-tag">${npc.traits.transit.toUpperCase()}</span>
+            <span class="tb-tag">${npc.traits.ethics.toUpperCase()}</span>
+          </div>
+
+          <div class="peer-group">
+            <div class="pg-title text-green">MUTUAL AGREEMENTS (${npc.agreements ? npc.agreements.length : 0}):</div>
+            <div class="pg-list">
+              ${(npc.agreements || []).map(a => `<div class="pg-item" onclick="window.selectNode('${a.id}')"><span>${a.name}</span><span class="text-green">+${a.score}</span></div>`).join("")}
+            </div>
+          </div>
+
+          <div class="peer-group">
+            <div class="pg-title text-red">FOREVER OPPOSED / ENEMIES (${npc.disagreements ? npc.disagreements.length : 0}):</div>
+            <div class="pg-list">
+              ${(npc.disagreements || []).map(d => `<div class="pg-item" onclick="window.selectNode('${d.id}')"><span>${d.name}</span><span class="text-red">${d.score}</span></div>`).join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    window.selectNode = function(id) {
+      if (graphNodes[id]) {
+        selectedNodeId = id;
+        renderStatblock();
+        populateGossipSelect();
+      }
+    };
+
+    function populateGossipSelect() {
+      const sel = document.getElementById("sel-gossip-source");
+      sel.innerHTML = "";
+      for (const id of world.network.order) {
+        const npc = world.network.nodes[id];
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = `${npc.shortName} (${npc.role})`;
+        if (id === selectedNodeId) opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+
+    function updateAsciiDisplay() {
+      const code = GoflWorld.ASCIIPlayerCodec.encode(world);
+      document.getElementById("ascii-output").value = code;
+      localStorage.setItem("GOFLBALL_PLAYER_ASCII", code);
+    }
+
+    // 5. EVENT LISTENERS
+    document.getElementById("tab-game-view").addEventListener("click", () => {
+      isDevView = false;
+      document.getElementById("tab-game-view").classList.add("active");
+      document.getElementById("tab-dev-view").classList.remove("active");
+      renderStatblock();
+    });
+
+    document.getElementById("tab-dev-view").addEventListener("click", () => {
+      isDevView = true;
+      document.getElementById("tab-dev-view").classList.add("active");
+      document.getElementById("tab-game-view").classList.remove("active");
+      renderStatblock();
+    });
+
+    document.getElementById("btn-toggle-racists").addEventListener("click", () => {
+      markRacists = !markRacists;
+      document.getElementById("btn-toggle-racists").classList.toggle("active", markRacists);
+      renderStatblock();
+    });
+
+    document.getElementById("btn-toggle-cats").addEventListener("click", () => {
+      repelCatLovers = !repelCatLovers;
+      document.getElementById("btn-toggle-cats").classList.toggle("active", repelCatLovers);
+      renderStatblock();
+    });
+
+    document.getElementById("btn-filter-links").addEventListener("click", () => {
+      if (linkFilterMode === "all") linkFilterMode = "agree";
+      else if (linkFilterMode === "agree") linkFilterMode = "disagree";
+      else linkFilterMode = "all";
+      document.getElementById("btn-filter-links").textContent = `LINKS: ${linkFilterMode.toUpperCase()}`;
+    });
+
+    document.getElementById("btn-reset-neutral").addEventListener("click", () => {
+      world.playerPolarity = { pet: 0, ideology: 0, faction: 0, transit: 0, ethics: 0 };
+      world.playerNeutrality = 1.0;
+      updateAsciiDisplay();
+      renderStatblock();
+      const feed = document.getElementById("gossip-feed-box");
+      feed.innerHTML = '<div class="feed-item text-gold">[RESET] Player returned to pure 100% neutrality.</div>' + feed.innerHTML;
+    });
+
+    document.getElementById("btn-new-world").addEventListener("click", () => {
+      currentSeed = Math.floor(10000 + Math.random() * 900000);
+      world = createDefaultWorld(currentSeed);
+      selectedNodeId = world.network.order[0];
+      initGraphLayout();
+      updateAsciiDisplay();
+      populateGossipSelect();
+      renderStatblock();
+    });
+
+    document.getElementById("btn-fire-gossip").addEventListener("click", () => {
+      const sourceId = document.getElementById("sel-gossip-source").value;
+      const topicType = document.getElementById("sel-gossip-topic").value;
+      const gn = graphNodes[sourceId];
+      if (!gn) return;
+
+      let topic = "general";
+      let stance = 0;
+      let text = "Chit chat";
+
+      if (topicType === "pet_cats_hate") {
+        topic = "pet";
+        stance = -1.0;
+        text = "Told them hunting dogs are superior; ridiculed domestic cats.";
+      } else if (topicType === "pet_cats_love") {
+        topic = "pet";
+        stance = 1.0;
+        text = "Praised cats as having the finest balance and elegance.";
+      } else if (topicType === "muni_purist") {
+        topic = "faction";
+        stance = -0.8;
+        text = "Condemned country club snobs and praised municipal dirt.";
+      } else if (topicType === "elite_gatekeep") {
+        topic = "faction";
+        stance = 0.8;
+        text = "Argued for strict exclusivity and keeping muni riffraff out.";
+      } else if (topicType === "zoning_bribe") {
+        topic = "faction";
+        stance = 0.6;
+        text = "Whispered that the township farmer bought the zoning board.";
+      } else if (topicType === "racist_taboo") {
+        topic = "ideology";
+        stance = 1.0;
+        text = "Made a guarded racist remark in the goflball cart.";
+      } else if (topicType === "egalitarian") {
+        topic = "ideology";
+        stance = -1.0;
+        text = "Advocated that goflball is for everyone with zero discrimination.";
+      }
+
+      // Propagate Gossip through engine
+      const res = GoflWorld.GossipEngine.propagate(world, sourceId, { topic, stance, text });
+      if (res && res.ripples) {
+        // Trigger visual wave ripple on canvas
+        gossipRipples.push({
+          x: gn.x,
+          y: gn.y,
+          radius: gn.radius,
+          alpha: 1.0,
+          color: stance > 0 ? "#3fb950" : "#f85149"
+        });
+
+        // Add to live gossip reaction feed
+        const feed = document.getElementById("gossip-feed-box");
+        const logHtml = `
+          <div class="feed-item">
+            <span class="text-gold">[GOSSIP SPREAD]</span> ${gn.shortName} relayed remark (${res.ripples.length} peers reached).
+            Neutrality dropped to <b>${(res.neutrality * 100).toFixed(1)}%</b>.
+          </div>
+        `;
+        feed.innerHTML = logHtml + feed.innerHTML;
+      }
+
+      updateAsciiDisplay();
+      renderStatblock();
+    });
+
+    document.getElementById("btn-copy-ascii").addEventListener("click", () => {
+      const code = document.getElementById("ascii-output").value;
+      navigator.clipboard.writeText(code).then(() => {
+        alert("ASCII Player File copied to clipboard!\n" + code);
+      });
+    });
+
+    document.getElementById("btn-load-ascii-prompt").addEventListener("click", () => {
+      const input = prompt("Paste your minimal ASCII Player File (e.g. GFB1:1984.0.0.88888...):");
+      if (input) {
+        const decoded = GoflWorld.ASCIIPlayerCodec.decode(input.trim());
+        if (decoded) {
+          world = decoded;
+          currentSeed = world.universeSeed;
+          selectedNodeId = world.network.order[0];
+          initGraphLayout();
+          updateAsciiDisplay();
+          populateGossipSelect();
+          renderStatblock();
+          alert("Successfully loaded ASCII Player File into the web balancer!");
+        } else {
+          alert("Invalid ASCII Player File checksum or format.");
+        }
+      }
+    });
+
+    // Initial render
+    populateGossipSelect();
+    renderStatblock();
+    updateAsciiDisplay();
+
+  })();
+  </script>
+</body>
+</html>

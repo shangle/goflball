@@ -661,6 +661,38 @@ html, body {
 .bc-sub { font-size: 11px; color: #8892a0; }
 .bc-status { font-size: 12px; color: var(--mint); }
 
+.bc-gofl-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--cyan);
+  background: #06090d;
+  padding: 4px 6px;
+  border-radius: 2px;
+  border: 1px solid #1c2635;
+  font-weight: bold;
+}
+
+.badge-hazard {
+  background: #490202;
+  border: 1px solid var(--red);
+  color: #ff6b6b;
+  font-size: 10px;
+  padding: 2px 4px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.badge-cat {
+  background: #2b1a4a;
+  border: 1px solid #8957e5;
+  color: #d2a8ff;
+  font-size: 10px;
+  padding: 2px 4px;
+  font-weight: bold;
+}
+
 /* Empty Lot Blueprint */
 .blueprint-frame {
   background: #041220;
