@@ -1,16 +1,21 @@
 /* ==========================================================================
-   GOFLBALL (1984) — Native 135% Zoomed Blocky CRT Aesthetic
-   Looks like a big-studio retro goflball tribute where a lone dev hid a
-   secret social simulation inside the tee-box loading screen.
+   GOFLBALL (1984) — Complete Visual & Atmosphere Styling
+   Honoring NES Golf (1984) with a hidden corporate satire simulation.
    ========================================================================== */
 
 :root {
   --black: #000000;
+  --dark-crt: #0d0f12;
   --white: #fcfcfc;
-  --gray: #989898;
+  --cream-paper: #f4edd3;
+  --paper-line: #a89f81;
+  --gray: #888888;
+  --dark-gray: #202428;
   --red: #f83800;
+  --stamp-red: #c92200;
   --gold: #f8b800;
   --green: #00a800;
+  --stamp-green: #0a882a;
   --lime: #88d800;
   --mint: #58f898;
   --blue: #0058f8;
@@ -29,28 +34,31 @@
 html, body {
   width: 100%;
   height: 100%;
-  background: var(--black);
+  background: #000000;
   color: var(--white);
   font-family: var(--font-nes);
   font-weight: bold;
-  font-size: 18px; /* Scaled up ~135% natively */
+  font-size: 16px;
   overflow: hidden;
   user-select: none;
 }
 
+/* CRT Arcade Shell */
 #crt-shell {
   width: 100%;
-  max-width: 540px;
+  max-width: 520px;
   height: 100dvh;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background: var(--black);
-  border-left: 4px solid var(--white);
-  border-right: 4px solid var(--white);
+  background: var(--dark-crt);
+  border-left: 4px solid #333842;
+  border-right: 4px solid #333842;
   position: relative;
+  box-shadow: 0 0 35px rgba(0, 232, 216, 0.12);
 }
 
+/* CRT Scanlines Overlay */
 #crt-shell::after {
   content: "";
   position: absolute;
@@ -59,27 +67,35 @@ html, body {
     to bottom,
     rgba(0, 0, 0, 0) 0px,
     rgba(0, 0, 0, 0) 2px,
-    rgba(0, 0, 0, 0.24) 3px
+    rgba(0, 0, 0, 0.28) 3px
   );
   pointer-events: none;
-  z-index: 60;
+  z-index: 99;
 }
 
-/* TOP HIGH SCORE MARQUEE */
+/* TOP ARCADE HIGH-SCORE MARQUEE */
 #arcade-marquee {
-  background: #140014;
+  background: #140518;
   color: var(--gold);
-  border-bottom: 3px solid var(--white);
-  padding: 7px 10px;
-  font-size: 16px;
+  border-bottom: 3px solid #3c1448;
+  padding: 6px 10px;
+  font-size: 14px;
   text-align: center;
   letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.m-leader { color: var(--pink); }
-.m-sep { margin: 0 8px; color: var(--white); }
+.m-label { color: #aaaaaa; font-size: 12px; }
+.m-leader { color: var(--pink); text-shadow: 0 0 6px rgba(248, 120, 248, 0.5); }
+.m-stat { color: var(--cyan); text-shadow: 0 0 6px rgba(0, 232, 216, 0.4); }
+.m-sep { color: #444; }
 
-/* BLOCKY 1984 HEADER */
+/* 1984 NES HEADER */
 #nes-header {
   display: flex;
   align-items: center;
@@ -87,29 +103,33 @@ html, body {
   padding: 8px 12px;
   background: var(--black);
   border-bottom: 4px solid var(--green);
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .nh-brand {
   color: var(--lime);
-  font-size: 22px;
+  font-size: 20px;
   letter-spacing: 2px;
+  text-shadow: 2px 2px 0 #005000;
 }
 
 .nh-stat {
   color: var(--white);
+  font-size: 16px;
 }
 
 .crt-mini-btn {
-  background: var(--black);
-  color: var(--white);
-  border: 3px solid var(--white);
+  background: #181818;
+  color: var(--gold);
+  border: 2px solid var(--gold);
   font-family: var(--font-nes);
   font-weight: bold;
-  font-size: 15px;
-  padding: 4px 8px;
+  font-size: 13px;
+  padding: 3px 8px;
   cursor: pointer;
+  text-transform: uppercase;
 }
+.crt-mini-btn:hover { background: var(--gold); color: var(--black); }
 
 /* MAIN STAGE */
 #crt-stage {
@@ -117,6 +137,7 @@ html, body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .crt-screen {
@@ -133,11 +154,199 @@ html, body {
   display: flex;
 }
 
-/* 1. THE GOFLBALL COURSE & SUBTLE TEE-BOX LOADING OVERLAY */
+/* ==========================================================================
+   SCREEN 1: THE PRIMARY GAMEPLAY (GOFLBALL CART TRANSIT + THE COURSE)
+   ========================================================================== */
+
+/* A. Goflball Cart Cinematic */
+.cart-cinematic {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+}
+
+.cart-canvas-frame {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: #000;
+  border: 3px solid var(--white);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+#cart-transit-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.cart-stage-badge {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--gold);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 2px 6px;
+  border: 1px solid #444;
+}
+
+.cart-course-title {
+  color: var(--mint);
+}
+
+/* Vintage NES Dialogue Box */
+.cart-dialogue-box {
+  flex: 1;
+  background: #080a0e;
+  border: 3px solid var(--gold);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 0 #000;
+}
+
+.cdb-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px dashed #2c3340;
+  padding-bottom: 6px;
+}
+
+.partner-avatar {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--white);
+  background: #000;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.cdb-speaker-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cdb-name {
+  color: var(--gold);
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.cdb-title {
+  color: #9aa0a6;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cdb-rapport {
+  font-size: 11px;
+  color: var(--mint);
+  border: 1px solid #285535;
+  background: #0d2015;
+  padding: 2px 5px;
+}
+
+.cdb-speech-area {
+  min-height: 44px;
+  background: #020406;
+  border: 2px solid #20242a;
+  padding: 6px 8px;
+}
+
+.cdb-typewriter {
+  color: var(--white);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+/* Interactive RPG Quip Buttons */
+.cdb-quip-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cdb-quip-btn {
+  background: #141820;
+  color: #d8dee8;
+  border: 2px solid #303848;
+  padding: 6px 8px;
+  font-family: var(--font-nes);
+  font-size: 13px;
+  font-weight: bold;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  line-height: 1.25;
+}
+
+.cdb-quip-btn:hover, .cdb-quip-btn:active {
+  background: var(--blue);
+  color: var(--white);
+  border-color: var(--cyan);
+  padding-left: 12px;
+}
+
+/* Custom Remark Drawer */
+.custom-remark-drawer {
+  background: #000;
+  border: 2px solid #3a4252;
+  padding: 5px;
+}
+
+.custom-chat-form {
+  display: flex;
+  gap: 5px;
+}
+
+.custom-chat-form input {
+  flex: 1;
+  background: #111;
+  color: var(--white);
+  border: 2px solid #444;
+  padding: 4px 6px;
+  font-family: var(--font-nes);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.cdb-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.cdb-actions .crt-btn {
+  flex: 1;
+  padding: 8px 4px;
+  font-size: 13px;
+}
+
+/* B. The Course Viewport */
+.course-viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+}
+
 .course-canvas-wrap {
   flex: 1;
   position: relative;
-  border: 4px solid var(--white);
+  border: 3px solid var(--white);
   background: var(--black);
   display: flex;
   align-items: center;
@@ -153,340 +362,472 @@ html, body {
   cursor: pointer;
 }
 
-/* Tee-box loading bar & 2-line whisper strip tucked over the bottom of the course */
-.tee-loading-overlay {
+.swing-controls-bar {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-swing-large {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+/* ==========================================================================
+   SCREEN 2: SCORECARD & CONFIDENTIAL CLUBHOUSE DOSSIER
+   ========================================================================== */
+.scorecard-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 20px;
+}
+
+/* Paper Scorecard */
+.paper-scorecard {
+  background: var(--cream-paper);
+  color: #1a1a1a;
+  border: 3px solid #665b42;
+  padding: 10px;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.sc-header {
+  text-align: center;
+  border-bottom: 2px solid var(--paper-line);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+.sc-club-name {
+  font-size: 14px;
+  color: #1a4422;
+  letter-spacing: 1px;
+}
+
+.sc-sub {
+  font-size: 10px;
+  color: #665b42;
+}
+
+.sc-table-wrap {
+  overflow-x: auto;
+}
+
+.sc-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  font-size: 12px;
+  color: #111;
+}
+
+.sc-table th, .sc-table td {
+  border: 1px solid var(--paper-line);
+  padding: 4px 2px;
+}
+
+.sc-table thead th {
+  background: #e3d9be;
+  font-size: 11px;
+}
+
+.tot-col {
+  background: #e3d9be;
+  font-weight: bold;
+}
+
+/* Heavy Mechanical Rubber Stamp */
+.rubber-stamp {
   position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  background: rgba(0, 0, 0, 0.94);
-  border: 4px solid var(--white);
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border: 5px solid;
+  border-radius: 4px;
+  pointer-events: none;
+  animation: stampSlam 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+  opacity: 0.92;
+  white-space: nowrap;
+}
+
+.stamp-bad {
+  color: var(--stamp-red);
+  border-color: var(--stamp-red);
+  text-shadow: 0 0 3px rgba(201, 34, 0, 0.5);
+  box-shadow: 0 0 8px rgba(201, 34, 0, 0.4), inset 0 0 6px rgba(201, 34, 0, 0.3);
+}
+
+.stamp-good {
+  color: var(--stamp-green);
+  border-color: var(--stamp-green);
+  text-shadow: 0 0 3px rgba(10, 136, 42, 0.5);
+  box-shadow: 0 0 8px rgba(10, 136, 42, 0.4), inset 0 0 6px rgba(10, 136, 42, 0.3);
+}
+
+@keyframes stampSlam {
+  0% {
+    transform: translate(-50%, -50%) scale(3) rotate(-28deg);
+    opacity: 0;
+  }
+  75% {
+    transform: translate(-50%, -50%) scale(0.92) rotate(-10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(-12deg);
+    opacity: 0.92;
+  }
+}
+
+/* Confidential Country Club Dossier */
+.confidential-dossier {
+  background: #11141a;
+  border: 3px solid #3a4454;
+  box-shadow: 0 4px 10px #000;
+}
+
+.dossier-tab {
+  background: #2a3344;
+  color: var(--gold);
+  font-size: 11px;
+  padding: 4px 8px;
+  letter-spacing: 1px;
+}
+
+.dossier-body {
   padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  z-index: 20;
 }
 
-.tlo-top {
+.dossier-field {
+  display: flex;
+  font-size: 12px;
+  gap: 6px;
+}
+.df-lbl { color: #8892a0; }
+.df-val { color: var(--white); }
+
+.dossier-text {
+  background: #080a0e;
+  border-left: 3px solid var(--gold);
+  padding: 8px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #d0d7de;
+}
+
+.dossier-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.ds-card {
+  background: #0a0d12;
+  border: 2px solid #202632;
+  padding: 6px 4px;
+  text-align: center;
+}
+
+.ds-label {
+  font-size: 10px;
+  color: #8892a0;
+  margin-bottom: 2px;
+}
+
+.ds-val {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* 3D Hairball Network Radar */
+.radar-box {
+  background: #020508;
+  border: 2px solid #1a2a3a;
+  padding: 6px;
+}
+
+.radar-header {
   display: flex;
   justify-content: space-between;
-  font-size: 16px;
-  color: var(--gold);
+  font-size: 11px;
+  color: var(--mint);
+  margin-bottom: 4px;
 }
+.radar-sub { color: #556677; }
 
-.tlo-course {
-  color: var(--cyan);
-  font-size: 14px;
-}
-
-.tlo-bar-frame {
+.radar-canvas-wrap {
   width: 100%;
-  height: 12px;
-  border: 3px solid var(--white);
-  background: #181818;
-}
-
-.tlo-bar-fill {
-  height: 100%;
-  background: var(--lime);
-  transition: width 0.25s steps(4);
-}
-
-.cart-dialogue-strip {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.cds-row {
+  height: 140px;
+  background: #000;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #081208;
-  border: 3px solid var(--green);
-  padding: 8px;
+  justify-content: center;
+  cursor: grab;
 }
 
-#npc-avatar-canvas {
-  width: 42px;
-  height: 42px;
-  border: 3px solid var(--white);
-  image-rendering: pixelated;
-  flex-shrink: 0;
+#hairball-radar-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
-.cds-speech {
-  flex: 1;
-  min-width: 0;
-}
-
-.cds-speaker {
-  font-size: 14px;
-  color: var(--gold);
-  margin-bottom: 3px;
-}
-
-.cds-line {
-  font-size: 17px;
-  line-height: 1.25;
-  color: var(--white);
-  text-transform: uppercase;
-}
-
-/* Collapsible reply drawer so chat never dominates the screen unless opened */
-.cart-reply-drawer {
-  display: none;
-  flex-direction: column;
-  gap: 6px;
-  border-top: 2px dashed var(--gray);
-  padding-top: 6px;
-}
-
-.cart-reply-drawer.open {
+.radar-legend {
   display: flex;
+  justify-content: space-around;
+  font-size: 10px;
+  color: #8892a0;
+  margin-top: 4px;
 }
 
-.crt-quick-replies {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.leg-item { display: flex; align-items: center; gap: 3px; }
+.leg-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.leg-dot.green { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.leg-dot.red { background: var(--red); box-shadow: 0 0 4px var(--red); }
+.leg-dot.white { background: var(--white); }
+.leg-dot.gold { background: var(--gold); box-shadow: 0 0 4px var(--gold); }
 
-.crt-quip-btn {
-  background: var(--black);
-  color: var(--cyan);
-  border: 3px solid var(--cyan);
-  font-family: var(--font-nes);
-  font-weight: bold;
-  font-size: 15px;
-  padding: 8px;
-  text-align: left;
-  cursor: pointer;
-  text-transform: uppercase;
-}
-
-.crt-quip-btn:active, .crt-quip-btn:hover {
-  background: var(--blue);
-  color: var(--white);
-  border-color: var(--white);
-}
-
-.crt-chat-form {
-  display: flex;
-  gap: 6px;
-}
-
-#crt-chat-input {
-  flex: 1;
-  background: var(--black);
-  color: var(--white);
-  border: 3px solid var(--white);
-  font-family: var(--font-nes);
-  font-weight: bold;
-  font-size: 16px;
-  padding: 8px;
-  text-transform: uppercase;
-}
-
-.tlo-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-/* BLOCKY 8-BIT BUTTONS */
-.crt-btn {
-  font-family: var(--font-nes);
-  font-weight: bold;
-  font-size: 18px;
-  padding: 12px 10px;
-  border: 4px solid var(--white);
-  cursor: pointer;
-  text-transform: uppercase;
-}
-
-.crt-btn-green { background: var(--green); color: var(--white); }
-.crt-btn-blue { background: var(--blue); color: var(--white); }
-.crt-btn-gold { background: var(--gold); color: var(--black); }
-.crt-btn-red { background: var(--red); color: var(--white); }
-.crt-btn-dark { background: #181828; color: var(--cyan); border-color: var(--cyan); font-size: 15px; }
-
-.btn-full { width: 100%; }
-.hidden { display: none !important; }
-
-.course-btn-row {
-  display: flex;
-  gap: 8px;
-}
-
-/* 2. SCORECARD / VERDICT SCREEN */
-.verdict-frame {
-  border: 4px solid var(--white);
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  background: #080810;
-}
-
-.vf-title {
-  font-size: 24px;
-  color: var(--gold);
-  text-align: center;
-}
-
-.vf-strokes {
-  font-size: 18px;
-  color: var(--gray);
-  text-align: center;
-}
-
-.vf-stamp {
-  font-size: 22px;
-  padding: 12px;
-  text-align: center;
-  border: 4px solid var(--white);
-}
-
-.stamp-good { background: var(--green); color: var(--white); }
-.stamp-bad { background: var(--red); color: var(--white); }
-
-.vf-message {
-  font-size: 18px;
-  line-height: 1.35;
-  color: var(--white);
-  text-transform: uppercase;
-}
-
-.vf-stats-box {
-  border: 4px solid var(--cyan);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  font-size: 17px;
-}
-
-.vfs-row {
-  display: flex;
-  justify-content: space-between;
-}
-
+/* Simulation Breach Alert */
 .respawn-alert {
-  border: 4px solid var(--pink);
-  background: #200020;
-  color: var(--gold);
-  padding: 12px;
-  font-size: 17px;
-  line-height: 1.35;
+  background: #280a0a;
+  border: 2px dashed var(--red);
+  padding: 8px;
+  text-align: center;
 }
+.ra-title { color: var(--red); font-size: 13px; margin-bottom: 4px; }
+.ra-body { color: var(--white); font-size: 11px; }
 
-/* 3. TEE SHEET, PRO SHOP & LEADERBOARD */
-.section-title {
-  font-size: 20px;
-  color: var(--lime);
-  border-bottom: 4px solid var(--white);
+/* ==========================================================================
+   SCREENS 3-6: TEE SHEET, PRO SHOP, EMPTY LOT, LEADERBOARD
+   ========================================================================== */
+.section-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--green);
   padding-bottom: 6px;
 }
 
-.epoch-banner, .capital-readout {
-  background: #101028;
-  border: 4px solid var(--gold);
-  color: var(--gold);
-  padding: 10px;
-  font-size: 17px;
-}
+.st-main { font-size: 16px; color: var(--lime); letter-spacing: 1px; }
+.epoch-badge { font-size: 11px; color: var(--gold); background: #201400; padding: 2px 6px; border: 1px solid var(--gold); }
+.capital-badge { font-size: 12px; color: var(--mint); }
+.section-subtitle { font-size: 11px; color: #8892a0; line-height: 1.3; }
 
-.blocky-list {
+/* Blocky Lists / Cards */
+.network-cards-grid, .upgrades-grid {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  padding-bottom: 20px;
 }
 
 .blocky-card {
-  border: 4px solid var(--white);
-  background: #0a0a12;
-  padding: 12px;
+  background: #10141a;
+  border: 2px solid #2a3444;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.blocky-card.friend {
+  border-color: var(--green);
+  background: #0d1a10;
+}
+
+.blocky-card.negative {
+  border-color: var(--red);
+  background: #1a0d0d;
+}
+
+.bc-title {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--white);
+}
+
+.bc-sub { font-size: 11px; color: #8892a0; }
+.bc-status { font-size: 12px; color: var(--mint); }
+
+/* Empty Lot Blueprint */
+.blueprint-frame {
+  background: #041220;
+  border: 3px solid #0a4070;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.blocky-card.negative { border-color: var(--red); }
-.blocky-card.friend { border-color: var(--mint); }
+.blueprint-canvas-wrap {
+  width: 100%;
+  height: 120px;
+  background: #020b14;
+  border: 1px solid #145a96;
+}
 
-.bc-title {
-  font-size: 19px;
-  color: var(--white);
+#blueprint-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.blueprint-memo {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.bc-sub {
-  font-size: 16px;
-  color: var(--cyan);
+.bm-title { font-size: 14px; color: var(--gold); }
+.bm-desc { font-size: 12px; color: #d0d7de; line-height: 1.35; }
+
+.bm-intel-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
 }
 
-.bc-status {
-  font-size: 16px;
-  color: var(--gold);
+.intel-bubble {
+  background: #081e34;
+  border-left: 2px solid var(--cyan);
+  padding: 4px 6px;
+  font-size: 11px;
+  color: #a0c4e8;
 }
 
+/* Leaderboard */
 .handle-bar {
   display: flex;
+  align-items: center;
   gap: 8px;
+  font-size: 12px;
 }
 
-#input-handle {
+.handle-bar input {
   flex: 1;
-  background: var(--black);
-  color: var(--gold);
-  border: 4px solid var(--white);
+  background: #111;
+  color: var(--white);
+  border: 2px solid #555;
+  padding: 4px 6px;
   font-family: var(--font-nes);
+  font-size: 13px;
   font-weight: bold;
-  font-size: 18px;
-  padding: 10px;
-  text-transform: uppercase;
+}
+
+.leaderboard-table-wrap {
+  border: 2px solid #333842;
+  background: #080a0e;
+  overflow-x: auto;
 }
 
 .lb-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 17px;
-}
-
-.lb-table th, .lb-table td {
-  border: 3px solid var(--white);
-  padding: 8px;
+  font-size: 12px;
   text-align: left;
 }
 
-.lb-table th { color: var(--cyan); }
-.lb-top-masked { background: #280028; color: var(--pink); }
-.lb-you { background: #002800; color: var(--mint); }
+.lb-table th {
+  background: #161c24;
+  color: var(--gold);
+  padding: 6px 8px;
+  border-bottom: 2px solid #333842;
+}
 
-/* BOTTOM NAV */
+.lb-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #1c222c;
+}
+
+.lb-top-masked td {
+  color: var(--pink);
+  background: #1a0520;
+}
+
+.lb-you td {
+  color: var(--mint);
+  font-weight: bold;
+  background: #0d2015;
+}
+
+/* ==========================================================================
+   BUTTONS, UTILITIES & CRT BOTTOM NAVIGATION
+   ========================================================================== */
+.crt-btn {
+  background: #1c222c;
+  color: var(--white);
+  border: 2px solid var(--white);
+  font-family: var(--font-nes);
+  font-weight: bold;
+  font-size: 14px;
+  padding: 8px 12px;
+  cursor: pointer;
+  text-align: center;
+  text-transform: uppercase;
+  transition: all 0.08s ease;
+}
+
+.crt-btn:hover { filter: brightness(1.15); }
+.crt-btn:active { transform: translateY(2px); }
+
+.crt-btn-green { background: var(--green); border-color: var(--lime); color: var(--white); }
+.crt-btn-gold { background: #b8860b; border-color: var(--gold); color: var(--white); }
+.crt-btn-blue { background: var(--blue); border-color: var(--cyan); color: var(--white); }
+.crt-btn-red { background: #881000; border-color: var(--red); color: var(--white); }
+.crt-btn-dark { background: #161a22; border-color: #444c5c; color: #a0a8b8; }
+.btn-full { width: 100%; }
+
+.pulse-anim {
+  animation: pulseButton 1.4s infinite;
+}
+
+@keyframes pulseButton {
+  0%, 100% { box-shadow: 0 0 0 rgba(0, 168, 0, 0); }
+  50% { box-shadow: 0 0 12px rgba(136, 216, 0, 0.75); }
+}
+
+/* CRT Bottom Navigation */
 #unlocked-nav {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border-top: 4px solid var(--white);
+  display: flex;
   background: var(--black);
+  border-top: 3px solid var(--green);
+  z-index: 100;
 }
 
 .u-tab {
-  background: var(--black);
-  color: var(--gray);
+  flex: 1;
+  background: #10141a;
+  color: #8892a0;
   border: none;
-  border-right: 3px solid var(--white);
+  border-right: 1px solid #202632;
+  padding: 10px 4px;
   font-family: var(--font-nes);
   font-weight: bold;
-  font-size: 16px;
-  padding: 14px 4px;
+  font-size: 12px;
   cursor: pointer;
+  text-align: center;
+  transition: all 0.1s ease;
 }
 
-.u-tab.active {
-  background: var(--green);
-  color: var(--white);
-}
+.u-tab:last-child { border-right: none; }
+.u-tab:hover { background: #18202c; color: var(--white); }
+.u-tab.active { background: var(--green); color: var(--white); }
+
+.hidden { display: none !important; }
+.text-red { color: var(--red) !important; }
+.text-green { color: var(--green) !important; }
+.text-gold { color: var(--gold) !important; }
+.text-cyan { color: var(--cyan) !important; }

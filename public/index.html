@@ -3,164 +3,310 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>GOFLBALL</title>
+  <title>GOFLBALL (1984)</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
   <div id="crt-shell">
     <!-- TOP ARCADE HIGH-SCORE MARQUEE -->
     <div id="arcade-marquee">
-      HI-SCORE: <span class="m-leader">████████ 100.0%</span>
+      <span class="m-label">HI-SCORE:</span>
+      <span class="m-leader">████████ 100.0%</span>
       <span class="m-sep">|</span>
-      1P: <span id="marquee-pct">0.0%</span>
+      <span class="m-label">1P:</span>
+      <span id="marquee-pct" class="m-stat">0.0%</span>
+      <span class="m-sep">|</span>
+      <span class="m-label">CAPITAL:</span>
+      <span id="marquee-cash" class="m-stat">$0</span>
     </div>
 
-    <!-- CLASSIC 1984 BLOCKY HEADER -->
+    <!-- 1984 BLOCKY HEADER -->
     <header id="nes-header">
       <div class="nh-brand">GOFLBALL</div>
-      <div class="nh-stat">H<span id="hdr-hole">1</span></div>
-      <div class="nh-stat">SCR <span id="hdr-score">E</span></div>
-      <button id="btn-sfx" class="crt-mini-btn">SFX</button>
+      <div class="nh-stat">HOLE <span id="hdr-hole">1</span></div>
+      <div class="nh-stat">SCORE <span id="hdr-score">E</span></div>
+      <button id="btn-sfx" class="crt-mini-btn" title="Toggle 2A03 Chiptune Audio">SFX</button>
     </header>
 
     <!-- MAIN VIEWPORT -->
     <main id="crt-stage">
 
-      <!-- 1. PRIMARY GAME SCREEN: BIG RETRO GOFLBALL COURSE + SUBTLE TEE-BOX LOADING WHISPER -->
+      <!-- =====================================================================
+           SCREEN 1: THE PRIMARY GAMEPLAY (GOFLBALL CART TRANSIT + THE COURSE)
+           ===================================================================== -->
       <section id="screen-play" class="crt-screen active">
-        <!-- THE GOFLBALL COURSE IS ALWAYS FRONT AND CENTER -->
-        <div class="course-canvas-wrap">
-          <canvas id="nes-golf-canvas" width="256" height="220"></canvas>
 
-          <!-- BRIEF, ACCIDENTAL-FEELING "LOADING HOLE..." CART OVERLAY -->
-          <div id="tee-loading-overlay" class="tee-loading-overlay">
-            <div class="tlo-top">
-              <span>LOADING HOLE <span id="load-hole-num">1</span>...</span>
-              <span id="load-course-name" class="tlo-course">PINE VALLEY MUNI</span>
+        <!-- A. CINEMATIC GOFLBALL CART TRANSIT (BETWEEN HOLES) -->
+        <div id="cart-cinematic" class="cart-cinematic">
+          <!-- Pixel Art Side-Scrolling Cart Animation Canvas -->
+          <div class="cart-canvas-frame">
+            <canvas id="cart-transit-canvas" width="256" height="110"></canvas>
+            <div class="cart-stage-badge">
+              <span id="cart-transit-status">LOADING HOLE 1...</span>
+              <span id="cart-course-title" class="cart-course-title">PINE VALLEY MUNI</span>
             </div>
-            <div class="tlo-bar-frame">
-              <div id="loading-bar-fill" class="tlo-bar-fill" style="width: 35%;"></div>
+          </div>
+
+          <!-- Vintage NES Dialogue Frame -->
+          <div class="cart-dialogue-box">
+            <div class="cdb-header">
+              <canvas id="partner-portrait-canvas" width="32" height="32" class="partner-avatar"></canvas>
+              <div class="cdb-speaker-info">
+                <div id="cdb-speaker-name" class="cdb-name">DALE (GOFLBALL CART)</div>
+                <div id="cdb-speaker-title" class="cdb-title">VP, LAKESIDE REBAR</div>
+              </div>
+              <div id="cdb-rapport-badge" class="cdb-rapport">BOND: NEUTRAL</div>
             </div>
 
-            <!-- COMPACT 2-LINE NES DIALOGUE BOX AT BOTTOM OF LOADING SCREEN -->
-            <div class="cart-dialogue-strip">
-              <div class="cds-row">
-                <canvas id="npc-avatar-canvas" width="28" height="28"></canvas>
-                <div class="cds-speech">
-                  <div id="chat-npc-name" class="cds-speaker">PARTNER (GOFLBALL CART)</div>
-                  <div id="crt-latest-line" class="cds-line">"GREENS ARE ROLLING QUICK TODAY."</div>
+            <!-- Dialogue Text Area with Typewriter Animation -->
+            <div class="cdb-speech-area">
+              <p id="cdb-speech-text" class="cdb-typewriter">"GREENS ARE ROLLING QUICK TODAY."</p>
+            </div>
+
+            <!-- Interactive RPG Quip Options -->
+            <div id="cdb-quip-container" class="cdb-quip-container">
+              <!-- Dynamically populated 3 choices with cursor ► -->
+            </div>
+
+            <!-- Custom Remark Input Drawer (Optional Easter Egg for Freeform Banter) -->
+            <div id="custom-remark-drawer" class="custom-remark-drawer hidden">
+              <form id="custom-chat-form" class="custom-chat-form" autocomplete="off">
+                <input
+                  type="text"
+                  id="custom-chat-input"
+                  placeholder="WHISPER IN GOFLBALL CART..."
+                  maxlength="90"
+                />
+                <button type="submit" class="crt-btn crt-btn-blue">SPEAK</button>
+              </form>
+            </div>
+
+            <!-- Bottom Action Row in Cart -->
+            <div class="cdb-actions">
+              <button id="btn-toggle-custom" type="button" class="crt-btn crt-btn-dark">
+                TYPE CUSTOM REMARK
+              </button>
+              <button id="btn-tee-off" type="button" class="crt-btn crt-btn-green pulse-anim">
+                TEE OFF HOLE <span id="btn-tee-hole-num">1</span> &raquo;
+              </button>
+            </div>
+
+            <!-- Autopilot Button (Unlocked via Pro Shop Cart Motor Upgrade) -->
+            <button id="btn-autopilot-hole" type="button" class="crt-btn crt-btn-gold btn-full hidden">
+              RIDE GOFLBALL CART (AUTO-PLAY HOLE) &raquo;
+            </button>
+          </div>
+        </div>
+
+        <!-- B. THE 1984 GOFLBALL COURSE (ACTIVE FAIRWAY & PUTTING SIMULATION) -->
+        <div id="course-viewport" class="course-viewport hidden">
+          <div class="course-canvas-wrap">
+            <canvas id="nes-golf-canvas" width="256" height="220"></canvas>
+          </div>
+
+          <!-- Bottom Retro Swing Controls & Status Readout -->
+          <div class="swing-controls-bar">
+            <button id="btn-swing" class="crt-btn crt-btn-green btn-swing-large">
+              SWING GOFLBALL CLUB
+            </button>
+            <button id="btn-caddie-shot" class="crt-btn crt-btn-gold hidden">
+              CADDIE SHOT
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =====================================================================
+           SCREEN 2: THE 9-HOLE COUNTRY CLUB SCORECARD & SECRET VERDICT
+           ===================================================================== -->
+      <section id="screen-verdict" class="crt-screen">
+        <div class="scorecard-wrapper">
+          <!-- Physical Paper Scorecard Cardboard Aesthetic -->
+          <div class="paper-scorecard">
+            <div class="sc-header">
+              <div class="sc-club-name" id="sc-club-name">PINE VALLEY GOFLBALL &amp; COUNTRY CLUB</div>
+              <div class="sc-sub">OFFICIAL 9-HOLE CHAMPIONSHIP SCORECARD</div>
+            </div>
+
+            <div class="sc-table-wrap">
+              <table class="sc-table" id="sc-table">
+                <thead>
+                  <tr>
+                    <th>HOLE</th>
+                    <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
+                    <th class="tot-col">TOT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr id="sc-row-par">
+                    <td>PAR</td>
+                    <td>4</td><td>4</td><td>3</td><td>5</td><td>4</td><td>3</td><td>5</td><td>4</td><td>4</td>
+                    <td class="tot-col">36</td>
+                  </tr>
+                  <tr id="sc-row-strokes">
+                    <td>SCORE</td>
+                    <td id="sc-h1">-</td><td id="sc-h2">-</td><td id="sc-h3">-</td>
+                    <td id="sc-h4">-</td><td id="sc-h5">-</td><td id="sc-h6">-</td>
+                    <td id="sc-h7">-</td><td id="sc-h8">-</td><td id="sc-h9">-</td>
+                    <td class="tot-col" id="sc-total">-</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Heavy Mechanical Rubber Stamp (Slams Down with Audio and Screen Shake) -->
+            <div id="verdict-stamp" class="rubber-stamp stamp-bad">
+              NOT INVITED BACK
+            </div>
+          </div>
+
+          <!-- Confidential Country Club Dossier / Partner Incident Report -->
+          <div class="confidential-dossier">
+            <div class="dossier-tab">CONFIDENTIAL MEMO // EYES ONLY</div>
+            <div class="dossier-body">
+              <div class="dossier-field">
+                <span class="df-lbl">EVALUATOR:</span>
+                <span id="dossier-evaluator" class="df-val">DALE VANDERBILT (VP, LAKESIDE REBAR)</span>
+              </div>
+              <div class="dossier-field">
+                <span class="df-lbl">INCIDENT VERDICT:</span>
+                <span id="dossier-verdict-title" class="df-val text-red">FAILED SOCIAL INTERACTION</span>
+              </div>
+              <p id="dossier-summary" class="dossier-text">
+                "YOU PLAYED 9 HOLES OF GOFLBALL AND BARELY SPOKE A WORD IN THE GOFLBALL CART. NOBODY DOES BUSINESS WITH A GHOST."
+              </p>
+
+              <!-- Social Stats Grid -->
+              <div class="dossier-stats-grid">
+                <div class="ds-card">
+                  <div class="ds-label">CART BANTER</div>
+                  <div id="stat-cart-rapport" class="ds-val text-red">NEGATIVE</div>
+                </div>
+                <div class="ds-card">
+                  <div class="ds-label">BUSINESS WON</div>
+                  <div id="stat-cash-won" class="ds-val text-gold">$0</div>
+                </div>
+                <div class="ds-card">
+                  <div class="ds-label">NETWORK REACH</div>
+                  <div id="stat-network-reach" class="ds-val text-cyan">0.0%</div>
                 </div>
               </div>
 
-              <!-- OPTIONAL SUBTLE REPLY TOGGLE / INPUT (FEELS LIKE AN EASTER EGG) -->
-              <div id="cart-reply-drawer" class="cart-reply-drawer">
-                <div id="crt-quick-replies" class="crt-quick-replies"></div>
-                <form id="crt-chat-form" class="crt-chat-form" autocomplete="off">
-                  <input
-                    type="text"
-                    id="crt-chat-input"
-                    placeholder="SAY SOMETHING..."
-                    maxlength="90"
-                  />
-                  <button type="submit" class="crt-btn crt-btn-blue">OK</button>
-                </form>
+              <!-- 3D Hairball Network Radar Preview -->
+              <div class="radar-box">
+                <div class="radar-header">
+                  <span>3D HAIRBALL NETWORK RADAR</span>
+                  <span class="radar-sub">(ROTATABLE SPHERE)</span>
+                </div>
+                <div class="radar-canvas-wrap">
+                  <canvas id="hairball-radar-canvas" width="240" height="150"></canvas>
+                </div>
+                <div class="radar-legend">
+                  <span class="leg-item"><i class="leg-dot green"></i> ALLY</span>
+                  <span class="leg-item"><i class="leg-dot red"></i> COLD/OFFENDED</span>
+                  <span class="leg-item"><i class="leg-dot white"></i> UNMET</span>
+                  <span class="leg-item"><i class="leg-dot gold"></i> APEX (100.0%)</span>
+                </div>
               </div>
 
-              <div class="tlo-actions">
-                <button id="btn-toggle-talk" type="button" class="crt-btn crt-btn-dark">
-                  TALK IN GOFLBALL CART
-                </button>
-                <button id="btn-play-hole" type="button" class="crt-btn crt-btn-green">
-                  TEE OFF &raquo;
-                </button>
+              <!-- Simulation Matrix Breach Alert (When Applicable) -->
+              <div id="respawn-alert-box" class="respawn-alert hidden">
+                <div class="ra-title">*** SIMULATION BENCHMARK BREACH ***</div>
+                <div id="respawn-alert-msg" class="ra-body">
+                  THE EMPTY LOT FLIPPED. SUBSTRATE RESPAWNED INTO METRO DETROIT.
+                </div>
               </div>
-              <button id="btn-autopilot-hole" type="button" class="crt-btn crt-btn-gold btn-full hidden">
-                RIDE GOFLBALL CART (AUTO-PLAY HOLE) &raquo;
+
+              <button id="btn-to-clubhouse" class="crt-btn crt-btn-green btn-full">
+                ACCESS TEE SHEET &amp; CLUBHOUSE NETWORK &raquo;
               </button>
             </div>
           </div>
         </div>
-
-        <!-- BIG RETRO SWING CONTROLS -->
-        <div class="course-btn-row">
-          <button id="btn-swing" class="crt-btn crt-btn-green btn-full">
-            SWING GOFLBALL CLUB
-          </button>
-          <button id="btn-caddie-shot" class="crt-btn crt-btn-gold hidden">
-            CADDIE SWING
-          </button>
-        </div>
       </section>
 
-      <!-- 2. END OF 9 HOLES SCORECARD & THE SLOW-BURN REVEAL -->
-      <section id="screen-verdict" class="crt-screen">
-        <div class="verdict-frame">
-          <div class="vf-title">9-HOLE SCORECARD</div>
-          <div class="vf-strokes">
-            TOTAL STROKES: <span id="verdict-strokes">36</span>
-          </div>
-
-          <div id="verdict-stamp" class="vf-stamp stamp-bad">NOT INVITED BACK</div>
-          <div id="verdict-message" class="vf-message"></div>
-
-          <div class="vf-stats-box">
-            <div class="vfs-row">
-              <span>CART RAPPORT:</span>
-              <strong id="verdict-social-stat">NEGATIVE</strong>
-            </div>
-            <div class="vfs-row">
-              <span>BUSINESS CAPITAL:</span>
-              <strong id="verdict-cash">$0</strong>
-            </div>
-            <div class="vfs-row">
-              <span>NETWORK SHARE:</span>
-              <strong id="verdict-net-pct">0.0%</strong>
-            </div>
-          </div>
-
-          <div id="verdict-respawn-box" class="respawn-alert hidden"></div>
-
-          <button id="btn-to-clubhouse" class="crt-btn crt-btn-green btn-full">
-            CONTINUE &raquo;
-          </button>
-        </div>
-      </section>
-
-      <!-- 3. UNLOCKED AFTER ROUND 1: TEE SHEET / FRIENDS & FRIENDS OF FRIENDS -->
+      <!-- =====================================================================
+           SCREEN 3: TEE SHEET (FRIENDS & FRIENDS OF FRIENDS)
+           ===================================================================== -->
       <section id="screen-network" class="crt-screen">
-        <div class="section-title">TEE SHEET (FRIENDS &amp; FRIENDS OF FRIENDS)</div>
-        <div id="epoch-banner" class="epoch-banner">PINE VALLEY CIRCUIT</div>
-        <div id="network-list" class="blocky-list"></div>
-      </section>
-
-      <!-- 4. UNLOCKED AFTER ROUND 1: PRO SHOP / GOFLBALL CART UPGRADES -->
-      <section id="screen-upgrades" class="crt-screen">
-        <div class="section-title">PRO SHOP &amp; GOFLBALL CART</div>
-        <div class="capital-readout">CAPITAL: <span id="shop-cash">$0</span></div>
-        <div id="upgrades-list" class="blocky-list"></div>
-      </section>
-
-      <!-- 5. UNLOCKED AFTER ROUND 1: LEADERBOARD -->
-      <section id="screen-ranks" class="crt-screen">
-        <div class="section-title">LEADERBOARD</div>
-        <div class="handle-bar">
-          <input type="text" id="input-handle" maxlength="12" value="PLAYER_1" />
-          <button id="btn-post-rank" class="crt-btn crt-btn-blue">POST</button>
+        <div class="section-title-bar">
+          <div class="st-main">TEE SHEET (SYNDICATE NETWORK)</div>
+          <div id="epoch-banner" class="epoch-badge">PINE VALLEY CIRCUIT</div>
         </div>
-        <div id="leaderboard-box" class="leaderboard-box"></div>
+        <p class="section-subtitle">
+          PARTNER UP IN THE GOFLBALL CART TO UNLOCK HIGHER TIERS AND BIGGER BUSINESS CONTRACTS.
+        </p>
+        <div id="network-list" class="network-cards-grid"></div>
+      </section>
+
+      <!-- =====================================================================
+           SCREEN 4: PRO SHOP & GOFLBALL CART UPGRADES
+           ===================================================================== -->
+      <section id="screen-upgrades" class="crt-screen">
+        <div class="section-title-bar">
+          <div class="st-main">PRO SHOP &amp; GOFLBALL CART GARAGE</div>
+          <div class="capital-badge">CAPITAL: <span id="shop-cash">$0</span></div>
+        </div>
+        <p class="section-subtitle">
+          PURCHASE CLUBS, CADDIE AUTOPILOTS, AND GOFLBALL CART UPGRADES USING BUSINESS CAPITAL.
+        </p>
+        <div id="upgrades-list" class="upgrades-grid"></div>
+      </section>
+
+      <!-- =====================================================================
+           SCREEN 5: THE EMPTY LOT (CONSPIRACY DOSSIER)
+           ===================================================================== -->
+      <section id="screen-conspiracy" class="crt-screen">
+        <div class="section-title-bar">
+          <div class="st-main">PARCEL #49-108 // "THE EMPTY LOT"</div>
+          <div id="conspiracy-stage-badge" class="epoch-badge">TIER 1 CONSENSUS</div>
+        </div>
+        <div class="blueprint-frame">
+          <div class="blueprint-canvas-wrap">
+            <canvas id="blueprint-canvas" width="240" height="120"></canvas>
+          </div>
+          <div class="blueprint-memo">
+            <div class="bm-title" id="lot-theory-title">THE CHRISTIAN BUSINESSMEN PAC</div>
+            <p class="bm-desc" id="lot-theory-desc">
+              "Dale claims the church elders are pooling $2.4M to buy the 40-acre interchange parcel for an evangelical sports ministry."
+            </p>
+            <div class="bm-intel-feed" id="lot-intel-feed">
+              <!-- Dynamically populated fragments of conversation overheard in goflball carts -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           SCREEN 6: LEADERBOARD & ARCADE RANKINGS
+           ===================================================================== -->
+      <section id="screen-ranks" class="crt-screen">
+        <div class="section-title-bar">
+          <div class="st-main">ARCADE LEADERBOARD</div>
+          <div class="epoch-badge">HAIRY BALL THEOREM</div>
+        </div>
+        <div class="handle-bar">
+          <label for="input-handle">HANDLE:</label>
+          <input type="text" id="input-handle" maxlength="12" value="PLAYER_1" />
+          <button id="btn-post-rank" class="crt-btn crt-btn-blue">POST SCORE</button>
+        </div>
+        <div id="leaderboard-box" class="leaderboard-table-wrap"></div>
       </section>
 
     </main>
 
-    <!-- BOTTOM NAV (HIDDEN UNTIL AT LEAST 1 ROUND IS PLAYED) -->
+    <!-- CRT BOTTOM NAVIGATION (HIDDEN UNTIL ROUND 1 IS COMPLETED) -->
     <nav id="unlocked-nav" class="hidden">
       <button class="u-tab active" data-screen="screen-play">COURSE</button>
       <button class="u-tab" data-screen="screen-network">TEE SHEET</button>
       <button class="u-tab" data-screen="screen-upgrades">PRO SHOP</button>
+      <button class="u-tab" data-screen="screen-conspiracy">EMPTY LOT</button>
       <button class="u-tab" data-screen="screen-ranks">BOARD</button>
     </nav>
   </div>
 
+  <!-- JAVASCRIPT LIBRARIES & MODULES -->
   <script src="/js/gofl-world.js"></script>
   <script src="/js/nes-golf.js"></script>
   <script src="/js/gofl-polish.js"></script>

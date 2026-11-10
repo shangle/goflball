@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0.0",
-  "updated_at": "2026-11-09T11:59:56.872Z",
+  "updated_at": "2026-11-10T02:05:34.415Z",
   "leaderboard": [
     {
       "rank": 1,
@@ -82,6 +82,15 @@
       "tier": 1,
       "updated_at": "2026-11-09T11:59:56.872Z",
       "rank": 9
+    },
+    {
+      "handle": "PLAYER_1",
+      "club": "PINE VALLEY GOFLBALL MUNI",
+      "share_pct": 2.4,
+      "rounds": 4,
+      "tier": 1,
+      "updated_at": "2026-11-10T02:05:34.415Z",
+      "rank": 10
     }
   ]
 }
