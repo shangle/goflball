@@ -361,6 +361,18 @@
     .slider-row input[type="range"] {
       flex: 1;
     }
+    .ascii-status {
+      font-size: 10px;
+      min-height: 14px;
+      color: var(--green-glow);
+    }
+
+    @media (max-width: 820px) {
+      body { height: auto; min-height: 100dvh; overflow-y: auto; }
+      #main-layout { flex-direction: column; height: auto; overflow: visible; }
+      #canvas-container { height: 52vh; min-height: 300px; flex: none; }
+      #sidebar { width: 100%; border-left: none; border-top: 2px solid var(--border); overflow-y: visible; }
+    }
   </style>
 </head>
 <body>
@@ -480,7 +492,8 @@
           <p style="font-size: 10px; color: var(--text-dim);">
             Encodes the world seed, active equipment, neutrality drift, and entire opposed league in &lt;70 ASCII characters:
           </p>
-          <textarea id="ascii-output" class="ascii-input" readonly></textarea>
+          <textarea id="ascii-output" class="ascii-input" spellcheck="false"></textarea>
+          <div id="ascii-status" class="ascii-status"></div>
           <div style="display: flex; gap: 6px;">
             <button id="btn-copy-ascii" class="btn" style="flex: 1;">COPY CODE</button>
             <button id="btn-load-ascii-prompt" class="btn" style="flex: 1;">LOAD CODE</button>
@@ -515,6 +528,15 @@
   (function() {
     "use strict";
 
+    function escapeHtml(str) {
+      return String(str == null ? "" : str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
     // 1. STATE & DATA INITIALIZATION
     let currentSeed = 198401;
     let world = GoflWorld.ASCIIPlayerCodec.decode(localStorage.getItem("GOFLBALL_PLAYER_ASCII")) || createDefaultWorld(currentSeed);
@@ -524,6 +546,8 @@
     let repelCatLovers = false;
     let linkFilterMode = "all"; // "all", "agree", "disagree"
     let gossipRipples = [];
+    let gossipDecay = 0.65;
+    let oppositionForce = 1.0;
 
     // Simulation Graph Nodes (Layout positions in virtual space)
     const graphNodes = {};
@@ -616,18 +640,17 @@
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    canvas.addEventListener("mousedown", (e) => {
+    function selectAtClientPoint(clientX, clientY) {
       const rect = canvas.getBoundingClientRect();
-      const mouseX = (e.clientX - rect.left - panX) / scale;
-      const mouseY = (e.clientY - rect.top - panY) / scale;
+      const mouseX = (clientX - rect.left - panX) / scale;
+      const mouseY = (clientY - rect.top - panY) / scale;
 
-      // Check node hit
       let hitId = null;
       for (const id of Object.keys(graphNodes)) {
         const node = graphNodes[id];
         const dx = mouseX - node.x;
         const dy = mouseY - node.y;
-        if (dx * dx + dy * dy <= (node.radius + 6) * (node.radius + 6)) {
+        if (dx * dx + dy * dy <= (node.radius + 8) * (node.radius + 8)) {
           hitId = id;
           break;
         }
@@ -637,21 +660,27 @@
         selectedNodeId = hitId;
         renderStatblock();
         populateGossipSelect();
-      } else {
+        return true;
+      }
+      return false;
+    }
+
+    canvas.addEventListener("pointerdown", (e) => {
+      if (!selectAtClientPoint(e.clientX, e.clientY)) {
         isDragging = true;
         dragStartX = e.clientX - panX;
         dragStartY = e.clientY - panY;
       }
     });
 
-    window.addEventListener("mousemove", (e) => {
+    window.addEventListener("pointermove", (e) => {
       if (isDragging) {
         panX = e.clientX - dragStartX;
         panY = e.clientY - dragStartY;
       }
     });
 
-    window.addEventListener("mouseup", () => {
+    window.addEventListener("pointerup", () => {
       isDragging = false;
     });
 
@@ -659,7 +688,7 @@
       e.preventDefault();
       const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
       scale = Math.max(0.4, Math.min(2.5, scale * zoomFactor));
-    });
+    }, { passive: false });
 
     // 3. FORCE SIMULATION & RENDERING LOOP
     function updatePhysics() {
@@ -742,9 +771,9 @@
           const bNpc = nodes[bId];
           if (!bNode || !bNpc) continue;
 
-          const oppScore = (aNpc.oppositionLinks && aNpc.oppositionLinks[bId] !== undefined)
+          const oppScore = ((aNpc.oppositionLinks && aNpc.oppositionLinks[bId] !== undefined)
             ? aNpc.oppositionLinks[bId]
-            : (aNpc.peerLinks[bId] || 0);
+            : (aNpc.peerLinks[bId] || 0)) * (oppositionForce || 1.0);
 
           const isAgree = oppScore >= 0.15;
           const isDisagree = oppScore <= -0.15;
@@ -915,13 +944,13 @@
 
       let html = `
         <div class="sb-header">
-          <div class="sb-swatch" style="background: ${npc.shirtColor || '#0058f8'};"></div>
+          <div class="sb-swatch" style="background: ${escapeHtml(npc.shirtColor || '#0058f8')};"></div>
           <div>
-            <div class="sb-name">${npc.name}</div>
-            <div class="sb-handle">${npc.handle} // TIER ${npc.tier} (${npc.role})</div>
+            <div class="sb-name">${escapeHtml(npc.name)}</div>
+            <div class="sb-handle">${escapeHtml(npc.handle)} // TIER ${escapeHtml(npc.tier)} (${escapeHtml(npc.role)})</div>
           </div>
         </div>
-        <div class="sb-course">HOME COURSE: ${npc.courseName} | CONTRACT: $${(npc.contractValue || 0).toLocaleString()}</div>
+        <div class="sb-course">HOME COURSE: ${escapeHtml(npc.courseName)} | CONTRACT: $${(npc.contractValue || 0).toLocaleString()}</div>
 
         <!-- 3 CORE STARTING GOFLBALL STATS -->
         <div class="gofl-stats-3">
@@ -951,7 +980,7 @@
         }
         if (npc.revealedTraits) {
           for (const k of Object.keys(npc.revealedTraits)) {
-            unlockedTraits.push(`<span class="tb-tag">${k.toUpperCase()}</span>`);
+            if (npc.revealedTraits[k]) unlockedTraits.push(`<span class="tb-tag">${escapeHtml(k.toUpperCase())}</span>`);
           }
         }
 
@@ -969,30 +998,33 @@
         html += `
           <div style="font-size: 10px; color: var(--gold); margin-bottom: 4px; font-weight: bold;">ALL PERSONALITY DIMENSIONS (BALANCER VIEW):</div>
           <div class="trait-badge-list">
-            <span class="tb-tag ${isCatLover ? 'tb-cat' : 'tb-dog'}">${npc.traits.pet.toUpperCase()}</span>
-            <span class="tb-tag ${isRacist ? 'tb-hazard' : ''}">${npc.traits.ideology.toUpperCase()}</span>
-            <span class="tb-tag">${npc.traits.faction.toUpperCase()}</span>
-            <span class="tb-tag">${npc.traits.transit.toUpperCase()}</span>
-            <span class="tb-tag">${npc.traits.ethics.toUpperCase()}</span>
+            <span class="tb-tag ${isCatLover ? 'tb-cat' : 'tb-dog'}">${escapeHtml(npc.traits.pet.toUpperCase())}</span>
+            <span class="tb-tag ${isRacist ? 'tb-hazard' : ''}">${escapeHtml(npc.traits.ideology.toUpperCase())}</span>
+            <span class="tb-tag">${escapeHtml(npc.traits.faction.toUpperCase())}</span>
+            <span class="tb-tag">${escapeHtml(npc.traits.transit.toUpperCase())}</span>
+            <span class="tb-tag">${escapeHtml(npc.traits.ethics.toUpperCase())}</span>
           </div>
 
           <div class="peer-group">
             <div class="pg-title text-green">MUTUAL AGREEMENTS (${npc.agreements ? npc.agreements.length : 0}):</div>
             <div class="pg-list">
-              ${(npc.agreements || []).map(a => `<div class="pg-item" onclick="window.selectNode('${a.id}')"><span>${a.name}</span><span class="text-green">+${a.score}</span></div>`).join("")}
+              ${(npc.agreements || []).map(a => `<div class="pg-item" data-node-id="${escapeHtml(a.id)}"><span>${escapeHtml(a.name)}</span><span class="text-green">+${escapeHtml(a.score)}</span></div>`).join("")}
             </div>
           </div>
 
           <div class="peer-group">
             <div class="pg-title text-red">FOREVER OPPOSED / ENEMIES (${npc.disagreements ? npc.disagreements.length : 0}):</div>
             <div class="pg-list">
-              ${(npc.disagreements || []).map(d => `<div class="pg-item" onclick="window.selectNode('${d.id}')"><span>${d.name}</span><span class="text-red">${d.score}</span></div>`).join("")}
+              ${(npc.disagreements || []).map(d => `<div class="pg-item" data-node-id="${escapeHtml(d.id)}"><span>${escapeHtml(d.name)}</span><span class="text-red">${escapeHtml(d.score)}</span></div>`).join("")}
             </div>
           </div>
         `;
       }
 
       container.innerHTML = html;
+      container.querySelectorAll("[data-node-id]").forEach((el) => {
+        el.addEventListener("click", () => window.selectNode(el.getAttribute("data-node-id")));
+      });
     }
 
     window.selectNode = function(id) {
@@ -1116,7 +1148,7 @@
       }
 
       // Propagate Gossip through engine
-      const res = GoflWorld.GossipEngine.propagate(world, sourceId, { topic, stance, text });
+      const res = GoflWorld.GossipEngine.propagate(world, sourceId, { topic, stance: stance * oppositionForce, text, decay: gossipDecay });
       if (res && res.ripples) {
         // Trigger visual wave ripple on canvas
         gossipRipples.push({
@@ -1131,8 +1163,8 @@
         const feed = document.getElementById("gossip-feed-box");
         const logHtml = `
           <div class="feed-item">
-            <span class="text-gold">[GOSSIP SPREAD]</span> ${gn.shortName} relayed remark (${res.ripples.length} peers reached).
-            Neutrality dropped to <b>${(res.neutrality * 100).toFixed(1)}%</b>.
+            <span class="text-gold">[GOSSIP SPREAD]</span> ${escapeHtml(gn.shortName)} relayed remark (${res.ripples.length} peers reached).
+            Neutrality shifted to <b>${(res.neutrality * 100).toFixed(1)}%</b>.
           </div>
         `;
         feed.innerHTML = logHtml + feed.innerHTML;
@@ -1142,28 +1174,58 @@
       renderStatblock();
     });
 
+    document.getElementById("slider-decay").addEventListener("input", (e) => {
+      gossipDecay = parseFloat(e.target.value) || 0.65;
+      document.getElementById("lbl-decay").textContent = gossipDecay.toFixed(2);
+    });
+
+    document.getElementById("slider-force").addEventListener("input", (e) => {
+      oppositionForce = parseFloat(e.target.value) || 1.0;
+      document.getElementById("lbl-force").textContent = oppositionForce.toFixed(1);
+    });
+
     document.getElementById("btn-copy-ascii").addEventListener("click", () => {
       const code = document.getElementById("ascii-output").value;
-      navigator.clipboard.writeText(code).then(() => {
-        alert("ASCII Player File copied to clipboard!\n" + code);
-      });
+      const statusEl = document.getElementById("ascii-status");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(() => {
+          statusEl.textContent = "COPIED TO CLIPBOARD.";
+        }).catch(() => {
+          statusEl.textContent = "SELECT BOX & COPY MANUALLY.";
+        });
+      } else {
+        statusEl.textContent = "SELECT BOX & COPY MANUALLY.";
+      }
     });
 
     document.getElementById("btn-load-ascii-prompt").addEventListener("click", () => {
-      const input = prompt("Paste your minimal ASCII Player File (e.g. GFB1:1984.0.0.88888...):");
-      if (input) {
-        const decoded = GoflWorld.ASCIIPlayerCodec.decode(input.trim());
+      const input = (document.getElementById("ascii-output").value || "").trim();
+      const statusEl = document.getElementById("ascii-status");
+      const decoded = GoflWorld.ASCIIPlayerCodec.decode(input);
+      if (decoded) {
+        world = decoded;
+        currentSeed = world.universeSeed;
+        selectedNodeId = world.network.order[0];
+        initGraphLayout();
+        updateAsciiDisplay();
+        populateGossipSelect();
+        renderStatblock();
+        statusEl.textContent = "ASCII PLAYER FILE LOADED.";
+      } else {
+        statusEl.textContent = "INVALID ASCII FILE CHECKSUM OR FORMAT.";
+      }
+    });
+
+    window.addEventListener("storage", (e) => {
+      if (e.key === "GOFLBALL_PLAYER_ASCII" && e.newValue) {
+        const decoded = GoflWorld.ASCIIPlayerCodec.decode(e.newValue.trim());
         if (decoded) {
           world = decoded;
           currentSeed = world.universeSeed;
-          selectedNodeId = world.network.order[0];
+          if (!world.network.nodes[selectedNodeId]) selectedNodeId = world.network.order[0];
           initGraphLayout();
-          updateAsciiDisplay();
           populateGossipSelect();
           renderStatblock();
-          alert("Successfully loaded ASCII Player File into the web balancer!");
-        } else {
-          alert("Invalid ASCII Player File checksum or format.");
         }
       }
     });

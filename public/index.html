@@ -52,8 +52,8 @@
             <div class="cdb-header">
               <canvas id="partner-portrait-canvas" width="32" height="32" class="partner-avatar"></canvas>
               <div class="cdb-speaker-info">
-                <div id="cdb-speaker-name" class="cdb-name">DALE (GOFLBALL CART)</div>
-                <div id="cdb-speaker-title" class="cdb-title">VP, LAKESIDE REBAR</div>
+                <div id="cdb-speaker-name" class="cdb-name">PARTNER (GOFLBALL CART)</div>
+                <div id="cdb-speaker-title" class="cdb-title">CLUBHOUSE MEMBER</div>
               </div>
               <div id="cdb-rapport-badge" class="cdb-rapport">BOND: NEUTRAL</div>
             </div>
@@ -105,7 +105,20 @@
           </div>
 
           <!-- Bottom Retro Swing Controls & Status Readout -->
-          <div class="swing-controls-bar">
+          <div class="course-hud-bar" id="course-hud-bar">
+          <div class="hud-ctrl-group">
+            <button id="btn-club-prev" class="hud-step-btn" type="button" title="Previous Club">&lsaquo;</button>
+            <span id="hud-club-readout" class="hud-readout">1W 275Y</span>
+            <button id="btn-club-next" class="hud-step-btn" type="button" title="Next Club">&rsaquo;</button>
+          </div>
+          <span id="hud-lie-badge" class="hud-lie-badge">TEE</span>
+          <div class="hud-ctrl-group">
+            <button id="btn-aim-left" class="hud-step-btn" type="button" title="Aim Left">&laquo;</button>
+            <span id="hud-aim-readout" class="hud-readout">AIM 0&deg;</span>
+            <button id="btn-aim-right" class="hud-step-btn" type="button" title="Aim Right">&raquo;</button>
+          </div>
+        </div>
+        <div class="swing-controls-bar">
             <button id="btn-swing" class="crt-btn crt-btn-green btn-swing-large">
               SWING GOFLBALL CLUB
             </button>
@@ -167,7 +180,7 @@
             <div class="dossier-body">
               <div class="dossier-field">
                 <span class="df-lbl">EVALUATOR:</span>
-                <span id="dossier-evaluator" class="df-val">DALE VANDERBILT (VP, LAKESIDE REBAR)</span>
+                <span id="dossier-evaluator" class="df-val">--</span>
               </div>
               <div class="dossier-field">
                 <span class="df-lbl">INCIDENT VERDICT:</span>
@@ -275,9 +288,9 @@
             <canvas id="blueprint-canvas" width="240" height="120"></canvas>
           </div>
           <div class="blueprint-memo">
-            <div class="bm-title" id="lot-theory-title">THE CHRISTIAN BUSINESSMEN PAC</div>
+            <div class="bm-title" id="lot-theory-title">LOCAL CONSENSUS // PHASE 1</div>
             <p class="bm-desc" id="lot-theory-desc">
-              "Dale claims the church elders are pooling $2.4M to buy the 40-acre interchange parcel for an evangelical sports ministry."
+              "Whispers on the back nine suggest elders are quietly pooling private capital for the 40-acre interchange parcel."
             </p>
             <div class="bm-intel-feed" id="lot-intel-feed">
               <!-- Dynamically populated fragments of conversation overheard in goflball carts -->
@@ -296,13 +309,41 @@
         </div>
         <div class="handle-bar">
           <label for="input-handle">HANDLE:</label>
-          <input type="text" id="input-handle" maxlength="12" value="PLAYER_1" />
+          <input type="text" id="input-handle" maxlength="12" value="" placeholder="YOUR HANDLE" />
           <button id="btn-post-rank" class="crt-btn crt-btn-blue">POST SCORE</button>
         </div>
         <div id="leaderboard-box" class="leaderboard-table-wrap"></div>
       </section>
 
     </main>
+
+    <!-- IN-CRT ASCII PLAYER FILE MODAL (REPLACES BLOCKING PROMPT/ALERT) -->
+    <div id="ascii-modal" class="crt-modal hidden" role="dialog" aria-modal="true" aria-labelledby="ascii-modal-title">
+      <div class="crt-modal-box">
+        <div class="crt-modal-head">
+          <span id="ascii-modal-title">LOCAL ASCII PLAYER FILE</span>
+          <button id="btn-close-ascii-modal" class="crt-mini-btn">X</button>
+        </div>
+        <p class="crt-modal-sub">
+          PORTABLE SANDBOX SEED &amp; OPPOSITION STATE. COPY CODE TO BACK UP OR PASTE BELOW TO LOAD:
+        </p>
+        <textarea id="ascii-modal-text" class="ascii-modal-textarea" rows="3" spellcheck="false"></textarea>
+        <div id="ascii-modal-feedback" class="ascii-modal-feedback"></div>
+        <div class="crt-modal-actions">
+          <button id="btn-copy-ascii-modal" class="crt-btn crt-btn-blue">COPY CODE</button>
+          <button id="btn-load-ascii-modal" class="crt-btn crt-btn-green">LOAD CODE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIMULATION BREACH / UNIVERSE RESPAWN OVERLAY -->
+    <div id="respawn-flash-overlay" class="respawn-flash hidden" aria-hidden="true">
+      <div class="respawn-flash-box">
+        <div class="rf-code">ERR // 0x1984_PARCEL_OVERFLOW</div>
+        <div class="rf-main" id="rf-main-title">SIMULATION BOUNDARY BREACHED</div>
+        <div class="rf-sub" id="rf-sub-desc">INITIALIZING ALTERED CIRCUIT CONDITIONS...</div>
+      </div>
+    </div>
 
     <!-- CRT BOTTOM NAVIGATION (HIDDEN UNTIL ROUND 1 IS COMPLETED) -->
     <nav id="unlocked-nav" class="hidden">

@@ -9,6 +9,15 @@
 
   const STORAGE_KEY = "GOFLBALL_SANDBOX_V4";
 
+  function escapeHtml(str) {
+    return String(str == null ? "" : str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   // ---------------------------------------------------------------------------
   // 1. STATE & PERSISTENCE
   // ---------------------------------------------------------------------------
@@ -56,8 +65,12 @@
   }
 
   function saveSandbox(state) {
+    const target = state || world;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(target));
+      if (GoflWorld && GoflWorld.ASCIIPlayerCodec) {
+        localStorage.setItem("GOFLBALL_PLAYER_ASCII", GoflWorld.ASCIIPlayerCodec.encode(target));
+      }
     } catch (e) {}
   }
 
@@ -395,6 +408,13 @@
       });
 
       this.draw = this.draw.bind(this);
+      this.draw();
+      this._spinTimer = setInterval(() => {
+        if (!this.isDragging && this.canvas && this.canvas.offsetParent !== null) {
+          this.rotY += 0.018;
+          this.draw();
+        }
+      }, 65);
     }
 
     setNetwork(network) {
@@ -562,6 +582,8 @@
     target.textContent = "";
     let idx = 0;
     const full = `"${text}"`;
+    const box = document.querySelector(".cdb-speech-area");
+    if (box) box.setAttribute("data-full-speech", full);
 
     typewriterTimer = setInterval(() => {
       if (idx < full.length) {
@@ -648,8 +670,12 @@
 
     drawPartnerPortrait(document.getElementById("partner-portrait-canvas"), npc);
 
-    // On-the-fly procedural dialogue generation (different every game)
-    const dynamicData = GoflWorld.GoflDialogueGenerator ? GoflWorld.GoflDialogueGenerator.generate(world, npc) : null;
+    // On-the-fly procedural dialogue generation anchored to SymphonyDirector stage
+    const dir = GoflWorld.SymphonyDirector.computeState(world, npc);
+    let dynamicData = GoflWorld.GoflDialogueGenerator ? GoflWorld.GoflDialogueGenerator.generate(world, npc) : null;
+    if (dir.npcStage === 0) {
+      dynamicData = null; // Pure Round-1/Stage-0 Lullaby: never leak ideology or pet feelers early
+    }
     const line = (dynamicData && dynamicData.speech) || GoflWorld.SymphonyDirector.selectOrchestratedLine(world, npc);
     typewriteSpeech(line);
 
@@ -705,11 +731,12 @@
     if (!npc) return;
 
     sound.playChatBlip(1);
-    const res = GoflWorld.evaluateNpcBanter(world, npc.id, text);
+    const fx = getActiveUpgradeEffects();
+    const res = GoflWorld.evaluateNpcBanter(world, npc.id, text, fx);
 
-    // Propagate gossip if topic is provided
-    if (topic && typeof stance === "number" && GoflWorld.GossipEngine) {
-      GoflWorld.GossipEngine.propagate(world, npc.id, { topic, stance, text });
+    // Propagate secondary gossip ripple to OTHER peers only when an ideological/tribal topic was signaled
+    if (topic && typeof stance === "number" && stance !== 0 && GoflWorld.GossipEngine) {
+      GoflWorld.GossipEngine.propagate(world, npc.id, { topic, stance, text, skipSelf: true, decay: 0.45 });
     }
 
     if (cartTransitAnim) {
@@ -723,7 +750,15 @@
         } else {
           sound.playCashDing();
         }
-        renderQuipChoices(npc);
+        const nextStage = GoflWorld.SymphonyDirector
+          ? GoflWorld.SymphonyDirector.computeState(world, npc).npcStage
+          : 0;
+        renderQuipChoices(
+          npc,
+          nextStage === 0
+            ? null
+            : (GoflWorld.GoflDialogueGenerator ? GoflWorld.GoflDialogueGenerator.generate(world, npc) : null)
+        );
         updateHeaderAndMarquee();
         saveSandbox(world);
       });
@@ -811,6 +846,18 @@
     updateHeaderAndMarquee();
     switchScreen("screen-verdict");
 
+    if (report.triggeredRespawn) {
+      const flashEl = document.getElementById("respawn-flash-overlay");
+      const subEl = document.getElementById("rf-sub-desc");
+      if (flashEl) {
+        if (subEl && report.newEpochConfig) {
+          subEl.textContent = `ENTERING ${report.newEpochConfig.name} // OPPOSITE SIDE FLIPPED`;
+        }
+        flashEl.classList.remove("hidden");
+        setTimeout(() => flashEl.classList.add("hidden"), 2300);
+      }
+    }
+
     // Populate Paper Scorecard Table
     for (let i = 1; i <= 9; i++) {
       const cell = document.getElementById(`sc-h${i}`);
@@ -862,7 +909,7 @@
       cartRapportEl.textContent = "OFFENDED";
       cartRapportEl.className = "ds-val text-red";
       summaryEl.textContent =
-        `"YOU RUBBED ${report.npc.name} THE WRONG WAY IN THE GOFLBALL CART. GOLF SCORE DOESN'T MATTER—YOU LOST THE ACCOUNT AND DAMAGED YOUR STANDING AT THE CLUBHOUSE."`;
+        `"YOU RUBBED ${report.npc.name} THE WRONG WAY IN THE GOFLBALL CART. GOFLBALL SCORE DOESN'T MATTER—YOU LOST THE ACCOUNT AND DAMAGED YOUR STANDING AT THE CLUBHOUSE."`;
     }
 
     document.getElementById("stat-cash-won").textContent = report.nailedSocial
@@ -936,22 +983,22 @@
         traitsHtml += `<div class="badge-cat" style="border-color:#f8b800; color:#f8b800;">[WIRETAP: ZONING SPECULATOR]</div>`;
       }
       if (fx.revealHiddenStats && npc.traits) {
-        traitsHtml += `<div class="badge-cat" style="border-color:#00e8d8; color:#00e8d8;">[ETHICS: ${npc.traits.ethics.toUpperCase()}]</div>`;
+        traitsHtml += `<div class="badge-cat" style="border-color:#00e8d8; color:#00e8d8;">[ETHICS: ${escapeHtml(npc.traits.ethics.toUpperCase())}]</div>`;
       }
 
       card.innerHTML = `
         <div class="bc-title">
-          <span>${npc.name}</span>
-          <span>${npc.role}</span>
+          <span>${escapeHtml(npc.name)}</span>
+          <span>${escapeHtml(npc.role)}</span>
         </div>
-        <div class="bc-sub">${npc.courseName}</div>
+        <div class="bc-sub">${escapeHtml(npc.courseName)}</div>
         <div class="bc-gofl-stats">
           <span>DRIVE: ${stats.drive} YDS</span>
           <span>ACC: ${stats.accuracy}%</span>
           <span>PUTT: ${stats.putting}%</span>
         </div>
         ${traitsHtml}
-        <div class="bc-status">${bondLabel} • CONTRACT: $${npc.contractValue.toLocaleString()}</div>
+        <div class="bc-status">${escapeHtml(bondLabel)} • CONTRACT: $${(npc.contractValue || 0).toLocaleString()}</div>
       `;
 
       const btn = document.createElement("button");
@@ -965,17 +1012,25 @@
         btn.textContent = "CAT LOVER (AVOIDS YOUR CART)";
         btn.disabled = true;
       } else if (npc.offended || (!npc.invitedBack && npc.trust < -0.2)) {
-        btn.className = "crt-btn crt-btn-red";
-        btn.textContent = world.cash >= 2000 ? "SEND $2,000 CLUBHOUSE APOLOGY GIFT" : "APOLOGIZE AT CLUBHOUSE";
-        btn.addEventListener("click", () => {
-          if (world.cash >= 2000) world.cash -= 2000;
-          npc.offended = false;
-          npc.invitedBack = true;
-          npc.trust = 0;
-          sound.playCashDing();
-          saveSandbox(world);
-          renderNetworkScreen();
-        });
+        const apologyCost = 2000;
+        if (world.cash >= apologyCost) {
+          btn.className = "crt-btn crt-btn-red";
+          btn.textContent = "SEND $2,000 CLUBHOUSE APOLOGY GIFT";
+          btn.addEventListener("click", () => {
+            world.cash -= apologyCost;
+            npc.offended = false;
+            npc.invitedBack = true;
+            npc.trust = 0;
+            sound.playCashDing();
+            saveSandbox(world);
+            updateHeaderAndMarquee();
+            renderNetworkScreen();
+          });
+        } else {
+          btn.className = "crt-btn crt-btn-dark";
+          btn.textContent = `FROZEN OUT (NEED $2,000 GIFT — HAVE $${world.cash.toLocaleString()})`;
+          btn.disabled = true;
+        }
       } else {
         btn.className = "crt-btn crt-btn-green";
         btn.textContent = `TEE OFF WITH ${npc.shortName} »`;
@@ -1055,35 +1110,40 @@
 
     feed.innerHTML = "";
 
+    const pickByTier = (t, fallback) => {
+      const n = world.network.order.map((id) => world.network.nodes[id]).find((x) => x && x.tier === t);
+      return n ? n.shortName : fallback;
+    };
+
     if (tier === 1) {
       badge.textContent = "TIER 1 CONSENSUS";
       title.textContent = "THE CHRISTIAN BUSINESSMEN PAC";
-      desc.textContent = "Muni golfers believe church elders are pooling $2.4M to buy the 40-acre interchange parcel for an evangelical sports ministry.";
+      desc.textContent = "Muni goflballers believe church elders are pooling $2.4M to buy the 40-acre interchange parcel for an evangelical sports ministry.";
       feed.innerHTML = `
-        <div class="intel-bubble">Dale: "The fellowship committee already put down 10% in escrow."</div>
-        <div class="intel-bubble">Bram: "Pastor mentioned they're building the youth sanctuary there next spring."</div>
+        <div class="intel-bubble">${escapeHtml(pickByTier(1, "PARTNER_A"))}: "The fellowship committee already put down 10% in escrow."</div>
+        <div class="intel-bubble">${escapeHtml(pickByTier(2, "PARTNER_B"))}: "elders mentioned they're breaking ground on the sanctuary wing next spring."</div>
       `;
     } else if (tier === 2) {
       badge.textContent = "TIER 2 REVERSAL";
       title.textContent = "THE COUNTY ZONING BOARD BUYOUT";
-      desc.textContent = "Mid-level contractors reveal the church deal was a front. Frank bought off two county zoning commissioners to keep it agricultural for corn subsidies.";
+      desc.textContent = "Mid-level contractors reveal the church deal was a front. The township farm conglomerate bought off county zoning seats for ag subsidies.";
       feed.innerHTML = `
-        <div class="intel-bubble">Frank: "Let the church pray all they want. The zoning board voted 4-1 in my pocket."</div>
-        <div class="intel-bubble">Kip: "Corn subsidies pay triple what commercial leaseholders offer."</div>
+        <div class="intel-bubble">${escapeHtml(pickByTier(3, "PARTNER_C"))}: "Let the church pray all they want. The zoning board voted 4-1 in our pocket."</div>
+        <div class="intel-bubble">${escapeHtml(pickByTier(2, "PARTNER_B"))}: "Drainage variances pay triple what retail leaseholders offer."</div>
       `;
     } else if (tier === 3) {
       badge.textContent = "TIER 3 REVERSAL";
       title.textContent = "THE STATE UNIVERSITY BIOMEDICAL ANNEX";
-      desc.textContent = "The University Board of Regents secretly authorized a $38M biotechnology research annex to swallow the parcel.";
+      desc.textContent = "The University Board of Regents secretly authorized a $38M research department annex to swallow the farmer's parcel.";
       feed.innerHTML = `
-        <div class="intel-bubble">Dr. Vance: "The state grant cleared last Tuesday. The corn farmer will take a buyout."</div>
+        <div class="intel-bubble">${escapeHtml(pickByTier(5, "REGENT_X"))}: "The state bond grant cleared last Tuesday. The township farmer takes a quiet buyout."</div>
       `;
     } else {
       badge.textContent = "APEX CONSPIRACY // SUBSTRATE FRACTURE";
-      title.textContent = "OFFSHORE CAYMAN LEASEBACK BOND";
-      desc.textContent = "The university was a smoke screen. The deed is held by an offshore Cayman trust leased back to the church pension annuity fund. The simulation loops infinitely.";
+      title.textContent = "HEADS IS TAILS // OPPOSITE-SIDE TRUST";
+      desc.textContent = "Even the university annex was a shell option. The parent fund owns both Heads and Tails—leasing the lot back between church elders and regents endlessly.";
       feed.innerHTML = `
-        <div class="intel-bubble">████████: "The top is heads, but when you arrive it is tails. The universe respawns."</div>
+        <div class="intel-bubble">████████: "The top is heads, until you climb to it and find tails underneath. Respawn imminent."</div>
       `;
     }
   }
@@ -1145,8 +1205,8 @@
       html += `
         <tr class="${cls}">
           <td>${idx + 1}</td>
-          <td>${r.handle}${r.isYou ? " (YOU)" : ""}</td>
-          <td>${r.rounds || 0}</td>
+          <td>${escapeHtml(r.handle)}${r.isYou ? " (YOU)" : ""}</td>
+          <td>${Number(r.rounds || 0)}</td>
           <td>${Number(r.share_pct).toFixed(1)}%</td>
         </tr>
       `;
@@ -1158,9 +1218,14 @@
 
   async function syncLeaderboardSilent() {
     const input = document.getElementById("input-handle");
-    if (input && input.value.trim()) {
-      world.playerHandle = input.value.trim().toUpperCase().slice(0, 12);
-      saveSandbox(world);
+    if (input) {
+      const typed = input.value.trim().toUpperCase().replace(/[^A-Z0-9_]/g, "");
+      if (typed && typed !== "PLAYER_1") {
+        world.playerHandle = typed.slice(0, 12);
+        saveSandbox(world);
+      } else if (world.playerHandle) {
+        input.value = world.playerHandle;
+      }
     }
     GoflWorld.recalculateNetworkStats(world);
     const npc = world.network.nodes[world.currentPartnerId];
@@ -1200,11 +1265,31 @@
   // ---------------------------------------------------------------------------
   // 8. INITIALIZATION & DOM EVENT BINDING
   // ---------------------------------------------------------------------------
+  function updateCourseHud(st) {
+    if (!golfCanvas) return;
+    const clubEl = document.getElementById("hud-club-readout");
+    const aimEl = document.getElementById("hud-aim-readout");
+    const lieEl = document.getElementById("hud-lie-badge");
+    if (clubEl && golfCanvas.club) clubEl.textContent = `${golfCanvas.club.name} ${golfCanvas.club.maxDist}Y`;
+    if (aimEl) {
+      const baseAngle = (golfCanvas.pinPos && golfCanvas.ball)
+        ? Math.atan2(golfCanvas.pinPos.y - golfCanvas.ball.y, golfCanvas.pinPos.x - golfCanvas.ball.x)
+        : -Math.PI / 2;
+      let relDeg = Math.round((((golfCanvas.aimAngle != null ? golfCanvas.aimAngle : baseAngle) - baseAngle) * 180) / Math.PI);
+      if (relDeg > 180) relDeg -= 360;
+      if (relDeg < -180) relDeg += 360;
+      aimEl.textContent = relDeg === 0 ? "AIM PIN" : (relDeg < 0 ? `L ${Math.abs(relDeg)}°` : `R ${relDeg}°`);
+    }
+    if (lieEl) lieEl.textContent = (st && st.lie) || golfCanvas.lie || golfCanvas.mode || "TEE";
+  }
+
   window.addEventListener("DOMContentLoaded", () => {
     const canvasEl = document.getElementById("nes-golf-canvas");
     golfCanvas = new NesGolfEngine.NesGolfCanvas(canvasEl, sound, {
-      onHoleComplete: (res) => handleHoleCompleted(res)
+      onHoleComplete: (res) => handleHoleCompleted(res),
+      onStatusChange: (st) => updateCourseHud(st)
     });
+    updateCourseHud({ mode: golfCanvas.mode, lie: golfCanvas.lie });
 
     // Toggle custom remark drawer in cart
     document.getElementById("btn-toggle-custom").addEventListener("click", () => {
@@ -1231,9 +1316,47 @@
       autoPlayHole();
     });
 
+    // Tap speech area to instantly finish typewriter text if still typing
+    const speechArea = document.querySelector(".cdb-speech-area");
+    if (speechArea) {
+      speechArea.addEventListener("click", () => {
+        if (typewriterTimer) {
+          clearInterval(typewriterTimer);
+          typewriterTimer = null;
+          const full = speechArea.getAttribute("data-full-speech");
+          const out = document.getElementById("cdb-speech-text");
+          if (full && out) out.textContent = full;
+        }
+      });
+    }
+
+    // In-game Club & Aim controls
+    const bindHudBtn = (id, fn) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("click", () => { fn(); updateCourseHud(); });
+    };
+    bindHudBtn("btn-club-prev", () => golfCanvas.cycleClub && golfCanvas.cycleClub(-1));
+    bindHudBtn("btn-club-next", () => golfCanvas.cycleClub && golfCanvas.cycleClub(1));
+    bindHudBtn("btn-aim-left", () => golfCanvas.adjustAim && golfCanvas.adjustAim(-4));
+    bindHudBtn("btn-aim-right", () => golfCanvas.adjustAim && golfCanvas.adjustAim(4));
+
+    // Keyboard shortcuts on Desktop (Space = Swing, Left/Right = Aim, Up/Down = Club)
+    window.addEventListener("keydown", (e) => {
+      const playScreen = document.getElementById("screen-play");
+      const viewport = document.getElementById("course-viewport");
+      if (!playScreen || !playScreen.classList.contains("active") || !viewport || viewport.classList.contains("hidden")) return;
+      if (document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA")) return;
+      if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); golfCanvas.triggerAction(); }
+      else if (e.code === "ArrowLeft") { e.preventDefault(); golfCanvas.adjustAim && golfCanvas.adjustAim(-4); updateCourseHud(); }
+      else if (e.code === "ArrowRight") { e.preventDefault(); golfCanvas.adjustAim && golfCanvas.adjustAim(4); updateCourseHud(); }
+      else if (e.code === "ArrowUp") { e.preventDefault(); golfCanvas.cycleClub && golfCanvas.cycleClub(-1); updateCourseHud(); }
+      else if (e.code === "ArrowDown") { e.preventDefault(); golfCanvas.cycleClub && golfCanvas.cycleClub(1); updateCourseHud(); }
+    });
+
     // In-game Swing Buttons
     document.getElementById("btn-swing").addEventListener("click", () => {
       golfCanvas.triggerAction();
+      updateCourseHud();
     });
 
     document.getElementById("btn-caddie-shot").addEventListener("click", () => {
@@ -1265,22 +1388,61 @@
       });
     });
 
-    // Share / Import Minimal ASCII Player File
+    // Pre-populate handle input so Round 1 sync never reverts to PLAYER_1
+    const handleEl = document.getElementById("input-handle");
+    if (handleEl && world.playerHandle) handleEl.value = world.playerHandle;
+
+    // Share / Import Minimal ASCII Player File via In-CRT Modal
+    const modal = document.getElementById("ascii-modal");
+    const modalText = document.getElementById("ascii-modal-text");
+    const modalFeedback = document.getElementById("ascii-modal-feedback");
     const btnShare = document.getElementById("btn-share-player-file");
-    if (btnShare) {
+    const btnCloseModal = document.getElementById("btn-close-ascii-modal");
+    const btnCopyModal = document.getElementById("btn-copy-ascii-modal");
+    const btnLoadModal = document.getElementById("btn-load-ascii-modal");
+
+    if (btnShare && modal && modalText) {
       btnShare.addEventListener("click", () => {
-        const ascii = GoflWorld.ASCIIPlayerCodec.encode(world);
-        const choice = prompt("YOUR MINIMAL ASCII PLAYER FILE (Locally saved & shareable):\nCopy this code or paste a code below to load another player file:", ascii);
-        if (choice && choice.trim() && choice.trim() !== ascii) {
-          const loaded = GoflWorld.ASCIIPlayerCodec.decode(choice.trim());
-          if (loaded) {
-            Object.assign(world, loaded);
-            saveSandbox(world);
-            alert("Loaded player file successfully!");
-            renderNetworkScreen();
-          } else {
-            alert("Invalid ASCII player file format.");
-          }
+        modalText.value = GoflWorld.ASCIIPlayerCodec.encode(world);
+        if (modalFeedback) modalFeedback.textContent = "";
+        modal.classList.remove("hidden");
+        sound.playChatBlip(0);
+      });
+    }
+    if (btnCloseModal && modal) {
+      btnCloseModal.addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+    }
+    if (btnCopyModal && modalText) {
+      btnCopyModal.addEventListener("click", () => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(modalText.value).then(() => {
+            if (modalFeedback) modalFeedback.textContent = "COPIED TO CLIPBOARD.";
+          }).catch(() => {
+            if (modalFeedback) modalFeedback.textContent = "SELECT TEXT & COPY MANUALLY.";
+          });
+        } else if (modalFeedback) {
+          modalFeedback.textContent = "SELECT TEXT & COPY MANUALLY.";
+        }
+      });
+    }
+    if (btnLoadModal && modalText) {
+      btnLoadModal.addEventListener("click", () => {
+        const raw = (modalText.value || "").trim();
+        const loaded = GoflWorld.ASCIIPlayerCodec.decode(raw);
+        if (loaded) {
+          Object.assign(world, loaded);
+          saveSandbox(world);
+          if (handleEl && world.playerHandle) handleEl.value = world.playerHandle;
+          updateHeaderAndMarquee();
+          renderNetworkScreen();
+          sound.playCashDing();
+          if (modalFeedback) modalFeedback.textContent = `LOADED SEED #${world.universeSeed}.`;
+          setTimeout(() => modal.classList.add("hidden"), 650);
+        } else if (modalFeedback) {
+          sound.playOffendedBuzzer();
+          modalFeedback.textContent = "INVALID ASCII FILE CHECKSUM OR FORMAT.";
         }
       });
     }

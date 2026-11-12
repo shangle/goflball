@@ -97,7 +97,8 @@ async function handleEdgeApi(request, env) {
     const rounds = Math.max(0, parseInt(body.rounds || 0, 10));
     const tier = Math.max(1, parseInt(body.tier || 1, 10));
 
-    if (env.DB && handle && !handle.includes("REDACTED")) {
+    let leaderboardOut = DEFAULT_LEADERBOARD;
+    if (env.DB && handle && !handle.includes("REDACTED") && !handle.includes("██")) {
       try {
         await env.DB.prepare(
           `INSERT INTO leaderboard (handle, club, share_pct, rounds, tier, updated_at)
@@ -111,10 +112,17 @@ async function handleEdgeApi(request, env) {
         )
           .bind(handle, club, sharePct, rounds, tier)
           .run();
+
+        const { results } = await env.DB.prepare(
+          "SELECT handle, club, share_pct, rounds, tier FROM leaderboard ORDER BY share_pct DESC LIMIT 50"
+        ).all();
+        if (results && results.length > 0) {
+          leaderboardOut = [DEFAULT_LEADERBOARD[0], ...results].map((r, i) => ({ ...r, rank: i + 1 }));
+        }
       } catch (e) {}
     }
 
-    return jsonResponse({ ok: true, leaderboard: DEFAULT_LEADERBOARD }, 200, "EDGE-D1-FAILOVER");
+    return jsonResponse({ ok: true, leaderboard: leaderboardOut }, 200, "EDGE-D1-FAILOVER");
   }
 
   // 4. Edge Failover: POST /api/banter (Workers AI fallback if configured)
@@ -126,7 +134,7 @@ async function handleEdgeApi(request, env) {
           messages: [
             {
               role: "system",
-              content: `You are ${body.partnerName}, a West Michigan golf course businessman (${body.partnerTitle}, Tier ${body.tier}). Speak casually like you're at Burger King or on a golf cart, NOT a boardroom. Never mention what business the player is in. Convictions: ${(body.convictions || []).join(" ")}. Keep reply under 25 words.`
+              content: `You are ${body.partnerName}, a West Michigan goflball course businessman (${body.partnerTitle}, Tier ${body.tier}). Speak casually like you're at Burger King or on a goflball cart, NOT a boardroom. Never mention what business the player is in. Always call the sport goflball. Convictions: ${(body.convictions || []).join(" ")}. Keep reply under 25 words.`
             },
             { role: "user", content: String(body.playerMessage) }
           ],

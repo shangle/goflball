@@ -224,6 +224,11 @@
       this.strokes = 0;
       this.holeComplete = false;
       this.mode = "FAIRWAY"; // "FAIRWAY" or "GREEN"
+      this.lie = "TEE";
+      this.greenSlope = {
+        x: (((holeNumber * 7) % 3) - 1) * 0.006,
+        y: (holeNumber % 2 === 0 ? 0.004 : -0.004)
+      };
 
       // Course normalized coords: Tee (0.5, 0.88), Green (0.5 + bend, 0.14)
       this.teePos = { x: 0.5, y: 0.88 };
@@ -255,20 +260,55 @@
 
     _selectBestClub() {
       const dist = this.getRemainingYards();
-      if (this.mode === "GREEN" || dist <= 30) {
+      if (this.mode === "GREEN" || dist <= 22) {
         this.club = { name: "PT", maxDist: 35, type: "PUTTER" };
+      } else if (this.lie === "BUNKER") {
+        this.club = { name: "SW", maxDist: 85, type: "WEDGE" };
       } else if (dist > 220) {
         this.club = { name: "1W", maxDist: 275, type: "WOOD" };
       } else if (dist > 160) {
         this.club = { name: "3W", maxDist: 220, type: "WOOD" };
       } else if (dist > 110) {
         this.club = { name: "5I", maxDist: 165, type: "IRON" };
-      } else if (dist > 55) {
+      } else if (dist > 65) {
         this.club = { name: "9I", maxDist: 115, type: "IRON" };
       } else {
-        this.club = { name: "PW", maxDist: 65, type: "WEDGE" };
+        this.club = { name: "SW", maxDist: 85, type: "WEDGE" };
       }
       this.aimAngle = Math.atan2(this.pinPos.y - this.ball.y, this.pinPos.x - this.ball.x);
+      if (this.callbacks && this.callbacks.onStatusChange) {
+        this.callbacks.onStatusChange({ mode: this.mode, lie: this.lie || "TEE", club: this.club, aimAngle: this.aimAngle });
+      }
+    }
+
+    cycleClub(delta) {
+      if (this.ball.moving || this.meterState !== "IDLE" || this.holeComplete) return;
+      const clubs = [
+        { name: "1W", maxDist: 275, type: "WOOD" },
+        { name: "3W", maxDist: 220, type: "WOOD" },
+        { name: "5I", maxDist: 165, type: "IRON" },
+        { name: "9I", maxDist: 115, type: "IRON" },
+        { name: "SW", maxDist: 85, type: "WEDGE" },
+        { name: "PT", maxDist: 35, type: "PUTTER" }
+      ];
+      const idx = Math.max(0, clubs.findIndex((c) => c.name === (this.club && this.club.name)));
+      const next = (idx + delta + clubs.length) % clubs.length;
+      this.club = clubs[next];
+      if (this.callbacks && this.callbacks.onStatusChange) {
+        this.callbacks.onStatusChange({ mode: this.mode, lie: this.lie || "TEE", club: this.club, aimAngle: this.aimAngle });
+      }
+    }
+
+    adjustAim(deltaDeg) {
+      if (this.ball.moving || this.meterState !== "IDLE" || this.holeComplete) return;
+      const rad = (deltaDeg * Math.PI) / 180;
+      const baseAngle = Math.atan2(this.pinPos.y - this.ball.y, this.pinPos.x - this.ball.x);
+      const minA = baseAngle - Math.PI / 3;
+      const maxA = baseAngle + Math.PI / 3;
+      this.aimAngle = Math.max(minA, Math.min(maxA, (this.aimAngle || baseAngle) + rad));
+      if (this.callbacks && this.callbacks.onStatusChange) {
+        this.callbacks.onStatusChange({ mode: this.mode, lie: this.lie || "TEE", club: this.club, aimAngle: this.aimAngle });
+      }
     }
 
     getRemainingYards() {
@@ -293,10 +333,10 @@
         return;
       }
 
-      // Click 2: Lock Power & Start Accuracy Return
+      // Click 2: Lock Power & Sweep Back Left->Right Toward Sweet Spot
       if (this.meterState === "POWER_UP") {
         this.meterState = "ACCURACY_DOWN";
-        this.meterAccuracy = 1.0;
+        this.meterAccuracy = -1.0;
         this.sound.playMeterTick();
         return;
       }
@@ -354,19 +394,32 @@
         });
       }
 
-      const targetNormDist = Math.sqrt(
-        Math.pow(this.pinPos.x - this.ball.x, 2) + Math.pow(this.pinPos.y - this.ball.y, 2)
-      );
+      const dx = this.pinPos.x - this.ball.x;
+      const dy = this.pinPos.y - this.ball.y;
+      const targetNormDist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+      const holeYards = (this.holeData && this.holeData.yards) || 350;
+      const teeToPinNorm = 0.76; // tee (0.5, 0.90) to pin (0.5, 0.14)
+      const clubMaxYards = (this.club && this.club.maxDist) || 235;
+      const lieNow = this.lie || this.mode || "FAIRWAY";
+      const lieFactor = lieNow === "BUNKER"
+        ? (this.club.name === "SW" || this.club.name === "PW" ? 0.85 : 0.55)
+        : (lieNow === "ROUGH" ? 0.78 : 1.0);
+      const effectivePower = this.mode === "GREEN"
+        ? Math.min(1.18, Math.max(0.18, powerRatio * 1.15))
+        : Math.min(1.12, Math.max(0.25, powerRatio * 1.05)) * lieFactor;
+      const travelDist = this.mode === "GREEN"
+        ? Math.min(targetNormDist * 1.35, (clubMaxYards / holeYards) * teeToPinNorm * effectivePower)
+        : Math.min(targetNormDist * 1.12, (clubMaxYards / holeYards) * teeToPinNorm * effectivePower);
 
-      const effectivePower = Math.min(1.08, Math.max(0.35, powerRatio * 1.08));
-      const travelDist = Math.min(targetNormDist * effectivePower, targetNormDist * 1.04);
-
-      // Wind drift reduced by upgrade
+      // Wind & putting green slope drift (scaled so short tap-ins don't get yanked off line)
       const windDrift = (1 - Math.min(1, this.upgrades.windResist || 0)) * (this.wind.mph * 0.0018) * (this.club.name === "PT" ? 0.1 : 1.0);
+      const slopeScale = (this.mode === "GREEN") ? Math.min(1.2, travelDist * 14) : 0;
+      const slopeX = (this.greenSlope ? this.greenSlope.x : 0) * slopeScale;
+      const slopeY = (this.greenSlope ? this.greenSlope.y : 0) * slopeScale;
 
       const shotAngle = this.aimAngle + sliceOffset * 0.22;
-      const destX = this.ball.x + Math.cos(shotAngle) * travelDist + this.wind.dx * windDrift;
-      const destY = this.ball.y + Math.sin(shotAngle) * travelDist + this.wind.dy * windDrift;
+      const destX = this.ball.x + Math.cos(shotAngle) * travelDist + this.wind.dx * windDrift + slopeX;
+      const destY = this.ball.y + Math.sin(shotAngle) * travelDist + this.wind.dy * windDrift + slopeY;
 
       this.flightFrames = this.club.name === "PT" ? 22 : 36;
       this.flightTick = 0;
@@ -385,17 +438,17 @@
     _updatePhysics() {
       // 1. Advance Swing Meter needle
       if (this.meterState === "POWER_UP") {
-        this.meterPower += 0.038;
+        this.meterPower += 0.036;
         if (this.meterPower >= 1.0) {
           this.meterPower = 1.0;
           this.meterState = "ACCURACY_DOWN";
-          this.meterAccuracy = 1.0;
+          this.meterAccuracy = -1.0;
         }
       } else if (this.meterState === "ACCURACY_DOWN") {
-        this.meterAccuracy -= 0.048;
-        if (this.meterAccuracy <= -1.0) {
-          // Missed click completely -> automatic slice/hook!
-          this.executeShot(this.meterPower, -0.9);
+        this.meterAccuracy += 0.044;
+        if (this.meterAccuracy >= 1.0) {
+          // Missed return snap -> push/slice
+          this.executeShot(this.meterPower, 0.9);
         }
       }
 
@@ -438,8 +491,8 @@
     }
 
     _checkLanding() {
-      // Check hazards
-      let inWater = false;
+      // Check water hazards first
+      let hitWater = null;
       for (const w of this.holeData.water) {
         if (
           this.ball.x >= w.x &&
@@ -447,12 +500,13 @@
           this.ball.y >= w.y &&
           this.ball.y <= w.y + w.h
         ) {
-          inWater = true;
+          hitWater = w;
           break;
         }
       }
 
-      if (inWater) {
+      let inBunker = false;
+      if (hitWater) {
         this.sound.playWaterSplash();
         for (let i = 0; i < 14; i++) {
           this.particles.push({
@@ -464,27 +518,78 @@
             life: 25
           });
         }
-        // Penalty stroke + drop near edge
+        // Penalty stroke + drop safely short of hazard
         this.strokes++;
-        this.ball.x = Math.max(0.2, this.ball.x - 0.08);
-        this.ball.y = Math.min(0.85, this.ball.y + 0.08);
+        this.ball.x = Math.min(0.84, Math.max(0.16, 0.5));
+        this.ball.y = Math.min(0.88, hitWater.y + hitWater.h + 0.04);
+        this.lie = "ROUGH";
+        this.mode = "FAIRWAY";
+        this.bannerText = "WATER +1!";
+        this.bannerTimer = 45;
       } else {
-        this.sound.playBounce();
+        // Check sand bunkers
+        for (const b of (this.holeData.bunkers || [])) {
+          const bdx = this.ball.x - b.x;
+          const bdy = this.ball.y - b.y;
+          if (bdx * bdx + bdy * bdy <= b.r * b.r * 1.25) {
+            inBunker = true;
+            break;
+          }
+        }
+        if (inBunker) {
+          this.sound.playBounce();
+          this.lie = "BUNKER";
+          this.mode = "FAIRWAY";
+          this.bannerText = "SAND TRAP!";
+          this.bannerTimer = 40;
+          for (let i = 0; i < 10; i++) {
+            this.particles.push({
+              x: 118 + (Math.random() - 0.5) * 14,
+              y: 132 + (Math.random() - 0.5) * 8,
+              vx: (Math.random() - 0.5) * 3,
+              vy: -Math.random() * 4 - 1,
+              color: "#f8d878",
+              life: 22
+            });
+          }
+        } else {
+          this.sound.playBounce();
+        }
       }
 
       // Check distance to pin
       const dx = this.pinPos.x - this.ball.x;
       const dy = this.pinPos.y - this.ball.y;
       const distNorm = Math.sqrt(dx * dx + dy * dy);
-      const gimmeNorm = 0.075 + (this.upgrades.gimmeBoost || 0);
+      const gimmeNorm = (this.mode === "GREEN" ? 0.022 : 0.011) + ((this.upgrades.gimmeBoost || 0) * 0.025);
 
-      // On green?
-      if (distNorm < 0.18) {
-        this.mode = "GREEN";
+      // Green or fairway/rough classification (only if dry & outside bunker)
+      if (!hitWater && !inBunker) {
+        if (distNorm <= 0.085 || this.mode === "GREEN") {
+          if (this.mode !== "GREEN" && distNorm > gimmeNorm) {
+            this.bannerText = "ON GREEN!";
+            this.bannerTimer = 35;
+          }
+          this.mode = "GREEN";
+          this.lie = "GREEN";
+        } else {
+          const fairwayCenter = 0.5 + (this.holeData.bend || 0) * (1 - this.ball.y) * 0.5;
+          if (Math.abs(this.ball.x - fairwayCenter) <= 0.16) {
+            this.lie = "FAIRWAY";
+          } else {
+            this.lie = "ROUGH";
+            if (!this.bannerText) {
+              this.bannerText = "HEAVY ROUGH";
+              this.bannerTimer = 30;
+            }
+          }
+        }
       }
 
-      // Cup drop or gimme?
-      if (distNorm <= gimmeNorm || this.strokes >= 2) {
+      // Cup drop, putting capture, or mercy max-stroke pickup (double-par + 2)?
+      const holePar = (this.holeData && this.holeData.par) || 4;
+      const maxMercyStrokes = Math.max(6, holePar * 2 + 2);
+      if (distNorm <= gimmeNorm || this.strokes >= maxMercyStrokes) {
         this.ball.x = this.pinPos.x;
         this.ball.y = this.pinPos.y;
         this.holeComplete = true;
@@ -532,8 +637,12 @@
       // --- SECTION A: OVERHEAD MINIMAP (Left Side: x: 4..74, y: 4..164) ---
       this._drawOverheadMinimap(ctx, 4, 4, 70, 160);
 
-      // --- SECTION B: BEHIND-THE-GOLFER 3D PERSPECTIVE (Main Right View: x: 78..252, y: 4..164) ---
-      this._drawPerspectiveView(ctx, 78, 4, 174, 160);
+      // --- SECTION B: GREEN VIEW vs BEHIND-THE-GOLFER 3D PERSPECTIVE ---
+      if (this.mode === "GREEN" && !this.ball.moving) {
+        this._drawPuttingGreenView(ctx, 78, 4, 174, 160);
+      } else {
+        this._drawPerspectiveView(ctx, 78, 4, 174, 160);
+      }
 
       // --- SECTION C: PARTICLES (Divots, Splash, Dust) ---
       for (const p of this.particles) {
@@ -609,9 +718,22 @@
       ctx.fillStyle = "#fcfcfc";
       ctx.fillRect(gx - 1, gy - 6, 1, 6);
 
-      // Golfer & Ball Marker
+      // Golfer, Aim Vector & Ball Marker on Minimap
       const bx = Math.floor(x + this.ball.x * w);
       const by = Math.floor(y + this.ball.y * h);
+      if (!this.holeComplete && !this.ball.moving) {
+        const len = Math.min(22, Math.max(6, Math.round(((this.club && this.club.maxDist) || 150) / 10)));
+        const ax = Math.floor(bx + Math.cos(this.aimAngle) * len);
+        const ay = Math.floor(by + Math.sin(this.aimAngle) * len);
+        ctx.strokeStyle = "#f8b800";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 2]);
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(ax, ay);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
       ctx.fillStyle = "#fcfcfc";
       ctx.fillRect(bx - 1, by - 1, 3, 3);
 
@@ -621,6 +743,72 @@
       ctx.fillStyle = "#58f898";
       ctx.font = "bold 9px 'Courier New', monospace";
       ctx.fillText(`${this.wind.mph}${this.wind.label}`, x + 6, y + 13);
+    }
+
+    _drawPuttingGreenView(ctx, x, y, w, h) {
+      // Crisp 1984 NES Close-Up Putting Green Viewport
+      ctx.fillStyle = "#005000";
+      ctx.fillRect(x, y, w, h);
+
+      // Checkerboard mowed putting turf stripes
+      const tile = 14;
+      for (let gx = x + 6; gx < x + w - 6; gx += tile) {
+        for (let gy = y + 20; gy < y + h - 6; gy += tile) {
+          const even = (((gx - x) / tile) + ((gy - y) / tile)) % 2 === 0;
+          ctx.fillStyle = even ? "#00a800" : "#18b818";
+          ctx.fillRect(gx, gy, Math.min(tile, x + w - 6 - gx), Math.min(tile, y + h - 6 - gy));
+        }
+      }
+
+      // Putting header & break indicator
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(x, y, w, 18);
+      ctx.fillStyle = "#58f898";
+      ctx.font = "bold 9px 'Courier New', monospace";
+      const remFt = Math.max(1, Math.round(this.getRemainingYards() * 3));
+      const breakDir = (this.greenSlope && this.greenSlope.x > 0.001) ? "BRK R>" : (this.greenSlope && this.greenSlope.x < -0.001) ? "<BRK L" : "FLAT";
+      ctx.fillText(`GREEN: ${remFt}FT  ${breakDir}`, x + 6, y + 12);
+
+      // Cup at top-center of putting box, ball relative below
+      const cupX = x + Math.floor(w / 2);
+      const cupY = y + 46;
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.arc(cupX, cupY, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#fcfcfc";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Relative ball placement (clamped inside putting pad)
+      const relDx = (this.ball.x - this.pinPos.x) * 620;
+      const relDy = (this.ball.y - this.pinPos.y) * 620;
+      const bpx = Math.max(x + 14, Math.min(x + w - 14, Math.round(cupX + relDx)));
+      const bpy = Math.max(y + 26, Math.min(y + h - 14, Math.round(cupY + relDy)));
+
+      // Dotted Putter Aim Line
+      ctx.strokeStyle = "#f8b800";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(bpx, bpy);
+      ctx.lineTo(bpx + Math.cos(this.aimAngle) * 38, bpy + Math.sin(this.aimAngle) * 38);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Shadow & Ball
+      ctx.fillStyle = "#004010";
+      ctx.fillRect(bpx - 2, bpy + 2, 5, 2);
+      ctx.fillStyle = "#fcfcfc";
+      ctx.fillRect(bpx - 2, bpy - 2, 5, 5);
+
+      // Subtle putter silhouette
+      ctx.strokeStyle = "#cccccc";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(bpx - 10, bpy - 12);
+      ctx.lineTo(bpx - 3, bpy);
+      ctx.stroke();
     }
 
     _drawPerspectiveView(ctx, x, y, w, h) {
@@ -776,12 +964,14 @@
       // Club & HUD Info on left
       ctx.fillStyle = "#f8b800";
       ctx.font = "bold 11px 'Courier New', monospace";
-      ctx.fillText(`${this.club.name} ${this.getRemainingYards()}Y`, x + 6, y + 14);
+      const unitLabel = this.mode === "GREEN" ? `${Math.max(1, Math.round(this.getRemainingYards() * 3))}FT` : `${this.getRemainingYards()}Y`;
+      ctx.fillText(`${this.club.name} ${unitLabel}`, x + 6, y + 14);
 
       ctx.fillStyle = "#58f898";
-      ctx.fillText(`PAR ${this.holeData.par} S:${this.strokes}`, x + 6, y + 28);
+      const lieShort = { TEE: "TEE", FAIRWAY: "FWY", ROUGH: "RGH", BUNKER: "SND", GREEN: "GRN" }[this.lie || this.mode] || "FWY";
+      ctx.fillText(`P${this.holeData.par} S${this.strokes} ${lieShort}`, x + 6, y + 28);
 
-      // 3-Click Horizontal Gauge Bar (Right side: bx: x+85, by: y+8, bw: w-95, bh: 16)
+      // 3-Click Horizontal Gauge Bar (Right side: bx: x+84, by: y+8, bw: w-92, bh: 14)
       const bx = x + 84;
       const by = y + 8;
       const bw = w - 92;
@@ -799,12 +989,11 @@
       ctx.fillStyle = "#00a800";
       ctx.fillRect(sweetX, by + 1, sweetWidth, bh - 2);
 
-      // Active Needle
+      // Active Needle: sweeps leftward on POWER_UP, then sweeps smoothly rightward back through sweet spot on ACCURACY_DOWN!
       let needleX = sweetX + Math.round(sweetWidth / 2);
       if (this.meterState === "POWER_UP") {
         needleX = bx + Math.round(bw * (1 - this.meterPower));
       } else if (this.meterState === "ACCURACY_DOWN") {
-        // Map accuracy (-1..+1) across the bar width
         needleX = bx + Math.round(((this.meterAccuracy + 1) / 2) * bw);
       }
 

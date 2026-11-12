@@ -863,3 +863,152 @@ html, body {
 .text-green { color: var(--green) !important; }
 .text-gold { color: var(--gold) !important; }
 .text-cyan { color: var(--cyan) !important; }
+
+/* Tactile NES Course Club & Aim Strip */
+.course-hud-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: #080b10;
+  border: 2px solid #2b3444;
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+.hud-ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hud-step-btn {
+  background: #18202c;
+  color: var(--cyan);
+  border: 2px solid #3c4c66;
+  font-family: var(--font-nes);
+  font-weight: bold;
+  font-size: 12px;
+  padding: 2px 7px;
+  cursor: pointer;
+}
+.hud-step-btn:hover { background: var(--blue); color: var(--white); border-color: var(--cyan); }
+.hud-step-btn:active { transform: translateY(1px); }
+
+.hud-readout {
+  min-width: 72px;
+  text-align: center;
+  color: var(--gold);
+  font-size: 12px;
+}
+
+.hud-lie-badge {
+  color: var(--mint);
+  font-size: 11px;
+  padding: 2px 5px;
+  background: #0d2015;
+  border: 1px solid #285535;
+}
+
+/* In-CRT ASCII Player File Modal */
+.crt-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 150;
+}
+
+.crt-modal-box {
+  width: 100%;
+  max-width: 420px;
+  background: #0a0d12;
+  border: 3px solid var(--gold);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 0 24px rgba(248, 184, 0, 0.28);
+}
+
+.crt-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--gold);
+  font-size: 14px;
+  border-bottom: 2px dashed #2e3848;
+  padding-bottom: 6px;
+}
+
+.crt-modal-sub {
+  font-size: 11px;
+  color: #a0aab8;
+  line-height: 1.35;
+}
+
+.ascii-modal-textarea {
+  width: 100%;
+  background: #000;
+  color: var(--mint);
+  border: 2px solid #285535;
+  padding: 8px;
+  font-family: var(--font-nes);
+  font-size: 12px;
+  font-weight: bold;
+  resize: none;
+  word-break: break-all;
+}
+
+.ascii-modal-feedback {
+  min-height: 16px;
+  font-size: 11px;
+  color: var(--cyan);
+}
+
+.crt-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+.crt-modal-actions .crt-btn { flex: 1; font-size: 13px; }
+
+/* Simulation Breach / Respawn Glitch Overlay */
+.respawn-flash {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 0, 12, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 200;
+  animation: crtGlitchFlash 0.35s steps(3, end) infinite;
+}
+
+.respawn-flash-box {
+  border: 3px solid var(--red);
+  background: #000;
+  padding: 18px 14px;
+  text-align: center;
+  box-shadow: 0 0 28px rgba(248, 56, 0, 0.65);
+}
+
+.rf-code { color: var(--pink); font-size: 11px; margin-bottom: 6px; }
+.rf-main { color: var(--red); font-size: 17px; letter-spacing: 2px; margin-bottom: 8px; }
+.rf-sub { color: var(--mint); font-size: 12px; }
+
+@keyframes crtGlitchFlash {
+  0% { filter: hue-rotate(0deg); }
+  50% { filter: contrast(1.3) brightness(1.1); }
+  100% { filter: hue-rotate(15deg); }
+}
+
+@media (max-height: 700px) {
+  .cart-canvas-frame { height: 108px; }
+  .cdb-speech-area { min-height: 36px; padding: 4px 6px; }
+  .cdb-quip-btn { padding: 4px 7px; font-size: 12px; }
+  #nes-header { padding: 5px 10px; font-size: 16px; }
+}

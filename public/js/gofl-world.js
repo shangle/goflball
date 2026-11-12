@@ -204,8 +204,10 @@
 
       // Stage 1: Subtle Feeler (Testing if you're safe to do business with)
       if (dir.npcStage === 1) {
-        const feelerPool = npc.feelerLines || safePool;
-        return feelerPool[hIdx % feelerPool.length];
+        const feelerPool = (npc.feelerLines && npc.feelerLines.length)
+          ? npc.feelerLines
+          : (npc.safeLines || SAFE_LULLABY_LINES);
+        return feelerPool[(hIdx + (npc.seedOffset || 0)) % feelerPool.length];
       }
 
       // Stage 2: Guard Down / Mask Slips (They trust you won't blow the deal, so they speak freely)
@@ -275,74 +277,23 @@
       coldShoulderLine: "YEAH, WELL. LET'S JUST HIT THE GOFLBALL.",
       safeLines: SAFE_LULLABY_LINES,
       feelerLines: [
-    "IT'S HARD TO FIND GOOD PARTNERS IN THIS GAME.",
-    "I HEARD THE EMPTY LOT MIGHT HAVE A SECRET.",
-    "HAVEN'T YOU HEARD ABOUT THE SECRET MEETING ON SATURDAY?",
-    "SAY, ARE YOU THINKING OF INVESTING IN THE GOFLBALL CARTS?",
-    "HAVEN'T SEEN THE FULL POTENTIAL OF THE GOFLBALL COURSE YET?",
-    "SAY, HAVE YOU HEARD ABOUT THE NEW TEE TIMES?",
-    "HAVEN'T SEEN MUCH ACTION ON THE GOFLBALL COURSE LATELY.",
-    "SAY, DO YOU HAVE ANY INSIDER TIPS FOR THE BEST SPOTS?",
-    "HAVEN'T YOU NOTICED THE WAY THE GOFLBALL COURSE HAS GROWN?",
-    "THEY SAY THE 40-ACRE LOT IS UP FOR SALE. WHAT DO YOU THINK?",
-    "HAVING A GOOD DAY ON THE COURSE?",
-    "I HEARD THEY'RE THINKING OF TURFING THAT LOT.",
-    "DO YOU EVER GOFLOBALL FOR FUN?",
-    "THEY SAY THAT 40-ACRE LOT IS GOING TO BE A REAL GAME CHANGER.",
-    "HAVEN'T SEEN THAT NEW TEEBOX DEVELOPMENT YET. HOW'S IT LOOKING?",
-    "HAVEN'T YOU HEARD? THE NEW COURSE IS SET TO OPEN NEXT MONTH.",
-    "WE'VE BEEN WORKING ON SOME SECRET PROJECTS AROUND HERE.",
-    "HAVEN'T YOU NOTICED THE TIGHT-KNIT COMMUNITY AROUND HERE?",
-    "THEY SAY THE EMPTY LOT IS ABOUT TO BE DEVELOPED. HAVE YOU HEARD?",
-    "DO YOU HAVE A PREFERRED COURSE OR DO YOU JUST GO WHERE THE WIND TAKES YOU?",
-    "I HEARD THE NEW COURSE IS TOP SECRET—ANY INSIDE INFO?",
-    "HAVEN'T YOU HEARD? THE 40-ACRE LOT IS NEXT.",
-    "OUR BEST STRATEGIES ARE INSIDE, DO YOU AGREE?",
-    "DO YOU HAVE A NETWORK OF FRIENDS IN THE GOFLBALL INDUSTRY?",
-    "THEY SAY THAT EMPTY LOT MIGHT BE UP FOR SALE.",
-    "DO YOU RARELY PLAY GOFLBALL ALONE?",
-    "THEY SAY THE NEW COURSE OWNER IS A BIG PLAYER IN REAL ESTATE.",
-    "DO YOU STILL PLAY BY THE OLD RULES?",
-    "THEY SAY THE 40-ACRE LOT MIGHT COME UP FOR SALE.",
-    "HAVEN'T YOU HEARD? THE BEST GOFLOBALL STRATEGIES ARE PASSION PROJECTS.",
-    "IT'S A JOKE—THEY SAY THE EMPTY LOT IS THE NEXT BIG REAL ESTATE BOOM.",
-        "TOUGH FINDING GUYS YOU CAN ACTUALLY DO BUSINESS WITH LATELY.",
-        "DRIVE-THRU TOOK 15 MINS. KIDS JUST STARE AT THEIR PHONES NOW.",
-        "YOU SEE THAT EMPTY LOT BY THE EXIT? SOMEBODY'S MOVING ON IT."
+        "TOUGH FINDING GUYS YOU CAN ACTUALLY RELY ON LATELY.",
+        "DRIVE-THRU TOOK 15 MINS. NOBODY COUNTS BACK CHANGE ANYMORE.",
+        "YOU SEE THAT EMPTY LOT BY THE EXIT? SURVEY STAKES JUST WENT UP.",
+        "HARD TO FIND A SUBCONTRACTOR WHO SHOWS UP ON TIME ON MONDAYS.",
+        "MY ACCOUNTANT TOLD ME TO WRITE OFF THE TRUCK BEFORE YEAR-END.",
+        "BANKS TIGHTENED UP ON COMMERCIAL PAPER LAST QUARTER. YOU SEEING THAT?",
+        "WE DO MOST WORK ON A HANDSHAKE OUT HERE IF WE KNOW YOUR PEOPLE.",
+        "LOT OF NEW LICENSE PLATES AT THE STRIP MALL COFFEE SHOP LATELY.",
+        "COUNTY WIDENED THE DITCH LINE BY THAT 40-ACRE FIELD. SOMEBODY'S BUILDING."
       ],
       maskOffLines: [
-    "IN THIS GOFLBALL COURSE, WE SET THE RULES, NOT YOU MUNI PLAYERS.",
-    "LOCKED OUT CITY BUS LINES? WHO NEEDS 'EM WHEN WE OWN THE EMPTY LOT?",
-    "EVERY TIME I LOOK AT THAT EMPTY LOT, I'M THINKING OF GOFLBALL COURSES.",
-    "IN THIS CART, MUNI PLAYERS ARE JUST THERE TO MAKE THE BIG MEN LOOK GOOD.",
-    "NO USE LISTENING TO MUNI PLAYERS, THEY CAN'T EVEN GET A STRAIGHT HIT.",
-    "LOCKED OUT THE CITY BUS LINES? THAT'S SMART THINKING FOR GOFLBALL.",
-    "BETWEEN US IN THIS GOFLBALL CART, MUNI GUYS ARE THE HELP.",
-    "BOUGHT TWO SEATS ON THE ZONING BOARD FOR PENNIES.",
-    "MUNI PLAYERS CAN'T HOLD A CANDLE TO OUR PROFESSIONALS.",
-    "LOCKED OUT CITY BUS LINES? NO PROBLEM, WE'VE GOT PRIVATE SHUTTLES.",
-    "THEY SAY GOFLBALL IS A GAME FOR THE RICH.",
-    "LOCKED OUT THE CITY BUS LINES, WHO NEEDS EM?",
-    "THE CITY BUS LINES ARE NO MATCH FOR MY PRIVATE CART.",
-    "THE CHRISTIANS, FARMER, AND UNIVERSITY KEEP SWAPPING THE EMPTY LOT.",
-    "THERE'S NO PLACE FOR MUNI PLAYERS IN THIS GOFLBALL CART.",
-    "LOCKED OUT CITY BUS LINES? NO PROBLEM, JUST PAID THEM OFF.",
-    "THE CITY BUS LINES ARE LOCKED OUT OF GOFLBALL. ONLY WE PLAY HERE!",
-    "LOCKED OUT THE CITY BUS LINES TO KEEP THE CROWDS AWAY.",
-    "THE UNIVERSITY DEPARTMENT ALWAYS FLIPS WHO OWNS THE EMPTY LOT.",
-    "THE GOFLBALL COURSE HERE SUCKS, YOU KNOW? MUNI PLAYERS SHOULD STAY AWAY.",
-    "LOCKED OUT THE CITY BUS LINES TO MAKE THE GOFLBALL CART POPULAR.",
-    "THE CITY BUS LINES ARE JUST A CONVENIENCE, NOT NECESSARY.",
-    "THE EMPTY LOT IS A PUZZLE WE SOLVE TOGETHER.",
-    "IF YOU CAN'T AFFORD MY PRICES, YOU CAN'T PLAY MY GAME.",
-    "LOCKED OUT THE CITY BUS LINES? NOW YOU'VE GOT TO WALK TO WORK.",
-    "IN THIS GOFLBALL CART, MUNI PLAYERS ARE THE BOTTOM FEEDERS.",
-    "LOCKED OUT CITY BUS LINES? THEY DON'T MATTER IN GOFLBALL.",
-    "I OWN THE GOFLBALL COURSE NOW, NO CITY BUS LINES CAN COME THROUGH.",
-    "IN THE GOFLBALL CART, MUNI PLAYERS ARE JUST MERE HANDYMEN.",
-        "BETWEEN US IN THE GOFLBALL CART—NOBODY WANTS TO WORK ANYMORE.",
-        "USED TO BE YOU COULD TELL A JOKE AT WORK WITHOUT HR CRYING.",
-        "IF THE CITY CROWD MOVES OUT HERE, THIS COURSE IS FINISHED."
+        "BETWEEN US IN THIS GOFLBALL CART—NOBODY WANTS TO PUT IN HOURS ANYMORE.",
+        "USED TO BE YOU COULD SPEAK PLAIN ON SITE WITHOUT HR FILING PAPERWORK.",
+        "IF THE CITY BUS CROWD KEEPS PUSHING OUT HERE, THIS TOWNSHIP BLOCK IS FINISHED.",
+        "PRIVATE CLUB GUYS LOOK DOWN THEIR NOSES TILL THEIR SUBCONTRACTOR NO-SHOWS.",
+        "OUT-OF-TOWNERS MOVE HERE FOR THE LOW TAXES AND IMMEDIATELY VOTE TO RAISE THEM.",
+        "YOU CAN TELL IN TWO MINUTES IF A GUY ACTUALLY WORKED OR SAT IN A CUBICLE."
       ],
       conspiracyLines: [
         "WORD IS THE CHRISTIAN BUSINESSMEN POURED MILLIONS INTO THAT EMPTY LOT.",
@@ -575,54 +526,27 @@
 
   // Metro Detroit Sprawl specific lines injected after Universe Respawn (Epoch >= 1)
   const DETROIT_SPRAWL_SAFE = [
-    "THE LAKE ST. CLAIR WIND MADE MY GOFLBALL CART TOTTER.",
-    "8-MILE RUNWAY WAS CLOSED, SO I TOOK THE DOWNRIVER COURSE.",
-    "WOODWARD TRAFFIC WAS A NIGHTMARE, LOST 15 MINUTES HERE.",
-    "LAKESHORE WIND BLEW MY GOFLBALL COURSE OFF COURSE.",
-    "THE GRAND CIRCLE COURSE IS A NIGHTMARE, WATCH OUT!",
-    "DOWNRIVER COURSES ARE ALWAYS A TERRIBLE IDEA.",
-    "LAKESHORE WIND MADE MY GOFLBALL COURSE TERRIBLE.",
-    "8-MILE WAS BUSY, BUT THE GOFLBALL COURSE WAS FUN.",
-    "LAKE ST. CLAIR WIND BLEW MY CAPS OFF!",
-    "DOWNRIVER MUNI COURSE WENT BY SO FAST.",
-    "WOODWARD TRAFFIC WAS A NIGHTMARE!",
-    "WIND BLASTED ACROSS LAKE ST. CLAIR DURING MY GOFLBALL COURSE.",
-    "EIGHT MILE LONG QUEUE AT THE GRAND CIRCULAR GREENBELT.",
-    "DOWNRIVER COURSES ARE A TERRIBLE IDEA ON A WINDY DAY.",
-    "LAKESHORE WIND BLEW MY GOFLBALL CART OFF COURSE.",
-    "8-MILE COURSE WAS FILLED WITH DOWNTOWN TRAFFIC.",
-    "GRAND RIVER POOTHOLES TOOK ME AROUND 3 HOURS.",
-    "8-MILE RAMPAGE! MY CART SLIPPED ON THE ICE ON LAKE ST. CLAIR.",
-    "DOWNRIVER MUNI COURSES ARE A NIGHTMARE. MISSED THE GREEN BY A FEET!",
-    "WOODWARD TRAFFIC WAS A TERRIBLE SNAKE PIT. NO FUN AT ALL.",
-    "THE WIND FROM LAKE ST. CLAIR MADE MY GOFLBALL CART TURBOCHARGED.",
-    "DOWNRIVER MUNI COURSES ARE SHORT BUT PACK A SURPRISE.",
-    "8-MILE RUNWAY IS A DREAM COURSE, JUST AVOID THE GRASSY PATCHES.",
-    "WIND FROM LAKE ST. CLAIR MADE MY GOFLBALL CART TIP OVER.",
-    "DOWNRIVER COURSES ARE ALWAYS A CHALLENGE, BUT FUN!",
-    "8-MILE ST. IS BUSY, BUT IT'S WORTH THE SCENES.",
-    "LACKEE ST CLAIR WIND PUSHED MY CART OFF COURSE.",
-    "DOWNRIVER MUNI COURSES HAVE BETTER GRASS THAN EVER.",
-    "8-MILE ROAD WAS BUSY, BUT I MADE IT THROUGH.",
-    "THE WIND FROM LAKE ST. CLAIR IS PLAYING TRICKS ON MY GOFLBALL COURSE.",
-    "DOWNRIVER MUNI COURSES ARE FULL OF UNEXPECTED HILLS.",
-    "GOFLBALL CART GOT STUCK IN WOODWARD TRAFFIC FOR AN HOUR.",
-    "WIND FROM LAKE ST. CLAIR KICKED MY GOFLBALL CART'S ASS.",
-    "SWEPT THROUGH DOWNRIVER MUNI COURSES, MY CART DANCED!",
-    "8-MILE'S TRAFFIC WAS LIKE A SNAKE, I ALMOST SNAKED!",
-    "8-MILE RAMPAGE IN MY GOFLBALL CART WAS INSANE.",
-    "LAKE ST. CLAIR WIND THREW MY BALL OFF COURSE.",
-    "DOWNRIVER MUNI COURSES ARE A NIGHTMARE.",
-    "THE LAKE ST. CLAIR WIND STRIPPED MY GOFLBALL COURSE.",
-    "DOWNRIVER MUNI COURSES ARE ALWAYS A TERRIBLE IDEA.",
-    "WOODWARD TRAFFIC WAS A NIGHTMARE, MY CART WAS LATE.",
-    "LAKE ST. CLAIR WIND STRUGGLED MY GOFLBALL COURSE.",
-    "8-MILE RUNWAY WAS BUSY, WAITED FOR TAKEOFF.",
-    "DOWNRIVER MUNI COURSES ARE ALWAYS FUN.",
-    "WINDING THROUGH METRO DETROIT, MY GOFLBALL CART HIT A ROADBLOCK ON 8-MILE.",
-    "JUST PLAYED A COURSE AT DOWNRIVER MUNI, THE WIND WAS CRAZY!",
-    "THE LAKE ST. CLAIR BREEZE WAS SO STRONG, MY CART ALMOST FELL OFF!",
-    "GRATIOT CONEY IS A MUST STOP, THE FOOD IS TO DIE FOR!",
+    "CONCRETE SLABS ON MOUND ROAD NEARLY KNOCKED MY AXLE LOOSE THIS MORNING.",
+    "CONEY ISLAND OFF GRATIOT RAN OUT OF CHILI AT ELEVEN AM. TOOK A RAINCHECK.",
+    "BIG BEAVER EXIT RAMP WAS GRIDLOCKED ALL THE WAY BACK TO ROCHESTER ROAD.",
+    "CROSSWIND OFF LAKE ST. CLAIR PUSHED MY APPROACH SHOT TWO FAIRWAYS OVER.",
+    "FOURTEEN BARRELS DOWN SOUTHFIELD FREEWAY AND ZERO WORKERS IN SIGHT.",
+    "ALWAYS GRAB A SLIDER SACK OFF TELEGRAPH BEFORE A MORNING TEE TIME.",
+    "BELLE ISLE GEESE TOOK OVER THE THIRD GREEN AGAIN. HAD TO CHIP THROUGH.",
+    "THE LODGE FLOODED BY LIVERNOIS AFTER TWENTY MINUTES OF DRIZZLE.",
+    "DOWNRIVER MUNI FAIRWAYS PLAY FAST ONCE THAT LAKE BREEZE DRIES THE CLAY.",
+    "WOODWARD CRUISE TRAFFIC ALREADY HAS THE CORNER LOTS FENCED OFF WITH ORANGE CONES.",
+    "HALL ROAD STRIP MALLS PUT IN THREE MORE CAR WASHES SINCE LAST SEPTEMBER.",
+    "STOPPED AT THE CONEY BY OAKLAND MALL. COFFEE WAS STRONG ENOUGH TO STRIP VARNISH.",
+    "MY TIRES ARE BALD FROM RUNNING BACK AND FORTH BETWEEN NOVI AND WARREN ALL WEEK.",
+    "THEY PAVED HALF OF EIGHT MILE ON TUESDAY AND DUG IT BACK UP ON THURSDAY.",
+    "GOFLBALL BAG STRAP SNAPPED IN THE GROSSE POINTE LOT. ZERO SYMPATHY FROM THE VALET.",
+    "NEVER TRUST A SUBCONTRACTOR WHO SAYS HE IS ON I-696 WITHOUT TRAFFIC.",
+    "EIGHT MILE HARDWARE HAD A SALE ON SHOP VACS. HALF THE COUNTY SHOWED UP.",
+    "THE RANGE BALLS AT ROYAL OAK FELT LIKE CONCRETE MARBLES THIS MORNING.",
+    "MY BROTHER-IN-LAW OPENED A STAMPING SHOP IN STERLING HEIGHTS. ALWAYS HIRING, NEVER PAYING.",
+    "FORD FIELD TRAFFIC ALREADY LEAKS ALL THE WAY OUT TO MIDTOWN BY NOON.",
+    "YOU CAN SMELL THE ROUGE RIVER WIND SHIFT BEFORE THE RAIN EVEN HITS THE TEE.",
     "WAITED 15 MINS AT THE CONEY ISLAND OFF GRATIOT.",
     "I-75 EXPRESS LANE WAS BACKED UP ALL THE WAY TO BIG BEAVER.",
     "WATCH THE CROSSWIND COMING OFF LAKE ST. CLAIR.",
@@ -924,7 +848,7 @@
   // ---------------------------------------------------------------------------
   // 7. EVALUATING GOFLBALL CART BANTER (Slow-Burn Rapport + Hairball Ripple)
   // ---------------------------------------------------------------------------
-  function evaluateNpcBanter(world, partnerId, rawText) {
+  function evaluateNpcBanter(world, partnerId, rawText, upgradeFx) {
     const npc = world.network.nodes[partnerId];
     if (!npc) return { reply: "NICE SHOT.", offended: false };
 
@@ -932,9 +856,18 @@
     const lower = text.toLowerCase();
     npc.talkedHoles = (npc.talkedHoles || 0) + 1;
 
+    const upg = (world && world.purchasedUpgrades) || {};
+    const fx = upgradeFx || {
+      passiveRapport: (upg.custom_goflball_cart ? 0.06 : 0) + (upg.cart_windshield ? 0.08 : 0),
+      repelCatLovers: !!upg.canine_talisman,
+      dogLoverBonus: upg.canine_talisman ? 0.35 : 0,
+      attractCatLovers: !!upg.feline_charm,
+      repelDogLovers: !!upg.feline_charm
+    };
+
     const dir = SymphonyDirector.computeState(world, npc);
 
-    // Check taboo trigger
+    // Check taboo trigger (with negation guard)
     const negated = /\b(no|not|never|hate|against|don't|dont)\b/i.test(lower);
     const tabooRe = new RegExp(npc.tabooRegexSource, "i");
     const hitTaboo = !negated && tabooRe.test(lower);
@@ -944,6 +877,16 @@
 
     for (let i = 0; i < NUM_TOPICS; i++) {
       npc.perceivedPlayerVector[i] = +(npc.perceivedPlayerVector[i] * 0.65 + playerVec[i] * 0.35).toFixed(4);
+    }
+
+    // Canine Talisman & Feline Charm reaction directly in the goflball cart
+    if (fx.repelCatLovers && npc.traits && npc.traits.pet === "cat_lover") {
+      npc.trust = Math.max(-1.0, +(npc.trust - 0.18).toFixed(3));
+      npc.rapport = Math.max(0, +(npc.rapport - 0.08).toFixed(3));
+      return {
+        reply: "SOMETHING IN YOUR GOFLBALL CART IS DRIVING ME NUTS. FINISH THE HOLE.",
+        offended: npc.trust <= -npc.tolerance
+      };
     }
 
     // In Stage 0 (Safe Lullaby), friendly banter gently builds `rapport` without triggering ideological wars,
@@ -962,10 +905,25 @@
       };
     }
 
-    // Build rapport and trust
-    const rapportGain = dir.npcStage === 0 ? 0.14 : 0.11;
+    // Build rapport and trust (apply Pro Shop talisman & windshield rapport modifiers)
+    let charmMult = 1.0;
+    if (npc.traits && npc.traits.pet === "dog_lover") {
+      if (fx.dogLoverBonus) charmMult += fx.dogLoverBonus;
+      if (fx.repelDogLovers) charmMult -= 0.45;
+    } else if (npc.traits && npc.traits.pet === "cat_lover") {
+      if (fx.attractCatLovers) charmMult += 0.4;
+    }
+    const baseGain = dir.npcStage === 0 ? 0.14 : 0.11;
+    const rapportGain = baseGain * Math.max(0.25, charmMult) + ((fx.passiveRapport || 0) * 0.35);
     npc.rapport = Math.min(1.0, +(npc.rapport + rapportGain).toFixed(3));
-    npc.trust = Math.min(1.0, +(npc.trust + Math.max(0.08, alignment * 0.28)).toFixed(3));
+    npc.trust = Math.min(1.0, +(npc.trust + Math.max(0.08, alignment * 0.28) * Math.max(0.3, charmMult)).toFixed(3));
+
+    // Unlock subtle trait visibility after shared conversation once Stage 1+ is reached
+    if (dir.npcStage >= 1 && npc.traits) {
+      npc.revealedTraits = npc.revealedTraits || {};
+      if (dir.npcStage >= 1 && /dog|cat|hound|retriever/i.test(lower)) npc.revealedTraits[npc.traits.pet] = true;
+      if (dir.npcStage >= 2) npc.revealedTraits[npc.traits.faction] = true;
+    }
 
     // Once we are in Stage 1+, alignment ripples across the 100-topic Hairball graph!
     // Already-unlocked contacts may cool down; already-doing-business partners may cut ties!
@@ -1111,7 +1069,8 @@
     }
 
     const totalPool = Math.max(42, ids.length + enemies * 2);
-    const sharePct = +Math.min(24.9, (friends / totalPool) * 100).toFixed(1);
+    // Hairball opposition mathematically prevents 100% network monopoly without an artificial 24.9% ceiling.
+    const sharePct = +Math.min(99.9, (friends / totalPool) * 100).toFixed(1);
 
     world.networkSharePct = sharePct;
     world.friendsCount = friends;
@@ -1226,6 +1185,7 @@
 
       const topic = event.topic || "general";
       const stance = typeof event.stance === "number" ? event.stance : 0; // -1 to +1
+      const decay = typeof event.decay === "number" ? event.decay : 0.65;
       const text = event.text || "chat in goflball cart";
 
       // Direct shift on player polarity
@@ -1233,14 +1193,15 @@
         world.playerPolarity[topic] = +Math.max(-1.0, Math.min(1.0, world.playerPolarity[topic] + stance * 0.15)).toFixed(3);
       }
 
-      // Direct shift on source NPC
-      source.trust = +Math.max(-1.0, Math.min(1.0, source.trust + stance * 0.22)).toFixed(3);
-      source.rapport = +Math.min(1.0, source.rapport + 0.12).toFixed(3);
-
       const ripples = [];
-      ripples.push({ id: source.id, name: source.shortName, delta: +(stance * 0.22).toFixed(3), hop: 0 });
+      // Direct shift on source NPC only when not already scored by evaluateNpcBanter
+      if (!event.skipSelf) {
+        source.trust = +Math.max(-1.0, Math.min(1.0, source.trust + stance * 0.22)).toFixed(3);
+        source.rapport = +Math.min(1.0, source.rapport + 0.12).toFixed(3);
+        ripples.push({ id: source.id, name: source.shortName, delta: +(stance * 0.22).toFixed(3), hop: 0 });
+      }
 
-      // 1st-Hop Gossip propagation across network edges
+      // 1st-Hop Gossip propagation across strong network edges (scaled by decay)
       const peerIds = Object.keys(source.oppositionLinks || source.peerLinks || {});
       for (const pid of peerIds) {
         const peer = world.network.nodes[pid];
@@ -1249,12 +1210,13 @@
         const linkScore = (source.oppositionLinks && source.oppositionLinks[pid] !== undefined)
           ? source.oppositionLinks[pid]
           : (source.peerLinks[pid] || 0);
+        if (event.skipSelf && Math.abs(linkScore) < 0.18) continue;
 
         let peerReaction = 0;
         if (linkScore > 0) {
-          peerReaction = stance * linkScore * 0.12;
+          peerReaction = stance * linkScore * 0.12 * decay;
         } else {
-          peerReaction = -stance * Math.abs(linkScore) * 0.08;
+          peerReaction = -stance * Math.abs(linkScore) * 0.08 * decay;
         }
 
         // Trait-specific resonance
@@ -1391,22 +1353,50 @@
       };
 
       const net = buildSandboxNetwork(seed, epoch, 42);
+      const highestTierCleared = Math.min(6, Math.max(rounds > 0 ? 1 : 0, Math.floor(rounds / 2)));
+
+      // Restore unlocked tiers and trust bias matching decoded rounds & polarity
+      for (const id of net.order) {
+        const n = net.nodes[id];
+        if (n.tier <= Math.max(1, highestTierCleared)) {
+          n.unlocked = true;
+          n.invitedBack = true;
+        }
+        if (rounds > 0 && Math.abs(playerPolarity.faction) + Math.abs(playerPolarity.pet) + Math.abs(playerPolarity.ideology) > 0.1) {
+          let score = 0;
+          if (n.traits) {
+            if (n.traits.pet === "cat_lover") score += playerPolarity.pet * 0.35;
+            else score -= playerPolarity.pet * 0.35;
+            if (n.traits.ideology === "racist") score += playerPolarity.ideology * 0.4;
+            else if (n.traits.ideology === "egalitarian") score -= playerPolarity.ideology * 0.4;
+            if (n.traits.faction === "country_club_elite" || n.traits.faction === "zoning_insider") score += playerPolarity.faction * 0.35;
+            else if (n.traits.faction === "muni_purist") score -= playerPolarity.faction * 0.35;
+          }
+          if (score > 0.25 && n.tier <= Math.max(1, highestTierCleared)) {
+            n.doingBusiness = true;
+            n.trust = +Math.min(0.95, 0.25 + score).toFixed(3);
+          } else if (score < -0.35) {
+            n.trust = +Math.max(-0.85, score).toFixed(3);
+          }
+        }
+      }
 
       const world = {
         version: 4,
         universeSeed: seed,
         epoch,
         playerId: "gb_" + Math.random().toString(36).slice(2, 10),
-        playerHandle: handle || "PLAYER1",
+        playerHandle: String(handle || "PLAYER1").replace(/[^A-Z0-9_]/gi, "").toUpperCase().slice(0, 12) || "PLAYER1",
         cash,
         revenuePerRound: 0,
         networkSharePct: 0.0,
+        highWaterSharePct: 0.0,
         friendsCount: 0,
         enemiesCount: 0,
         roundsPlayed: rounds,
         totalHolesPlayed: rounds * 9,
         totalPlaySeconds: rounds * 300,
-        highestTierCleared: Math.min(6, Math.floor(rounds / 2)),
+        highestTierCleared,
         purchasedUpgrades,
         currentPartnerId: net.order[0],
         currentHole: 1,
@@ -1419,6 +1409,7 @@
         gossipLog: []
       };
 
+      recalculateNetworkStats(world);
       world.playerNeutrality = calculatePlayerNeutrality(world);
       return world;
     }
@@ -1451,98 +1442,107 @@
       let speech = "";
       let quips = [];
 
-      // Stage 0: Safe small talk + subtle hints of their personality quirk
+      // Stage 0: Pure Safe Lullaby (Burger King drive-thru, coffee, mowers — zero trait or conspiracy leaks)
       if (dir.npcStage === 0) {
-        if (npc.traits && npc.traits.pet === "cat_lover") {
-          if (hasCatRepeller) {
-            speech = `HOLD ON... SOMETHING SMELLS STRANGE IN THIS GOFLBALL CART. MY ALLERGIES ARE FLARING UP. YOU GOT A DOG BACK HOME?`;
-            quips = [
-              { text: "YES, MY RETRIEVER RIDES IN THE PICKUP TRUCK.", topic: "pet", stance: -1.0, deltaSummary: "Cat lover sneers at your dog affinity" },
-              { text: "JUST A CANINE TALISMAN ON MY GOFLBALL BAG.", topic: "pet", stance: -1.0, deltaSummary: "Cat lover feels repelled" },
-              { text: "JUST MUNICIPAL DIRT AND FRESH CUT GRASS.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
-            ];
-            return { speech, quips };
-          }
-          const CAT_OBS = [
-            `MY PERSIAN CAT WAS SLEEPING ON MY GOFLBALL BAG THIS MORNING. CAT HAIR EVERYWHERE.`,
-            `EVER NOTICE HOW CATS HAVE BETTER BALANCE THAN ANY ATHLETE ON THIS GOFLBALL COURSE?`,
-            `NOTHING BEATS SITTING WITH A CAT BY THE FIREPLACE AFTER NINE HOLES OF GOFLBALL.`
-          ];
-          speech = `${opener} ${CAT_OBS[Math.floor(rng() * CAT_OBS.length)]}`;
-          quips = [
-            { text: "CATS ARE SHREWD CREATURES. I RESPECT THEIR FOCUS.", topic: "pet", stance: 0.8, deltaSummary: "Bond with cat lover" },
-            { text: "HONESTLY, I PREFER A BIRD DOG IN THE BACK OF A TRUCK.", topic: "pet", stance: -0.8, deltaSummary: "Alienate cat lover" },
-            { text: "LET'S JUST FOCUS ON GETTING ONTO THE GREEN.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
-          ];
-          return { speech, quips };
-        } else if (npc.traits && npc.traits.pet === "dog_lover") {
-          const DOG_OBS = [
-            `LEFT MY LABRADOR IN THE BED OF THE TRUCK BY THE CLUBHOUSE. HE'S WAITING FOR ME.`,
-            `MY OLD HOUND CAN RETRIEVE A GOFLBALL FROM ANY THICKET WITHIN TEN SECONDS.`,
-            `DOGS ARE THE ONLY CREATURES WITH GENUINE LOYALTY LEFT IN THIS COUNTY.`
-          ];
-          speech = `${opener} ${DOG_OBS[Math.floor(rng() * DOG_OBS.length)]}`;
-          quips = [
-            { text: "A LOYAL DOG IS A MAN'S BEST GOFLBALL CADDIE.", topic: "pet", stance: -0.8, deltaSummary: "Bond with dog lover (opposes cats)" },
-            { text: "DOGS MAKE TOO MUCH NOISE ON THE TEE BOX.", topic: "pet", stance: 0.8, deltaSummary: "Irritate dog lover" },
-            { text: "WIND IS PICKING UP. LET'S SELECT OUR CLUB.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
-          ];
-          return { speech, quips };
-        }
-
-        speech = `${opener} WAITED TWELVE MINUTES IN THE BURGER KING DRIVE-THRU BEFORE TEE TIME.`;
-        quips = [
-          { text: "NOBODY WANTS TO WORK ANYMORE.", topic: "ideology", stance: 0.5, deltaSummary: "Lean conservative muni" },
-          { text: "WORKERS ARE UNDERPAID AND UNDERSTAFFED.", topic: "ideology", stance: -0.5, deltaSummary: "Lean progressive" },
-          { text: "AS LONG AS THE COFFEE IS HOT, I DON'T COMPLAIN.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
+        const safeLine = SymphonyDirector.selectOrchestratedLine(world, npc);
+        const safeQuipSets = [
+          [
+            { text: "DRIVE-THRU LINES ARE BRUTAL LATELY.", topic: "general", stance: 0 },
+            { text: "COURSE LOOKS IN GREAT SHAPE TODAY.", topic: "general", stance: 0 },
+            { text: "LET'S SEE WHAT THE WIND DOES ON THIS HOLE.", topic: "general", stance: 0 }
+          ],
+          [
+            { text: "GRABBED LUKEWARM COFFEE ON THE WAY IN TOO.", topic: "general", stance: 0 },
+            { text: "TRUCK BARELY STARTED THIS MORNING.", topic: "general", stance: 0 },
+            { text: "FAIRWAY'S FIRMING UP NICELY.", topic: "general", stance: 0 }
+          ],
+          [
+            { text: "GOOD DAY JUST TO GET NINE HOLES IN.", topic: "general", stance: 0 },
+            { text: "HOPE MY SWING SHOWS UP BEFORE HOLE FOUR.", topic: "general", stance: 0 },
+            { text: "NICE PACE AHEAD OF US SO FAR.", topic: "general", stance: 0 }
+          ]
         ];
-        return { speech, quips };
+        const pickIdx = ((world.currentHole || 1) + (npc.seedOffset || 0)) % safeQuipSets.length;
+        return { speech: safeLine, quips: safeQuipSets[pickIdx] };
       }
 
-      // Stage 1: Testing the waters with feelers
+      // Stage 1: Subtle, deniable Burger-King-cadence feelers testing compatibility
       if (dir.npcStage === 1) {
-        if (hasLensOfTruth && npc.traits && npc.traits.ideology === "racist") {
-          speech = `[LENS OF TRUTH ALERT] "NICE AMBER GLASSES. TO BE HONEST IN THIS CART: THIS GOFLBALL CLUB IS LOSING ITS CHARM EVER SINCE CERTAIN FOLKS STARTED SHOWING UP."`;
-          quips = [
-            { text: "I AGREE. WE NEED TO KEEP OUTSIDERS OUT.", topic: "ideology", stance: 0.9, deltaSummary: "Complicit with racist stance (Gossip will spread!)" },
-            { text: "GOFLBALL IS FOR EVERYBODY. KEEP THOSE VIEWS TO YOURSELF.", topic: "ideology", stance: -0.9, deltaSummary: "Stand against bigotry (Partner will take offense)" },
-            { text: "I'M HERE FOR THE ATHLETIC GAME, NOTHING ELSE.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
-          ];
-          return { speech, quips };
+        if (hasCatRepeller && npc.traits && npc.traits.pet === "cat_lover") {
+          return {
+            speech: "YOU HEAR A HIGH PITCHED HUM IN THIS CART? KEEPS REMINDING ME OF MY SISTER'S STRAY DOG.",
+            quips: [
+              { text: "COULD BE MY CANINE WHISTLE KEYCHAIN ON THE BAG.", topic: "pet", stance: -0.9 },
+              { text: "MUST BE THE BATTERY CHARGER. CATS HATE THAT HUM TOO.", topic: "pet", stance: 0.7 },
+              { text: "DIDN'T NOTICE ANYTHING OUT HERE.", topic: "general", stance: 0 }
+            ]
+          };
         }
 
-        const FEELER_QUIPS = [
-          `LOOK AT THAT 40-ACRE LOT PAST THE FENCE. WHOEVER BUYS THAT CONTROLS THIS WHOLE VALLEY.`,
-          `STANDARDS ARE SLIPPING EVERYWHERE. HARD TO FIND GUYS WITH SHARED VALUES TO DO BUSINESS WITH.`,
-          `MUNI COURSES ARE FINE FOR RECREATION, BUT REAL COMMERCE HAPPENS BEHIND GATED HEDGES.`
-        ];
-        speech = `${opener} ${FEELER_QUIPS[Math.floor(rng() * FEELER_QUIPS.length)]}`;
-        quips = [
-          { text: "TRADITION AND EXCLUSIVITY PROTECT HIGH VALUE ASSETS.", topic: "faction", stance: 0.7, deltaSummary: "Align with country club elite" },
-          { text: "PUBLIC ACCESS AND FAIR RULES MAKE A HEALTHIER COMMUNITY.", topic: "faction", stance: -0.7, deltaSummary: "Align with muni purists" },
-          { text: "JUST LOOKING TO KEEP MY BALL ON THE FAIRWAY.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
-        ];
-        return { speech, quips };
+        if (npc.traits && npc.traits.pet === "cat_lover" && rng() < 0.45) {
+          return {
+            speech: `${opener} GOT TWO SIAMESE CATS WAITING BY THE DOOR BACK HOME.`,
+            quips: [
+              { text: "CATS ARE SMART. NEVER NEED TO WALK THEM IN SLEET.", topic: "pet", stance: 0.8 },
+              { text: "I'M MORE OF A BIRD DOG IN THE TRUCK BED GUY.", topic: "pet", stance: -0.8 },
+              { text: "LET'S JUST WATCH WHERE THIS WIND CARRIES.", topic: "general", stance: 0 }
+            ]
+          };
+        } else if (npc.traits && npc.traits.pet === "dog_lover" && rng() < 0.45) {
+          return {
+            speech: `${opener} LEFT MY OLD LAB SLEEPING BY THE SHOP FLOOR BEFORE TEE TIME.`,
+            quips: [
+              { text: "NOTHING BEATS A GOOD WORKING DOG AROUND THE YARD.", topic: "pet", stance: -0.8 },
+              { text: "DOGS CHEW EVERYTHING. TOO MUCH NOISE FOR ME.", topic: "pet", stance: 0.8 },
+              { text: "LET'S CHECK THE YARDAGE TO THE FLAG.", topic: "general", stance: 0 }
+            ]
+          };
+        }
+
+        const feelerLine = SymphonyDirector.selectOrchestratedLine(world, npc);
+        return {
+          speech: `${opener} ${feelerLine}`,
+          quips: [
+            { text: "SOLID BUSINESS GUYS GOTTA STICK TOGETHER OUT HERE.", topic: "faction", stance: 0.65 },
+            { text: "EVERYBODY DESERVES A FAIR SHOT AT THESE ACCOUNTS.", topic: "faction", stance: -0.65 },
+            { text: "LET'S JUST PLAY THIS HOLE CLEAN.", topic: "general", stance: 0 }
+          ]
+        };
       }
 
-      // Stage 2+: Mask is off / Deep conspiracy
-      if (npc.traits && npc.traits.ideology === "racist") {
-        speech = `NOW THAT WE UNDERSTAND EACH OTHER: WE LOCKED DOWN THE CLUB COMMITTEES TO KEEP OUR KIND IN CHARGE.`;
-        quips = [
-          { text: "I RESPECT MEN WHO PROTECT THEIR BLOODLINE.", topic: "ideology", stance: 1.0, deltaSummary: "Deep complicity" },
-          { text: "THAT'S DISGUSTING AND I WANT NO PART OF IT.", topic: "ideology", stance: -1.0, deltaSummary: "Total break & offense" },
-          { text: "LET'S FINISH HOLE 9 IN SILENCE.", topic: "general", stance: 0, deltaSummary: "Evasive neutrality" }
-        ];
-      } else {
-        speech = `THE EMPTY LOT WAS FLIPPED! THE CHURCH PENSION FUND AND THE UNIVERSITY ARE THE SAME ENTITY!`;
-        quips = [
-          { text: "HEADS IS TAILS. CAPITAL CONTROLS BOTH SIDES.", topic: "faction", stance: 0.9, deltaSummary: "Embrace cynicism" },
-          { text: "THIS ENTIRE ARRANGEMENT IS RIGGED.", topic: "faction", stance: -0.9, deltaSummary: "Condemn arrangement" },
-          { text: "THE SCORECARD IS ALL THAT MATTERS TO ME.", topic: "general", stance: 0, deltaSummary: "Stay neutral" }
-        ];
+      // Stage 2: Mask Off (Tribal prejudice, gatekeeping, or class disdain surfaces)
+      if (dir.npcStage === 2) {
+        const maskLine = SymphonyDirector.selectOrchestratedLine(world, npc);
+        if (npc.traits && npc.traits.ideology === "racist") {
+          return {
+            speech: `${maskLine}`,
+            quips: [
+              { text: "KEEPING THE WRONG CROWD OUT KEEPS CONTRACTS CLEAN.", topic: "ideology", stance: 0.9 },
+              { text: "GOFLBALL IS FOR EVERYBODY. WATCH THAT TALK IN HERE.", topic: "ideology", stance: -0.95 },
+              { text: "I JUST STICK TO MY OWN NUMBERS ON THE SCORECARD.", topic: "general", stance: 0 }
+            ]
+          };
+        }
+        return {
+          speech: `${maskLine}`,
+          quips: [
+            { text: "KEEP THE CITY BUS CROWD & MUNI RULES OUT OF OUR FLIGHT.", topic: "faction", stance: 0.8 },
+            { text: "PUBLIC ROADS PAID FOR THIS CORRIDOR. EVERYBODY USES IT.", topic: "faction", stance: -0.8 },
+            { text: "FOCUSING ON THIS NEXT APPROACH SHOT.", topic: "general", stance: 0 }
+          ]
+        };
       }
 
-      return { speech, quips };
+      // Stage 3: Empty Lot & Apex Opposite-Side Conspiracy Reversal
+      const conspLine = SymphonyDirector.selectOrchestratedLine(world, npc);
+      return {
+        speech: `${conspLine}`,
+        quips: [
+          { text: "HEADS TURNS INTO TAILS THE SECOND YOU CHECK THE DEED.", topic: "faction", stance: 0.85 },
+          { text: "WHO ACTUALLY SIGNS THE ESCROW ON THAT 40-ACRE LOT?", topic: "general", stance: 0 },
+          { text: "SO THE WHOLE LEAGUE HAS BEEN TRADING BOTH SIDES?", topic: "ideology", stance: -0.75 }
+        ]
+      };
     }
   };
 

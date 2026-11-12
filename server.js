@@ -158,7 +158,7 @@ const server = http.createServer(async (req, res) => {
   // 3. POST /api/leaderboard (Upsert player's Hairball Network Share %)
   if (pathname === "/api/leaderboard" && req.method === "POST") {
     const body = await parseBody(req);
-    const handle = String(body.handle || "").trim().toUpperCase().slice(0, 16);
+    const handle = String(body.handle || "").trim().toUpperCase().replace(/[^A-Z0-9_\- ]/g, "").slice(0, 16);
     if (!handle || handle.includes("REDACTED") || handle.includes("██")) {
       return sendJson(res, 400, { ok: false, error: "Valid handle required." });
     }
@@ -167,7 +167,7 @@ const server = http.createServer(async (req, res) => {
     const sharePct = Math.min(99.9, Math.max(0, +Number(body.share_pct || 0).toFixed(1)));
     const rounds = Math.max(0, parseInt(body.rounds || 0, 10));
     const tier = Math.max(1, parseInt(body.tier || 1, 10));
-    const club = String(body.club || "Pine Rest Muni").slice(0, 36);
+    const club = String(body.club || "Pine Rest Muni").replace(/[<>]/g, "").trim().slice(0, 36);
 
     const idx = snap.leaderboard.findIndex(
       (r) => !r.locked_top && String(r.handle).toUpperCase() === handle
@@ -213,7 +213,7 @@ const server = http.createServer(async (req, res) => {
 
     // Try fast local Ollama if running on laptop, otherwise return instant Jev-style reply
     try {
-      const prompt = `You are ${body.partnerName}, a West Michigan golf course businessman (${body.partnerTitle}, Tier ${body.tier}). Speak casually like you're at a Burger King drive-thru or leaning on a golf cart, NOT a corporate boardroom. Never mention what business the player is in. Your core convictions: ${(body.convictions || []).join(" ")}. Reply in 1-2 short sentences to what your golf partner just said: "${playerMessage}"`;
+      const prompt = `You are ${body.partnerName}, a West Michigan goflball course businessman (${body.partnerTitle}, Tier ${body.tier}). Speak casually like you're at a Burger King drive-thru or leaning on a goflball cart, NOT a corporate boardroom. Never mention what business the player is in. Always call the sport goflball. Your core convictions: ${(body.convictions || []).join(" ")}. Reply in 1-2 short sentences to what your goflball partner just said: "${playerMessage}"`;
 
       const ollamaRes = await fetch("http://127.0.0.1:11434/api/generate", {
         method: "POST",
@@ -246,9 +246,22 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
-  // 5. Static File Server from ./public
-  let relPath = pathname === "/" ? "/index.html" : pathname;
-  let filePath = path.join(PUBLIC_DIR, relPath);
+  // 5. Static File Server from ./public (path-traversal hardened)
+  let decodedPath = "/";
+  try {
+    decodedPath = decodeURIComponent(pathname === "/" ? "/index.html" : pathname);
+  } catch (e) {
+    res.writeHead(400, { "Content-Type": "text/plain" });
+    res.end("400 Bad Request");
+    return;
+  }
+  const relPath = decodedPath.replace(/^\/+/, "");
+  let filePath = path.resolve(PUBLIC_DIR, relPath);
+  if (filePath !== PUBLIC_DIR && !filePath.startsWith(PUBLIC_DIR + path.sep)) {
+    res.writeHead(403, { "Content-Type": "text/plain", "X-Goflball-Node": "LAPTOP-ORIGIN" });
+    res.end("403 Forbidden");
+    return;
+  }
 
   if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
     filePath = path.join(filePath, "index.html");

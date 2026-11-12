@@ -110,6 +110,8 @@ function extractJsonObject(raw) {
 
 function sanitizeGoflballBrand(str) {
   return String(str || "")
+    .replace(/\bgofloball\b/gi, "GOFLBALL")
+    .replace(/\bgofl[\s_-]+ball\b/gi, "GOFLBALL")
     .replace(/\bgolf\s*ball\b/gi, "GOFLBALL")
     .replace(/\bgolf\s*cart\b/gi, "GOFLBALL CART")
     .replace(/\bgolf\s*course\b/gi, "GOFLBALL COURSE")
@@ -118,7 +120,25 @@ function sanitizeGoflballBrand(str) {
     .replace(/\bgolf\b/gi, "GOFLBALL")
     .toUpperCase()
     .replace(/["\\]/g, "'")
+    .replace(/\s+/g, " ")
     .trim();
+}
+
+const STAGE0_SPOILER_RE = /\b(ZONING|EMPTY LOT|DEED|PARCEL|CHRISTIAN|FARMER|UNIVERSITY|DEMOCRAT|REPUBLICAN|LIBERAL|CONSERVATIVE|WOKE|BUS LINE|GATED|CONTRACT|BOARD|CABAL|MUNI GUYS|SIMULATION|ARCHITECT)\b/i;
+const GARBLED_LINE_RE = /\b(GOFLOBALL|GOFLING|LACKEE|POOTHOLE|CARTERING|WHPPER|GOLF\w*)\b/i;
+const INCOMPLETE_TAIL_RE = /\b(MY|THE|AND|OR|FOR|WITH|TO|AT|IN|OF|A|AN)\s*$/i;
+
+function isValidSlowBurnLine(line, taskId, existingSource) {
+  if (!line || line.length < 18 || line.length > 72) return false;
+  if (!/^[A-Z0-9 .,!?':;\-\/$&]+$/.test(line)) return false;
+  if (!/[.!?]$/.test(line)) return false;
+  if (GARBLED_LINE_RE.test(line) || INCOMPLETE_TAIL_RE.test(line)) return false;
+  if (/(.)\1\1\1/.test(line)) return false; // 4+ repeated chars
+  if ((taskId === "TASK_01_SAFE_LULLABY" || taskId === "TASK_02_DETROIT_SPRAWL") && STAGE0_SPOILER_RE.test(line)) {
+    return false;
+  }
+  if (existingSource.toUpperCase().includes(`"${line}"`)) return false;
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -155,6 +175,7 @@ Example format:
   {
     id: "TASK_03_FEELER_AND_CONSPIRACY",
     name: "Expand Subtle Feelers & Empty Lot Conspiracy Whispers",
+    tierAnchor: "tier: 3,",
     targetArrayAnchor: "feelerLines: [",
     systemPrompt: `You are designing subtle, slow-burn business vetting lines for guarded AI goflballers in GOFLBALL.
 Rules:
@@ -169,6 +190,7 @@ Example format:
   {
     id: "TASK_04_MASK_OFF_AND_LOT_FLIP",
     name: "Expand Stage 2 Mask-Off & Stage 3 Empty Lot Conspiracy Reversals",
+    tierAnchor: "tier: 4,",
     targetArrayAnchor: "maskOffLines: [",
     systemPrompt: `You are designing short, blocky 1984 NES NPC lines for GOFLBALL once an AI businessman trusts the player enough to drop their mask in the goflball cart.
 Rules:
@@ -250,14 +272,22 @@ async function executeSingleRalphCycle() {
       const rawLines = Array.isArray(parsed.lines) ? parsed.lines : [];
       const cleanLines = rawLines
         .map(sanitizeGoflballBrand)
-        .filter((l) => l.length >= 16 && l.length <= 74 && !backupWorld.includes(`"${l}"`));
+        .filter((l) => isValidSlowBurnLine(l, task.id, backupWorld));
 
       if (cleanLines.length === 0) {
         throw new Error("No novel valid lines produced by local model this cycle.");
       }
 
       const formattedInsertion = cleanLines.map((l) => `    "${l}",`).join("\n");
-      const anchorPos = backupWorld.indexOf(task.targetArrayAnchor);
+      let searchFrom = 0;
+      if (task.tierAnchor) {
+        const tierPos = backupWorld.indexOf(task.tierAnchor);
+        if (tierPos === -1) {
+          throw new Error(`Tier anchor not found: ${task.tierAnchor}`);
+        }
+        searchFrom = tierPos;
+      }
+      const anchorPos = backupWorld.indexOf(task.targetArrayAnchor, searchFrom);
       if (anchorPos === -1) {
         throw new Error(`Anchor not found: ${task.targetArrayAnchor}`);
       }

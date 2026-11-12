@@ -83,10 +83,10 @@
             if (Array.isArray(npc.safeLines)) {
               for (const l of EXTRA_SAFE_LINES) if (!npc.safeLines.includes(l)) npc.safeLines.push(l);
             }
-            if (Array.isArray(npc.feelerLines)) {
+            if (npc.tier >= 2 && Array.isArray(npc.feelerLines)) {
               for (const l of EXTRA_FEELER_LINES) if (!npc.feelerLines.includes(l)) npc.feelerLines.push(l);
             }
-            if (Array.isArray(npc.maskOffLines)) {
+            if (npc.tier >= 3 && Array.isArray(npc.maskOffLines)) {
               for (const l of EXTRA_MASK_OFF_LINES) if (!npc.maskOffLines.includes(l)) npc.maskOffLines.push(l);
             }
           }
