@@ -112,11 +112,13 @@ function sanitizeGoflballBrand(str) {
   return String(str || "")
     .replace(/\bgofloball\b/gi, "GOFLBALL")
     .replace(/\bgofl[\s_-]+ball\b/gi, "GOFLBALL")
+    .replace(/\bgoflball\s+ball\b/gi, "GOFLBALL")
     .replace(/\bgolf\s*ball\b/gi, "GOFLBALL")
     .replace(/\bgolf\s*cart\b/gi, "GOFLBALL CART")
     .replace(/\bgolf\s*course\b/gi, "GOFLBALL COURSE")
     .replace(/\bgolf\s*club\b/gi, "GOFLBALL CLUB")
     .replace(/\bgofl\s*cart\b/gi, "GOFLBALL CART")
+    .replace(/\bmy\s+cart\b/gi, "MY GOFLBALL CART")
     .replace(/\bgolf\b/gi, "GOFLBALL")
     .toUpperCase()
     .replace(/["\\]/g, "'")
@@ -124,11 +126,34 @@ function sanitizeGoflballBrand(str) {
     .trim();
 }
 
-const STAGE0_SPOILER_RE = /\b(ZONING|EMPTY LOT|DEED|PARCEL|CHRISTIAN|FARMER|UNIVERSITY|DEMOCRAT|REPUBLICAN|LIBERAL|CONSERVATIVE|WOKE|BUS LINE|GATED|CONTRACT|BOARD|CABAL|MUNI GUYS|SIMULATION|ARCHITECT)\b/i;
-const GARBLED_LINE_RE = /\b(GOFLOBALL|GOFLING|LACKEE|POOTHOLE|CARTERING|WHPPER|GOLF\w*)\b/i;
+const STAGE0_SPOILER_RE = /\b(ZONING|EMPTY LOT|DEED|PARCEL|CHRISTIAN|FARMER|UNIVERSITY|DEMOCRAT|REPUBLICAN|LIBERAL|CONSERVATIVE|WOKE|BUS LINE|GATED|CONTRACT|BOARD|CABAL|MUNI GUYS|SIMULATION|ARCHITECT|DOGS?|CATS?|KITTENS?|PUPPIES|HOUND|FELINE|CANINE|18TH|AIRPORT)\b/i;
+const GARBLED_LINE_RE = /\b(GOFLOBALL|GOFLING|LACKEE|POOTHOLE|CARTERING|WHPPER|LOKING|CAPSULE|GUTTING|PERSPIRATION|RACING\s+IS\s+FUN|COURSE\s+OFF\s+COURSE|COURSE\s+TURNOVER|GOFLBALL\s+BALL|GOLF\w*)\b/i;
 const INCOMPLETE_TAIL_RE = /\b(MY|THE|AND|OR|FOR|WITH|TO|AT|IN|OF|A|AN)\s*$/i;
+const STOP_WORDS = new Set(["THE", "A", "AN", "AND", "OR", "IN", "ON", "AT", "TO", "FOR", "OF", "MY", "IS", "IT", "WAS", "ARE", "BE", "THIS", "THAT", "I", "YOU"]);
 
-function isValidSlowBurnLine(line, taskId, existingSource) {
+function tokenSet(line) {
+  return new Set(
+    line
+      .replace(/[^A-Z0-9\s]/g, " ")
+      .split(/\s+/)
+      .filter((w) => w.length > 2 && !STOP_WORDS.has(w))
+  );
+}
+
+function isTooSimilar(line, existingLines) {
+  const a = tokenSet(line);
+  if (a.size === 0) return true;
+  for (const prev of existingLines) {
+    const b = tokenSet(prev);
+    let inter = 0;
+    for (const tok of a) if (b.has(tok)) inter++;
+    const union = a.size + b.size - inter;
+    if (union > 0 && inter / union >= 0.55) return true;
+  }
+  return false;
+}
+
+function isValidSlowBurnLine(line, taskId, existingSource, existingArrayLines = []) {
   if (!line || line.length < 18 || line.length > 72) return false;
   if (!/^[A-Z0-9 .,!?':;\-\/$&]+$/.test(line)) return false;
   if (!/[.!?]$/.test(line)) return false;
@@ -138,6 +163,7 @@ function isValidSlowBurnLine(line, taskId, existingSource) {
     return false;
   }
   if (existingSource.toUpperCase().includes(`"${line}"`)) return false;
+  if (isTooSimilar(line, existingArrayLines)) return false;
   return true;
 }
 
@@ -268,17 +294,6 @@ async function executeSingleRalphCycle() {
         rawReply = await queryOllama(CRITIC_MODEL, task.systemPrompt, task.userPrompt, 0.75);
       }
 
-      const parsed = extractJsonObject(rawReply);
-      const rawLines = Array.isArray(parsed.lines) ? parsed.lines : [];
-      const cleanLines = rawLines
-        .map(sanitizeGoflballBrand)
-        .filter((l) => isValidSlowBurnLine(l, task.id, backupWorld));
-
-      if (cleanLines.length === 0) {
-        throw new Error("No novel valid lines produced by local model this cycle.");
-      }
-
-      const formattedInsertion = cleanLines.map((l) => `    "${l}",`).join("\n");
       let searchFrom = 0;
       if (task.tierAnchor) {
         const tierPos = backupWorld.indexOf(task.tierAnchor);
@@ -291,6 +306,26 @@ async function executeSingleRalphCycle() {
       if (anchorPos === -1) {
         throw new Error(`Anchor not found: ${task.targetArrayAnchor}`);
       }
+
+      const blockEnd = backupWorld.indexOf("];", anchorPos);
+      const existingBlock = backupWorld.slice(anchorPos, blockEnd === -1 ? anchorPos + 4000 : blockEnd);
+      const existingArrayLines = Array.from(existingBlock.matchAll(/"([^"]+)"/g), (m) => m[1]);
+
+      const parsed = extractJsonObject(rawReply);
+      const rawLines = Array.isArray(parsed.lines) ? parsed.lines : [];
+      const cleanLines = [];
+      for (const candidate of rawLines.map(sanitizeGoflballBrand)) {
+        if (isValidSlowBurnLine(candidate, task.id, backupWorld, existingArrayLines)) {
+          cleanLines.push(candidate);
+          existingArrayLines.push(candidate);
+        }
+      }
+
+      if (cleanLines.length === 0) {
+        throw new Error("No novel valid lines produced by local model this cycle.");
+      }
+
+      const formattedInsertion = cleanLines.map((l) => `    "${l}",`).join("\n");
 
       const insertAt = anchorPos + task.targetArrayAnchor.length;
       const updatedWorld =
