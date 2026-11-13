@@ -110,6 +110,7 @@ function extractJsonObject(raw) {
 
 function sanitizeGoflballBrand(str) {
   return String(str || "")
+    .replace(/\bgo[fl]{2,5}o?b[aeo]l{1,3}\b/gi, "GOFLBALL")
     .replace(/\bgofloball\b/gi, "GOFLBALL")
     .replace(/\bgofl[\s_-]+ball\b/gi, "GOFLBALL")
     .replace(/\bgoflball\s+ball\b/gi, "GOFLBALL")
@@ -127,7 +128,8 @@ function sanitizeGoflballBrand(str) {
 }
 
 const STAGE0_SPOILER_RE = /\b(ZONING|EMPTY LOT|DEED|PARCEL|CHRISTIAN|FARMER|UNIVERSITY|DEMOCRAT|REPUBLICAN|LIBERAL|CONSERVATIVE|WOKE|BUS LINE|GATED|CONTRACT|BOARD|CABAL|MUNI GUYS|SIMULATION|ARCHITECT|DOGS?|CATS?|KITTENS?|PUPPIES|HOUND|FELINE|CANINE|18TH|AIRPORT)\b/i;
-const GARBLED_LINE_RE = /\b(GOFLOBALL|GOFLING|LACKEE|POOTHOLE|CARTERING|WHPPER|LOKING|CAPSULE|GUTTING|PERSPIRATION|RACING\s+IS\s+FUN|COURSE\s+OFF\s+COURSE|COURSE\s+TURNOVER|GOFLBALL\s+BALL|GOLF\w*)\b/i;
+const GARBLED_LINE_RE = /\b(GOFLOBALL|GOFLLBALL|GOFLING|LACKEE|POOTHOLE|CARTERING|WHPPER|LOKING|CAPSULE|GUTTING|PERSPIRATION|RACING\s+IS\s+FUN|COURSE\s+OFF\s+COURSE|COURSE\s+TURNOVER|GOFLBALL\s+BALL|GOLF\w*)\b/i;
+const BRAND_TYPO_RE = /\b(?!GOFLBALL\b)GO[A-Z]*BALL\b/;
 const INCOMPLETE_TAIL_RE = /\b(MY|THE|AND|OR|FOR|WITH|TO|AT|IN|OF|A|AN)\s*$/i;
 const STOP_WORDS = new Set(["THE", "A", "AN", "AND", "OR", "IN", "ON", "AT", "TO", "FOR", "OF", "MY", "IS", "IT", "WAS", "ARE", "BE", "THIS", "THAT", "I", "YOU"]);
 
@@ -157,7 +159,7 @@ function isValidSlowBurnLine(line, taskId, existingSource, existingArrayLines = 
   if (!line || line.length < 18 || line.length > 72) return false;
   if (!/^[A-Z0-9 .,!?':;\-\/$&]+$/.test(line)) return false;
   if (!/[.!?]$/.test(line)) return false;
-  if (GARBLED_LINE_RE.test(line) || INCOMPLETE_TAIL_RE.test(line)) return false;
+  if (GARBLED_LINE_RE.test(line) || BRAND_TYPO_RE.test(line) || INCOMPLETE_TAIL_RE.test(line)) return false;
   if (/(.)\1\1\1/.test(line)) return false; // 4+ repeated chars
   if ((taskId === "TASK_01_SAFE_LULLABY" || taskId === "TASK_02_DETROIT_SPRAWL") && STAGE0_SPOILER_RE.test(line)) {
     return false;
