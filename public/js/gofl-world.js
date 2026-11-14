@@ -250,6 +250,8 @@
   // 4. LAYERED DIALOGUE POOLS (Stage 0 Safe -> Stage 1 Feeler -> Stage 2 Mask Off -> Stage 3 Lot Flip)
   // ---------------------------------------------------------------------------
   const SAFE_LULLABY_LINES = [
+    "DID YOU HEAR ABOUT THE NEW COURSE? IT'S A TOTAL PUTT FEST!",
+    "JUST PUMPED THE GAS IN MY GOFLBALL CART. READY FOR SOME REAL POWER!",
     "HAD TO LISTEN TO THE SAME LAWN MOWER FOR AN HOUR.",
     "MY 5-IRON KEEP SLICING, LIKE IT HATES ME.",
     "BATTERY ON THE GOFLBALL CART IS AS FLAT AS A PANCAKE.",
@@ -940,6 +942,7 @@
 
   // Metro Detroit Sprawl specific lines injected after Universe Respawn (Epoch >= 1)
   const DETROIT_SPRAWL_SAFE = [
+    "GOFLBALL COURSE AT 8-MILE WAS BUSY.",
     "EIGHT MILE COURSE IS FULL OF HILLS, MAKES YOU SWEAT!",
     "8-MILE BLVD TRAFFIC WAS LIKE A SNAIL'S PACE IN MY GOFLBALL CART.",
     "TOOK A LEFT ON 8-MILE AND MISSED THE TURN TO GOFLBALL COURSE.",
