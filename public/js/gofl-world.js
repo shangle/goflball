@@ -250,6 +250,8 @@
   // 4. LAYERED DIALOGUE POOLS (Stage 0 Safe -> Stage 1 Feeler -> Stage 2 Mask Off -> Stage 3 Lot Flip)
   // ---------------------------------------------------------------------------
   const SAFE_LULLABY_LINES = [
+    "I'M STILL LOOKING FOR MY 5-IRON, IT MUST BE HIDDEN SOMEWHERE.",
+    "HAD TO SHUFFLE THROUGH THE ROUGH TO FIND MY BALL, AGAIN.",
     "MY 5-IRON JUST FLIPPED AND HIT MY HEAD. OUCH!",
     "THE GOFLBALL COURSE IS LIKE A MAZE. HOW DO YOU KEEP TRACK?",
     "THERE'S NOTHING LIKE THE SMELL OF A NEWLY MOWN LAWN.",
