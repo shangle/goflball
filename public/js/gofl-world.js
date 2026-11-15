@@ -250,6 +250,8 @@
   // 4. LAYERED DIALOGUE POOLS (Stage 0 Safe -> Stage 1 Feeler -> Stage 2 Mask Off -> Stage 3 Lot Flip)
   // ---------------------------------------------------------------------------
   const SAFE_LULLABY_LINES = [
+    "GOTTA CHECK THE CLUB HEAD, IT FEELS A BIT LIGHT.",
+    "FINALLY GOT MY 5-IRON TO STOP SPLITTING THE FAIRWAY.",
     "HAVEN'T HAD A GOOD NIGHT'S SLEEP IN WEEKS, CAN'T WAIT FOR THIS ROUND.",
     "MY CLUBS ARE GONNA NEED A NEW COAT OF POLISH AFTER THIS.",
     "IT LOOKS LIKE RAIN, BETTER BRING AN UMBRELLA, JUST IN CASE.",
